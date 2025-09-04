@@ -1,0 +1,11 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    cpus: 0.5
+    mem_limit: 64m
+    entrypoint:
+      /bin/sh -c "echo listener 1883 > /mosquitto/config/mosquitto.conf && echo allow_anonymous true >> /mosquitto/config/mosquitto.conf && /docker-entrypoint.sh /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"

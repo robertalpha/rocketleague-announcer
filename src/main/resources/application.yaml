@@ -1,0 +1,11 @@
+ktor:
+    application:
+        modules:
+            - nl.vanalphenict.ApplicationKt.module
+    deployment:
+        port: 8080
+
+themes:
+    default:
+        - double_kill: default/double_kill.mp3
+
