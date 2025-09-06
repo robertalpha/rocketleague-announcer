@@ -8,43 +8,18 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import nl.vanalphenict.module
-import nl.vanalphenict.util.TestMessage
 import org.testcontainers.junit.jupiter.Testcontainers
 
 @Testcontainers
 class MessagingTest : AbstractMessagingTest() {
 
+
     @Test
     fun testLines() = testApplication {
-
-        val testFile = "RL_Log.txt"
-
-
-        val messages = parseMessagesFromResource(testFile)
-
-        application {
-            val mappedPort = mosquitto.getMappedPort(1883)
-            module(mappedPort)
-        }
-        client = createClient {
-            install(ContentNegotiation) {
-                json()
-            }
-        }
-
-       messages.forEach {
-           client.post("/") {
-               contentType(ContentType.Application.Json)
-               setBody(it)
-           }
-       }
-    }
-
-
-    @Test
-    fun testNewLines() = testApplication {
 
         val testFile = "RL_log_20250903.txt"
 
@@ -69,20 +44,23 @@ class MessagingTest : AbstractMessagingTest() {
        }
     }
 
-    private fun parseMessagesFromResource(testFile: String): List<TestMessage> {
+    private fun parseMessagesFromResource(testFile: String): List<String> {
         val stream = javaClass.getClassLoader().getResourceAsStream(testFile)
 
         val lines = String(stream.readAllBytes()).lines()
-        val messages = lines.filter { it.isNotBlank() }.map {
+        val messages = lines.filter { it.isNotBlank() }.sortedBy {
             try {
-                Json.decodeFromString(TestMessage.serializer(), it)
+                Json.decodeFromString(MessageLine.serializer(), it).timestamp
             } catch (e: Exception) {
-                println(it)
-                println(it)
+                println("could nor parse MessageLine: $it$")
                 throw e
             }
-        }.sortedBy { it.timestamp }
+        }
         return messages
     }
+
+    @Serializable
+    @JsonIgnoreUnknownKeys
+    data class MessageLine(val topic: String, val timestamp: String)
 
 }

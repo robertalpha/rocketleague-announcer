@@ -37,15 +37,13 @@ class MessagingClient(
         client.setCallback(object : MqttCallback {
             @Throws(Exception::class)
             override fun messageArrived(topic: String, message: MqttMessage) {
-
                 when (topic) {
-                    // might split this up later:
-                    "rl2mqtt/test" -> eventService.processMessage(message)
-                    "rl2mqtt/ticker" -> eventService.processMessage(message)
-                    "rl2mqtt/gameevent" -> eventService.processMessage(message)
+                    "rl2mqtt/stat" -> eventService.processStat(message)
+                    "rl2mqtt/ticker" -> eventService.processTicker(message)
+                    "rl2mqtt/gametime" -> eventService.processGameTime(message)
+                    "rl2mqtt/gameevent" -> eventService.processGameEvent(message)
                     else -> logUnexpectedMessage(message, topic)
                 }
-
             }
 
             override fun connectionLost(cause: Throwable) {
@@ -53,12 +51,13 @@ class MessagingClient(
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken) {
-                println("deliveryComplete: " + token.isComplete)
+//                println("deliveryComplete: " + token.isComplete)
             }
         })
 
-        client.subscribe("rl2mqtt/test", qos)
+        client.subscribe("rl2mqtt/stat", qos)
         client.subscribe("rl2mqtt/gameevent", qos)
+        client.subscribe("rl2mqtt/gametime", qos)
         client.subscribe("rl2mqtt/ticker", qos)
 
     }
