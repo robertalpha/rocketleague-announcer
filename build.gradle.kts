@@ -1,4 +1,7 @@
 val ktor_version: String by project
+val htmx_version: String by project
+val tailwindcss_version: String by project
+val kotlinwind_version: String by project
 val kotlin_version: String by project
 val kotlinx_serialization_json_version: String by project
 val logback_version: String by project
@@ -29,6 +32,16 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+
+    implementation("io.ktor:ktor-server-call-logging:${ktor_version}")
+    implementation("io.ktor:ktor-server-webjars:${ktor_version}")
+    implementation("org.webjars.npm:htmx.org:${htmx_version}")
+
+    implementation("io.github.allangomes:kotlinwind-css:$kotlinwind_version")
+    implementation("org.webjars.npm:tailwindcss__browser:$tailwindcss_version")
+
+
+    implementation("io.ktor:ktor-server-html-builder:${ktor_version}")
 
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
 
