@@ -1,22 +1,22 @@
 package nl.vanalphenict.services
 
+import nl.vanalphenict.model.GameEventMessage
 import java.time.ZonedDateTime
 import java.util.UUID
-import nl.vanalphenict.model.GameEventMessageRoot
-import nl.vanalphenict.model.TickerMessageRoot
+import nl.vanalphenict.model.StatMessage
 
 class EventRepository {
-    private val tickerHistory = mutableListOf<Pair<ZonedDateTime,TickerMessageRoot>>()
-    private val gameEventHistory = mutableListOf<Pair<ZonedDateTime, GameEventMessageRoot>>()
+    private val tickerHistory = mutableListOf<Pair<ZonedDateTime, StatMessage>>()
+    private val gameEventHistory = mutableListOf<Pair<ZonedDateTime, GameEventMessage>>()
 
 
-    fun addTickerMessage(timestamp: ZonedDateTime, tickerMessageRoot: TickerMessageRoot) {
+    fun addStatMessage(timestamp: ZonedDateTime, tickerMessageRoot: StatMessage) {
         tickerHistory.add(Pair(timestamp, tickerMessageRoot))
         println("ticker: $tickerMessageRoot")
 
     }
 
-    fun addGameEvent(timestamp: ZonedDateTime, gameEventRoot: GameEventMessageRoot) {
+    fun addGameEventMessage(timestamp: ZonedDateTime, gameEventRoot: GameEventMessage) {
         gameEventHistory.add(Pair(timestamp, gameEventRoot))
         println("gameEvent: $gameEventRoot")
     }

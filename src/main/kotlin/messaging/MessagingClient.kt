@@ -1,6 +1,11 @@
 package nl.vanalphenict.messaging
 
-import nl.vanalphenict.services.EventService
+import kotlinx.serialization.json.Json
+import nl.vanalphenict.model.GameEventMessage
+import nl.vanalphenict.model.GameTimeMessage
+import nl.vanalphenict.model.LogMessage
+import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.services.EventHandler
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttClient
@@ -10,13 +15,19 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 
 
 class MessagingClient(
-    private val eventService: EventService,
+    eventHandler: EventHandler,
     port: Int,
 ) {
-
+    private val TOPIC_ROOT = "rl2mqtt"
+    private val TOPIC_STAT = "$TOPIC_ROOT/stat"
+    private val TOPIC_TICKER = "$TOPIC_ROOT/ticker"
+    private val TOPIC_GAME_EVENT = "$TOPIC_ROOT/gameevent"
+    private val TOPIC_GAME_TIME = "$TOPIC_ROOT/gametime"
+    private val TOPIC_LOG = "$TOPIC_ROOT/log"
+    private val QOS = 1
+    private var scrubber: EventScrubber = EventScrubber(eventHandler)
     private var client: MqttClient
 
-    private val qos = 0 // no persistence needed, messages can get lost
 
     init {
         val broker = "tcp://127.0.0.1:$port"
@@ -37,12 +48,22 @@ class MessagingClient(
         client.setCallback(object : MqttCallback {
             @Throws(Exception::class)
             override fun messageArrived(topic: String, message: MqttMessage) {
-                when (topic) {
-                    "rl2mqtt/stat" -> eventService.processStat(message)
-                    "rl2mqtt/ticker" -> eventService.processTicker(message)
-                    "rl2mqtt/gametime" -> eventService.processGameTime(message)
-                    "rl2mqtt/gameevent" -> eventService.processGameEvent(message)
-                    else -> logUnexpectedMessage(message, topic)
+                try {
+                    when (topic) {
+                        TOPIC_STAT ->
+                            scrubber.processStat(decode<StatMessage>(message.payload))
+                        TOPIC_TICKER ->
+                            scrubber.processStat(decode<StatMessage>(message.payload))
+                        TOPIC_GAME_TIME ->
+                            scrubber.processGameTime(decode<GameTimeMessage>(message.payload))
+                        TOPIC_GAME_EVENT ->
+                            scrubber.processGameEvent(decode<GameEventMessage>(message.payload))
+                        TOPIC_LOG ->
+                            scrubber.processLog(decode<LogMessage>(message.payload))
+                        else -> logUnexpectedMessage(message, topic)
+                    }
+                } catch (e: Exception) {
+                    println("could not parse message: $e")
                 }
             }
 
@@ -55,17 +76,20 @@ class MessagingClient(
             }
         })
 
-        client.subscribe("rl2mqtt/stat", qos)
-        client.subscribe("rl2mqtt/gameevent", qos)
-        client.subscribe("rl2mqtt/gametime", qos)
-        client.subscribe("rl2mqtt/ticker", qos)
+        client.subscribe(TOPIC_STAT, QOS)
+        client.subscribe(TOPIC_GAME_EVENT, QOS)
+        client.subscribe(TOPIC_GAME_TIME, QOS)
+        client.subscribe(TOPIC_TICKER, QOS)
+        client.subscribe(TOPIC_LOG, QOS)
+    }
 
+    inline fun <reified T> decode(bytes: ByteArray): T {
+        return Json.decodeFromString<T>(String(bytes))
     }
 
     fun send(topic: String, body: String) {
         val message = MqttMessage(body.toByteArray())
-        message.setQos(qos)
+        message.setQos(QOS)
         client.publish(topic, message)
     }
-
 }
