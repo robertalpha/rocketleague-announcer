@@ -87,6 +87,6 @@ data class Club(
 @Serializable
 data class Color(
     val R: Int,
-    val B: Int,
-    val G: Int
+    val G: Int,
+    val B: Int
 )

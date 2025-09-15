@@ -31,20 +31,26 @@ class StatRepositoryTest {
 
         statRepository.addStatMessage(
             5000L,
-            StatMessage("Demolish", "GUID123",
+            StatMessage(
+                "GUID123", "Demolish",
                 getPlayerSteam(orange),
-                getPlayerEpic(blue)))
+                getPlayerEpic(blue)
+            ))
         statRepository.addStatMessage(
             6000L,
-            StatMessage("Demolish", "GUID123",
+            StatMessage(
+                "GUID123", "Demolish",
                 getPlayerSwitch(blue),
-                getPlayerSteam(orange)))
+                getPlayerSteam(orange)
+            ))
 
         statRepository.addStatMessage(
             7000L,
-            StatMessage("Demolish", "OTHER",
+            StatMessage(
+                "OTHER", "Demolish",
                 getBot(blue),
-                getPlayerPlaystation(orange)))
+                getPlayerPlaystation(orange)
+            ))
 
         val result = statRepository.getStatHistory("GUID123")
         assert(result.size == 2)
