@@ -7,8 +7,8 @@ import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.impl.EventDistributor
 
 interface EventHandler {
-    fun handleStatMessage(msg: StatMessage)
-    fun handleGameEvent(msg: GameEventMessage)
+    fun handleStatMessage(msg: StatMessage) {}
+    fun handleGameEvent(msg: GameEventMessage) {}
     fun handleGameTime(msg: GameTimeMessage) {}
     fun handleLog(msg: LogMessage) {}
 
