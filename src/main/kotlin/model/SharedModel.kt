@@ -63,11 +63,12 @@ data class Team(
 
 @Serializable
 data class Club(
-    val accentColor: Color,
-    val tag: String,
+    val id: Int,
     val name: String,
-    val id : Int,
-    val primaryColor: Color) {
+    val tag: String,
+    val accentColor: Color,
+    val primaryColor: Color
+) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
