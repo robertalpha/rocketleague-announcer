@@ -10,6 +10,7 @@ data class Player(
     val score: Int? = null,
     val team: Team? = null,
     val club: Club? = null) {
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -23,7 +24,25 @@ data class Player(
     }
 
     override fun hashCode(): Int {
-        return id.hashCode()
+        var result = id.hashCode()
+        result = 31 * result + name.hashCode()
+        return result
+    }
+
+    fun isSame(other: Player?): Boolean {
+        if (other == null) return false
+        return other.botSaveId() == botSaveId()
+    }
+
+    fun isBot(): Boolean {
+        return id.equals("Unknown|0|0")
+    }
+
+    fun botSaveId(): String {
+        if (isBot())
+            return "bot|" + name + "|0"
+        else
+            return id
     }
 }
 
