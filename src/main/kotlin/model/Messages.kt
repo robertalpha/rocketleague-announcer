@@ -4,9 +4,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GameEventMessage(
-    val gameEvent: String,
     val matchGUID: String,
-    val teams: List<Team>)
+    val gameEvent: String,
+    val teams: List<Team>
+)
 
 @Serializable
 data class GameTimeMessage(
@@ -16,10 +17,11 @@ data class GameTimeMessage(
 
 @Serializable
 data class StatMessage(
-    val event: String,
     val matchGUID: String,
+    val event: String,
     val player: Player,
-    val victim: Player? = null) {
+    val victim: Player? = null
+) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

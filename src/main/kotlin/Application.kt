@@ -8,6 +8,7 @@ import nl.vanalphenict.services.EventHandler
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.httpMethod
 import io.ktor.server.webjars.Webjars
+import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.EventRepository
 import nl.vanalphenict.services.impl.EventPersister
 
@@ -34,7 +35,8 @@ fun Application.module(mqttPort: Int = 1883) {
     }
 
     val repository = EventRepository()
-    val eventPersister = EventPersister(repository)
+    val statRepository = StatRepository()
+    val eventPersister = EventPersister(repository, statRepository)
     val eventHandler = EventHandler.Builder(eventPersister).build()
     val client = MessagingClient(eventHandler, mqttPort)
 
