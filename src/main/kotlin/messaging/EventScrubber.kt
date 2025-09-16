@@ -1,45 +1,45 @@
 package nl.vanalphenict.messaging
 
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Instant
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.LogMessage
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.EventHandler
+import nl.vanalphenict.utility.TimeUtils.Companion.isOlderThan
 
 class EventScrubber(private val eventHandler: EventHandler) {
 
-    private val AGE = 500
-    private val messagesCache: MutableMap<Int,Long> = HashMap()
+    private val messagesCache: MutableMap<Int, Instant> = HashMap()
 
 
     fun processGameEvent(msg: GameEventMessage) {
-        val hash = msg.hashCode()
-        if (!!messagesCache.containsKey(hash)) {
-            messagesCache.put(hash, System.currentTimeMillis())
+        messagesCache.computeIfAbsent(msg.hashCode()) {
             eventHandler.handleGameEvent(msg)
+            Clock.System.now()
         }
         clearCache()
     }
 
     fun processStat(msg: StatMessage) {
-        val hash = msg.hashCode()
         //Filter demolish stat message. Only use ticker
-        if (msg.event.equals("Demolish") && msg.victim == null) return
-        if (!!messagesCache.containsKey(hash)) {
-            messagesCache.put(hash, System.currentTimeMillis())
+        if (msg.event == "Demolish" && msg.victim == null) return
+        messagesCache.computeIfAbsent(msg.hashCode()) {
             eventHandler.handleStatMessage(msg)
+            Clock.System.now()
         }
         //BallHit is a frequent stat message, never double
-        if (!msg.event.equals("BallHit")) {
+        if (msg.event != "BallHit") {
             clearCache()
         }
     }
 
     fun processGameTime(msg: GameTimeMessage) {
-        val hash = msg.hashCode()
-        if (!!messagesCache.containsKey(hash)) {
-            messagesCache.put(hash, System.currentTimeMillis())
+        messagesCache.computeIfAbsent(msg.hashCode()) {
             eventHandler.handleGameTime(msg)
+            Clock.System.now()
         }
         clearCache()
     }
@@ -49,6 +49,7 @@ class EventScrubber(private val eventHandler: EventHandler) {
     }
 
     private fun clearCache() {
-        messagesCache.entries.removeIf { it.value < System.currentTimeMillis() - AGE }
+        messagesCache.entries.removeIf { it.value.isOlderThan(500.milliseconds) }
     }
 }
+

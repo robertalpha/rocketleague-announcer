@@ -16,6 +16,13 @@ plugins {
     id("io.ktor.plugin") version "3.2.3"
 }
 
+kotlin{
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
+    }
+}
+
+
 group = "nl.vanalphenict"
 version = "0.0.1"
 
