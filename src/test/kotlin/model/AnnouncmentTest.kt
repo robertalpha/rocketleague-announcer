@@ -9,8 +9,8 @@ class AnnouncmentTest {
 
     @Test
     fun testCombine() {
-        assertEquals(Announcement.HUMMILIATION, Announcement.HUMMILIATION.combine(Announcement.FIRST_BLOOD))
-        assertEquals(Announcement.HUMMILIATION, Announcement.FIRST_BLOOD.combine(Announcement.HUMMILIATION))
+        assertEquals(Announcement.HUMILIATION, Announcement.HUMILIATION.combine(Announcement.FIRST_BLOOD))
+        assertEquals(Announcement.HUMILIATION, Announcement.FIRST_BLOOD.combine(Announcement.HUMILIATION))
     }
 
 }

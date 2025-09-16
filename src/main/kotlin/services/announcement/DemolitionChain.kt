@@ -3,22 +3,23 @@ package nl.vanalphenict.services.announcement
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
+import nl.vanalphenict.model.Events
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.StatToAnnouncment
 
 class DemolitionChain(private val statRepository: StatRepository) : StatToAnnouncment {
 
-    private val DEMOLISH = "Demolish"
-
     private val PIVOT_DURATION = 11.seconds
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Announcement {
 
-        if (statMessage.event != DEMOLISH) return Announcement.NOTHING
+        if (!Events.DEMOLISH.eq(statMessage.event) ||
+            statMessage.player.team?.homeTeam == false) return Announcement.NOTHING
 
         var demos = statRepository.getStatHistory(statMessage.matchGUID)
-            .filter { it.second.event == DEMOLISH }
+            .filter { (_,message) -> Events.DEMOLISH.eq(message.event) }
+            .filter { (_,message) -> message.player.team?.homeTeam == true }
             .sortedByDescending { it.first }
 
         var pivot = currentTimeStamp

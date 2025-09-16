@@ -14,30 +14,31 @@ class AnnouncementHandler(private val interpreters : List<StatToAnnouncment>) : 
     var client : HttpClient = HttpClient()
 
 
-    var hostname = "127.0.0.1"
-    var endpoint = "/playsound"
+    val url: String =
+        "${System.getenv("SBB_ADDRESS")}/api/guilds/${gid}/voicechannels/${vid}/play/718360%7C"
 
     override fun handleStatMessage(msg: StatMessage) {
-        var announcement : Announcement = Announcement.NOTHING
-
+        var announcement: Announcement = Announcement.NOTHING
         interpreters.forEach {
             announcement = announcement.combine(it.interpret(msg))
         }
-
+        if (announcement == Announcement.NOTHING) return
+        triggerSound(announcement)
     }
 
     fun triggerSound(soundName: String) {
 
+    fun triggerSound(announcement: Announcement) {
+        println("playing ${announcement.name}")
 
-            val response: HttpResponse = runBlocking {
-                client.post("$hostname$endpoint") {
-                    setBody("$PREFIX${soundName}")
-                }
-            }
-            if (response.status != HttpStatusCode.OK) {
-                println("could not play ${soundName}, response: ${response.status}")
-            }
+        val url = "$url${announcement.name}"
+        val response: HttpResponse = runBlocking {
+            client.put(url)
         }
-
+        if (response.status != HttpStatusCode.OK) {
+            println("could not play ${announcement}, response: ${response.status}")
+        }
+    }
+}
 
 }
