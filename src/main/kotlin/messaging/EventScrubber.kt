@@ -49,7 +49,7 @@ class EventScrubber(private val eventHandler: EventHandler) {
     }
 
     private fun clearCache() {
-        messagesCache.entries.removeIf { it.value.isOlderThan(500.milliseconds) }
+        messagesCache.entries.removeIf { it.value.isOlderThan(Clock.System.now(),500.milliseconds) }
     }
 }
 

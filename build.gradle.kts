@@ -3,6 +3,7 @@ val htmx_version: String by project
 val tailwindcss_version: String by project
 val kotlinwind_version: String by project
 val kotlin_version: String by project
+val kotest_version: String by project
 val kotlinx_serialization_json_version: String by project
 val logback_version: String by project
 val testcontainers_version: String by project
@@ -28,6 +29,10 @@ version = "0.0.1"
 
 application {
     mainClass = "io.ktor.server.netty.EngineMain"
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 dependencies {
@@ -62,5 +67,8 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+
+    testImplementation("io.kotest:kotest-runner-junit5:${kotest_version}")
+    testImplementation("io.kotest:kotest-assertions-core:${kotest_version}")
 
 }

@@ -1,6 +1,7 @@
 package nl.vanalphenict.services.announcement
 
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.StatRepository
@@ -11,11 +12,11 @@ class Retaliation(private val statRepository: StatRepository) : StatToAnnouncmen
 
     private val DEMOLISH = "Demolish"
 
-    override fun interpret(statMessage: StatMessage): Announcement {
+    override fun interpret( statMessage: StatMessage, currentTimeStamp: Instant): Announcement {
         if (statMessage.event != DEMOLISH) return Announcement.NOTHING
 
         if (statRepository.getStatHistory(statMessage.matchGUID)
-            .filter { (timestamp, _) -> timestamp.isOlderThan(15.seconds) }
+            .filter { (timestamp, _) -> timestamp.isOlderThan(currentTimeStamp,15.seconds) }
             .filter { (_, message) -> message.event == DEMOLISH }
             .filter { (_, message) -> message.player.isSame(statMessage.victim) }
             .count { (_, message) -> statMessage.player.isSame(message.victim) } > 0)
