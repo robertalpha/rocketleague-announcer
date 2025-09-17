@@ -6,7 +6,7 @@ import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.LogMessage
 import nl.vanalphenict.model.StatMessage
-import org.junit.jupiter.api.assertNotNull
+import kotlin.test.assertNotNull
 
 class JsonDeserializerTest {
 

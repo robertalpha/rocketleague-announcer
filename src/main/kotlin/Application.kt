@@ -1,5 +1,6 @@
 package nl.vanalphenict
 
+import com.janoz.discord.Voice
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.*
 import io.ktor.server.plugins.calllogging.CallLogging
@@ -40,10 +41,13 @@ fun Application.module(mqttPort: Int = 1883) {
         }
     }
 
+    val voice = Voice(System.getenv("TOKEN"))
+    voice.readSamples(System.getenv("SAMPLES"))
+
     val repository = EventRepository()
     val statRepository = StatRepository()
     val eventPersister = EventPersister(repository, statRepository)
-    val announcementHandler = AnnouncementHandler(listOf(
+    val announcementHandler = AnnouncementHandler(voice,listOf(
         DemolitionChain(statRepository),
         FirstBlood(statRepository),
         KilledByBot(),

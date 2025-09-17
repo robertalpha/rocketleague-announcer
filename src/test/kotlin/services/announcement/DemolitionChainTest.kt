@@ -6,11 +6,11 @@ import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.announcement.DemolitionChain
-import org.junit.jupiter.api.Test
 import support.getBlueTeam
 import support.getOrangeTeam
 import support.getPlayerEpic
 import support.getPlayerSteam
+import kotlin.test.Test
 
 class DemolitionChainTest {
     @Test
