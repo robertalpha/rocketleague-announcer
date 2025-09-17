@@ -1,8 +1,14 @@
 package repository
 
+import io.kotest.matchers.shouldBe
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Instant
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.model.Team
 import nl.vanalphenict.repository.StatRepository
+import nl.vanalphenict.utility.TimeUtils.Companion.bothHappenWithin
 import support.getBlueTeam
 import support.getBot
 import support.getOrangeTeam
@@ -10,11 +16,6 @@ import support.getPlayerEpic
 import support.getPlayerPlaystation
 import support.getPlayerSteam
 import support.getPlayerSwitch
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Instant
-import nl.vanalphenict.utility.TimeUtils.Companion.isOlderThan
 
 class StatRepositoryTest {
 
@@ -56,8 +57,8 @@ class StatRepositoryTest {
             ))
 
         val result = statRepository.getStatHistory("GUID123")
-        assert(result.size == 2)
-        val result2 = statRepository.getStatHistory("GUID123").filter { (timestamp, _) -> timestamp.isOlderThan(first, 500.milliseconds)}
-        assert(result2.size == 1)
+        result.size shouldBe 2
+        val result2 = statRepository.getStatHistory("GUID123").filter { (timestamp, _) -> timestamp.bothHappenWithin(first, 500.milliseconds)}
+        result2.size shouldBe 1
     }
 }

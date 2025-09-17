@@ -8,7 +8,6 @@ import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.LogMessage
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.EventHandler
-import nl.vanalphenict.utility.TimeUtils.Companion.isOlderThan
 
 class EventScrubber(private val eventHandler: EventHandler) {
 
@@ -49,7 +48,7 @@ class EventScrubber(private val eventHandler: EventHandler) {
     }
 
     private fun clearCache() {
-        messagesCache.entries.removeIf { it.value.isOlderThan(Clock.System.now(),500.milliseconds) }
+        messagesCache.entries.removeIf { it.value.plus (500.milliseconds) < Clock.System.now() }
     }
 }
 

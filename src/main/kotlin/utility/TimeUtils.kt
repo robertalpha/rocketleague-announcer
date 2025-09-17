@@ -6,7 +6,7 @@ import kotlin.time.Instant
 class TimeUtils {
 
     companion object {
-        fun Instant.isOlderThan(currentTimestamp: Instant, duration: Duration) = this < currentTimestamp.minus(duration)
+        fun Instant.bothHappenWithin(currentTimestamp: Instant, plusDuration: Duration) = currentTimestamp.minus(this).absoluteValue < plusDuration
     }
 
 }

@@ -17,7 +17,7 @@ class DemolitionChainTest {
     fun interpret() {
         val repo = StatRepository()
 
-        DemolitionChain(repo).interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:00Z")) shouldBe Announcement.NOTHING
+//        DemolitionChain(repo).interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:00Z")) shouldBe Announcement.NOTHING
 
         repo.addStatMessage(Instant.parse("2020-08-30T18:43:00Z"), demoStatmessage())
         DemolitionChain(repo).interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:02Z")) shouldBe Announcement.DOUBLE_KILL

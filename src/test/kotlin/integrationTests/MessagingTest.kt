@@ -8,6 +8,7 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonIgnoreUnknownKeys
@@ -59,6 +60,7 @@ class MessagingTest : AbstractMessagingTest() {
         return messages
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     @JsonIgnoreUnknownKeys
     data class MessageLine(val topic: String, val timestamp: String)
