@@ -9,7 +9,13 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.httpMethod
 import io.ktor.server.webjars.Webjars
 import nl.vanalphenict.repository.StatRepository
+import nl.vanalphenict.services.AnnouncementHandler
 import nl.vanalphenict.services.EventRepository
+import nl.vanalphenict.services.announcement.DemolitionChain
+import nl.vanalphenict.services.announcement.FirstBlood
+import nl.vanalphenict.services.announcement.KilledByBot
+import nl.vanalphenict.services.announcement.OwnGoal
+import nl.vanalphenict.services.announcement.Retaliation
 import nl.vanalphenict.services.impl.EventPersister
 
 fun main(args: Array<String>) {
@@ -37,7 +43,13 @@ fun Application.module(mqttPort: Int = 1883) {
     val repository = EventRepository()
     val statRepository = StatRepository()
     val eventPersister = EventPersister(repository, statRepository)
-    val eventHandler = EventHandler.Builder(eventPersister).build()
+    val announcementHandler = AnnouncementHandler(listOf(
+        DemolitionChain(statRepository),
+        FirstBlood(statRepository),
+        KilledByBot(),
+        OwnGoal(),
+        Retaliation(statRepository)))
+    val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
     val client = MessagingClient(eventHandler, mqttPort)
 
     configureRouting(client)

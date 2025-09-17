@@ -1,7 +1,7 @@
 package nl.vanalphenict.model
 
 enum class Announcement {
-    HUMMILIATION,
+    HUMILIATION,
     RETALIATION,
     PENTA_KILL,
     QUAD_KILL,
