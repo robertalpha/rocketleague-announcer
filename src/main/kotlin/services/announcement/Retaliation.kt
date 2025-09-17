@@ -5,22 +5,24 @@ import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.Events
 import nl.vanalphenict.model.StatMessage
-import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.StatToAnnouncment
-import nl.vanalphenict.utility.TimeUtils.Companion.isOlderThan
 
-class Retaliation(private val statRepository: StatRepository) : StatToAnnouncment {
+class Retaliation() : StatToAnnouncment {
 
-    override fun interpret( statMessage: StatMessage, currentTimeStamp: Instant): Announcement {
+    private val grudges : MutableMap<Pair<String,String>, Instant> = HashMap()
+
+    private val grudgeDuration = 30.seconds
+
+    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Announcement {
         if (!Events.DEMOLISH.eq(statMessage.event)) return Announcement.NOTHING
 
-        if (statRepository.getStatHistory(statMessage.matchGUID)
-            .filter { (timestamp, _) -> timestamp.isOlderThan(currentTimeStamp,15.seconds) }
-            .filter { (_, message) -> Events.DEMOLISH.eq(message.event) }
-            .filter { (_, message) -> message.player.isSame(statMessage.victim) }
-            .count { (_, message) -> statMessage.player.isSame(message.victim) } > 0)
-            return Announcement.RETALIATION
-        else
-            return Announcement.NOTHING
+        val current:Pair<String,String> =  (statMessage.player.botSaveId()) to (statMessage.victim!!.botSaveId())
+        grudges[current] = currentTimeStamp
+        val reverted:Pair<String,String> = current.second to current.first
+        return if (grudges.containsKey(reverted) && grudges[reverted]!!.plus(grudgeDuration) > currentTimeStamp) {
+            grudges.remove(reverted)
+            Announcement.RETALIATION
+        } else Announcement.NOTHING
     }
+
 }

@@ -52,7 +52,7 @@ fun Application.module() {
         FirstBlood(statRepository),
         KilledByBot(),
         OwnGoal(),
-        Retaliation(statRepository)))
+        Retaliation()))
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
     val client = MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS"))
 
