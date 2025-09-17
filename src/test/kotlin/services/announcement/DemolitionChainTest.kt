@@ -1,12 +1,12 @@
 package services.announcement
 
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.announcement.DemolitionChain
-import org.junit.jupiter.api.Test
 import support.getBlueTeam
 import support.getOrangeTeam
 import support.getPlayerEpic
@@ -16,6 +16,8 @@ class DemolitionChainTest {
     @Test
     fun interpret() {
         val repo = StatRepository()
+
+        DemolitionChain(repo).interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:00Z")) shouldBe Announcement.NOTHING
 
         repo.addStatMessage(Instant.parse("2020-08-30T18:43:00Z"), demoStatmessage())
         DemolitionChain(repo).interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:02Z")) shouldBe Announcement.DOUBLE_KILL

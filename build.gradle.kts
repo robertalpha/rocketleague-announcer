@@ -31,9 +31,6 @@ application {
     mainClass = "io.ktor.server.netty.EngineMain"
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
 
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")

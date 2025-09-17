@@ -1,11 +1,9 @@
 package nl.vanalphenict.services
 
 import io.ktor.client.HttpClient
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
+import io.ktor.client.request.put
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
-import java.text.NumberFormat.Field.PREFIX
 import kotlinx.coroutines.runBlocking
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatMessage
@@ -13,6 +11,8 @@ import nl.vanalphenict.model.StatMessage
 class AnnouncementHandler(private val interpreters : List<StatToAnnouncment>) : EventHandler {
     var client : HttpClient = HttpClient()
 
+    val gid = System.getenv("GID")
+    val vid = System.getenv("VID")
 
     val url: String =
         "${System.getenv("SBB_ADDRESS")}/api/guilds/${gid}/voicechannels/${vid}/play/718360%7C"
@@ -26,7 +26,6 @@ class AnnouncementHandler(private val interpreters : List<StatToAnnouncment>) : 
         triggerSound(announcement)
     }
 
-    fun triggerSound(soundName: String) {
 
     fun triggerSound(announcement: Announcement) {
         println("playing ${announcement.name}")
@@ -39,6 +38,4 @@ class AnnouncementHandler(private val interpreters : List<StatToAnnouncment>) : 
             println("could not play ${announcement}, response: ${response.status}")
         }
     }
-}
-
 }
