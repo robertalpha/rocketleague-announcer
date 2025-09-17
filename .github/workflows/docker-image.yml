@@ -17,5 +17,4 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag rocketleague-announcer:$(date +%s)
       env:
-        GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
