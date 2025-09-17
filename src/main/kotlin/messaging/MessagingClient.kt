@@ -16,7 +16,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 
 class MessagingClient(
     eventHandler: EventHandler,
-    port: Int,
+    serverAddress: String
 ) {
     private val TOPIC_ROOT = "rl2mqtt"
     private val TOPIC_STAT = "$TOPIC_ROOT/stat"
@@ -30,10 +30,9 @@ class MessagingClient(
 
 
     init {
-        val broker = "tcp://127.0.0.1:$port"
         val clientId = "rl-announcer_client"
 
-        client = MqttClient(broker, clientId, MemoryPersistence())
+        client = MqttClient(serverAddress, clientId, MemoryPersistence())
         val options = MqttConnectOptions()
 
         client.connect(options)
@@ -64,6 +63,7 @@ class MessagingClient(
                     }
                 } catch (e: Exception) {
                     println("could not parse message: $e")
+                    e.printStackTrace()
                 }
             }
 
@@ -84,7 +84,9 @@ class MessagingClient(
     }
 
     inline fun <reified T> decode(bytes: ByteArray): T {
-        return Json.decodeFromString<T>(String(bytes))
+        val string = String(bytes)
+        println("received message: $string")
+        return Json.decodeFromString<T>(string)
     }
 
     fun send(topic: String, body: String) {

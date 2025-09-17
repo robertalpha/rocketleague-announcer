@@ -23,7 +23,7 @@ fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
 
-fun Application.module(mqttPort: Int = 1883) {
+fun Application.module() {
 
     install(ContentNegotiation) {
         json()
@@ -54,7 +54,7 @@ fun Application.module(mqttPort: Int = 1883) {
         OwnGoal(),
         Retaliation(statRepository)))
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
-    val client = MessagingClient(eventHandler, mqttPort)
+    val client = MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS"))
 
     configureRouting(client)
 }
