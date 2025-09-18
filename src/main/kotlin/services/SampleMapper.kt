@@ -1,20 +1,28 @@
 package nl.vanalphenict.services
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
 import nl.vanalphenict.model.Announcement
+import nl.vanalphenict.model.MappingConfig
 
 class SampleMapper {
 
-    private val mapping = mapOf<Announcement, Pair<Int, String>>(
-        Announcement.KILLED_BY_BOT  to ( 10 to "718360|HUMILIATION" ),
-        Announcement.OWN_GOAL       to (  9 to "718360|HUMILIATION" ),
-        Announcement.REVENGE        to (  8 to "718360|RETALIATION" ),
-        Announcement.MASSACRE       to (  7 to "718360|MASSACRE" ),
-        Announcement.PENTA_KILL     to (  6 to "718360|PENTA_KILL" ),
-        Announcement.QUAD_KILL      to (  5 to "718360|QUAD_KILL" ) ,
-        Announcement.TRIPLE_KILL    to (  4 to "718360|TRIPLE_KILL" ),
-        Announcement.DOUBLE_KILL    to (  3 to "718360|DOUBLE_KILL" ),
-        Announcement.FIRST_BLOOD    to (  2 to "718360|FIRST_BLOOD" )
-    )
+    @OptIn(ExperimentalSerializationApi::class)
+    constructor() {
+        val conf: MappingConfig = Json.decodeFromStream({}.javaClass.getResourceAsStream("/mapping.json"))
+        parseMapping(conf)
+    }
+
+    val mapping = mutableMapOf<Announcement, Pair<Int, Collection<String>>>()
+
+
+    private fun parseMapping(mappingConfig: MappingConfig) {
+        mapping.clear()
+        mappingConfig.mapping.forEach {
+            mapping[it.announcement] = it.weight to it.samples
+        }
+    }
 
     private fun highestScore(one : Announcement, two : Announcement) : Announcement {
         return if (mapping[one]!!.first > mapping[two]!!.first)
@@ -29,7 +37,7 @@ class SampleMapper {
         if (remaining.isEmpty()) return null
         var announcement = remaining.first()
         remaining.forEach { other -> announcement = highestScore(announcement, other) }
-        return mapping[announcement]!!.second
+        return mapping[announcement]!!.second.random()
     }
 
 }
