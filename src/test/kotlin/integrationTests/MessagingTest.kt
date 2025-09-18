@@ -29,11 +29,7 @@ class MessagingTest : AbstractMessagingTest() {
 
         application {
             val mappedPort = mosquitto.getMappedPort(1883)
-
-            //FIXME put val broker = "tcp://127.0.0.1:mappedPort" in system env
-
-            //FIXME mock voice during integrationtest
-            module()
+            module(brokerPort = mappedPort)
         }
         client = createClient {
             install(ContentNegotiation) {

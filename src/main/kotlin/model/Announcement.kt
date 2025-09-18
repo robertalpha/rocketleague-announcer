@@ -2,6 +2,7 @@ package nl.vanalphenict.model
 
 enum class Announcement {
     HUMILIATION,
+    REVENGE,
     RETALIATION,
     MASSACRE,
     PENTA_KILL,

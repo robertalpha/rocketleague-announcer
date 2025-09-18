@@ -23,7 +23,20 @@ fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
 
-fun Application.module() {
+fun Application.module(
+        brokerProtocol: String = "tcp",
+        brokerAddress: String = "127.0.0.1",
+        brokerPort: Int = 1883
+    ) {
+
+    val token = System.getenv("TOKEN")
+    val sampleDir = System.getenv("SAMPLES")
+
+    val brokerProtocolEnv = System.getenv("BROKER_PROTOCOL")
+    val brokerAddressEnv = System.getenv("BROKER_ADDRESS")
+    val brokerPortEnv = System.getenv("BROKER_ADDRESS")
+    val brokerUrl = "${brokerProtocolEnv?:brokerProtocol}://${brokerAddressEnv?:brokerAddress}:${brokerPortEnv?:brokerPort}"
+
 
     install(ContentNegotiation) {
         json()
@@ -41,8 +54,9 @@ fun Application.module() {
         }
     }
 
-    val voice = Voice(System.getenv("TOKEN"))
-    voice.readSamples(System.getenv("SAMPLES"))
+
+    val voice = null // Voice(token) # fixme
+    //  voice.readSamples(sampleDir)
 
     val repository = EventRepository()
     val statRepository = StatRepository()
@@ -54,7 +68,7 @@ fun Application.module() {
         OwnGoal(),
         Retaliation()))
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
-    val client = MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS"))
+    val client = MessagingClient(eventHandler, brokerUrl)
 
     configureRouting(client)
 }

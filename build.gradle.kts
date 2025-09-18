@@ -51,8 +51,6 @@ dependencies {
 
 
     implementation("io.ktor:ktor-server-html-builder:${ktor_version}")
-    implementation("io.ktor:ktor-client-core:${ktor_version}")
-    implementation("io.ktor:ktor-client-cio:${ktor_version}")
 
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
 
