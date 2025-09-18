@@ -6,9 +6,13 @@ import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
 import kotlin.time.Instant
 
-class OwnGoal: StatToAnnouncment   {
+class Kill: StatToAnnouncment  {
+
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
-        return if (Events.OWN_GOAL.eq(statMessage.event))  setOf(Announcement.OWN_GOAL)
+        return if (Events.DEMOLISH.eq(statMessage.event))
+            return if (statMessage.player.team?.homeTeam == true)
+                setOf(Announcement.KILL)
+            else setOf(Announcement.KILLED)
         else emptySet()
     }
 }

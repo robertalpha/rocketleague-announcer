@@ -12,10 +12,10 @@ class DemolitionChain(private val statRepository: StatRepository) : StatToAnnoun
 
     private val PIVOT_DURATION = 11.seconds
 
-    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Announcement {
+    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
 
         if (!Events.DEMOLISH.eq(statMessage.event) ||
-            statMessage.player.team?.homeTeam == false) return Announcement.NOTHING
+            statMessage.player.team?.homeTeam == false) return emptySet()
 
         var demos = statRepository.getStatHistory(statMessage.matchGUID)
             .filter { (_,message) -> Events.DEMOLISH.eq(message.event) }
@@ -24,7 +24,7 @@ class DemolitionChain(private val statRepository: StatRepository) : StatToAnnoun
 
         var pivot = currentTimeStamp
         var democounter = 1
-        if (demos.isEmpty()) return Announcement.NOTHING
+        if (demos.isEmpty()) return emptySet()
         do {
             val head = demos.first()
             if(pivot.minus(head.first) < PIVOT_DURATION) {
@@ -37,11 +37,11 @@ class DemolitionChain(private val statRepository: StatRepository) : StatToAnnoun
         } while (demos.isNotEmpty())
 
         return when(democounter) {
-            2 -> Announcement.DOUBLE_KILL
-            3 -> Announcement.TRIPLE_KILL
-            4 -> Announcement.QUAD_KILL
-            5 -> Announcement.PENTA_KILL
-            else -> Announcement.NOTHING
+            2 -> setOf(Announcement.DOUBLE_KILL)
+            3 -> setOf(Announcement.TRIPLE_KILL)
+            4 -> setOf(Announcement.QUAD_KILL)
+            5 -> setOf(Announcement.PENTA_KILL)
+            else -> emptySet()
         }
     }
 }

@@ -14,6 +14,7 @@ import nl.vanalphenict.services.AnnouncementHandler
 import nl.vanalphenict.services.EventRepository
 import nl.vanalphenict.services.announcement.DemolitionChain
 import nl.vanalphenict.services.announcement.FirstBlood
+import nl.vanalphenict.services.announcement.Kill
 import nl.vanalphenict.services.announcement.KilledByBot
 import nl.vanalphenict.services.announcement.OwnGoal
 import nl.vanalphenict.services.announcement.Retaliation
@@ -52,7 +53,9 @@ fun Application.module() {
         FirstBlood(statRepository),
         KilledByBot(),
         OwnGoal(),
-        Retaliation()))
+        Retaliation(),
+        Kill()
+    ))
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
     val client = MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS"))
 

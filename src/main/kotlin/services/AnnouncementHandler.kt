@@ -1,34 +1,25 @@
 package nl.vanalphenict.services
 
-
 import com.janoz.discord.Voice
-import io.ktor.client.HttpClient
-import io.ktor.client.request.put
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.runBlocking
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatMessage
 
 class AnnouncementHandler(private val voice: Voice, private val interpreters : List<StatToAnnouncment>) : EventHandler {
 
-
-    val gid = System.getenv("GID")
-    val vid = System.getenv("VID")
-
-    val url: String =
-        "${System.getenv("SBB_ADDRESS")}/api/guilds/${gid}/voicechannels/${vid}/play/718360%7C"
+    val gid: Long = System.getenv("GID").toLong()
+    val vid: Long = System.getenv("VID").toLong()
+    val sampleMapper = SampleMapper()
 
     override fun handleStatMessage(msg: StatMessage) {
-        var announcement: Announcement = Announcement.NOTHING
+        val announcements = kotlin.collections.HashSet<Announcement>()
         interpreters.forEach {
-            announcement = announcement.combine(it.interpret(msg))
+            announcements.addAll(it.interpret(msg))
         }
-        if (announcement == Announcement.NOTHING) return
-        triggerSound(announcement)
+        val sample = sampleMapper.getSample(announcements)
+        if (sample != null) triggerSound(sample)
     }
 
-    fun triggerSound(announcement: Announcement) {
-        voice.play("718360|${announcement}", gid, vid)
+    fun triggerSound(sample: String) {
+        voice.play(sample, gid, vid)
     }
 }
