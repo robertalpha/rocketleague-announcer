@@ -8,6 +8,7 @@ val kotlinx_serialization_json_version: String by project
 val logback_version: String by project
 val testcontainers_version: String by project
 val eclipse_paho_version: String by project
+val discord_voice_version: String by project
 
 plugins {
     application
@@ -30,7 +31,6 @@ version = "0.0.1"
 application {
     mainClass = "io.ktor.server.netty.EngineMain"
 }
-
 
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
@@ -60,6 +60,8 @@ dependencies {
 
 
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:$eclipse_paho_version")
+
+    implementation("com.janoz.discord:discord-voice:$discord_voice_version" )
 
     testImplementation("org.testcontainers:testcontainers:$testcontainers_version")
     testImplementation("org.testcontainers:junit-jupiter:$testcontainers_version")

@@ -1,5 +1,6 @@
 package nl.vanalphenict
 
+import com.janoz.discord.Voice
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.*
 import io.ktor.server.plugins.calllogging.CallLogging
@@ -22,7 +23,7 @@ fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
 
-fun Application.module(mqttPort: Int = 1883) {
+fun Application.module() {
 
     install(ContentNegotiation) {
         json()
@@ -40,17 +41,20 @@ fun Application.module(mqttPort: Int = 1883) {
         }
     }
 
+    val voice = Voice(System.getenv("TOKEN"))
+    voice.readSamples(System.getenv("SAMPLES"))
+
     val repository = EventRepository()
     val statRepository = StatRepository()
     val eventPersister = EventPersister(repository, statRepository)
-    val announcementHandler = AnnouncementHandler(listOf(
+    val announcementHandler = AnnouncementHandler(voice,listOf(
         DemolitionChain(statRepository),
         FirstBlood(statRepository),
         KilledByBot(),
         OwnGoal(),
-        Retaliation(statRepository)))
+        Retaliation()))
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
-    val client = MessagingClient(eventHandler, mqttPort)
+    val client = MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS"))
 
     configureRouting(client)
 }

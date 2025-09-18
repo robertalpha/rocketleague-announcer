@@ -24,6 +24,7 @@ class DemolitionChain(private val statRepository: StatRepository) : StatToAnnoun
 
         var pivot = currentTimeStamp
         var democounter = 1
+        if (demos.isEmpty()) return Announcement.NOTHING
         do {
             val head = demos.first()
             if(pivot.minus(head.first) < PIVOT_DURATION) {

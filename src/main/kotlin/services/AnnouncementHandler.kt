@@ -1,5 +1,7 @@
 package nl.vanalphenict.services
 
+
+import com.janoz.discord.Voice
 import io.ktor.client.HttpClient
 import io.ktor.client.request.put
 import io.ktor.client.statement.HttpResponse
@@ -8,8 +10,8 @@ import kotlinx.coroutines.runBlocking
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatMessage
 
-class AnnouncementHandler(private val interpreters : List<StatToAnnouncment>) : EventHandler {
-    var client : HttpClient = HttpClient()
+class AnnouncementHandler(private val voice: Voice, private val interpreters : List<StatToAnnouncment>) : EventHandler {
+
 
     val gid = System.getenv("GID")
     val vid = System.getenv("VID")
@@ -26,16 +28,7 @@ class AnnouncementHandler(private val interpreters : List<StatToAnnouncment>) : 
         triggerSound(announcement)
     }
 
-
     fun triggerSound(announcement: Announcement) {
-        println("playing ${announcement.name}")
-
-        val url = "$url${announcement.name}"
-        val response: HttpResponse = runBlocking {
-            client.put(url)
-        }
-        if (response.status != HttpStatusCode.OK) {
-            println("could not play ${announcement}, response: ${response.status}")
-        }
+        voice.play("718360|${announcement}", gid, vid)
     }
 }
