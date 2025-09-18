@@ -7,6 +7,8 @@ import nl.vanalphenict.model.Events
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
 
+import nl.vanalphenict.utility.TimeUtils.Companion.bothHappenWithin
+
 class Retaliation() : StatToAnnouncment {
 
     private val grudges : MutableMap<Pair<String,String>, Instant> = HashMap()
