@@ -1,6 +1,7 @@
 package services.announcement
 
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatMessage
@@ -19,6 +20,8 @@ class DemolitionChainTest {
         val repo = StatRepository()
         val cut = DemolitionChain(repo)
 
+
+//        DemolitionChain(repo).interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:00Z")) shouldBe Announcement.NOTHING
 
         repo.addStatMessage(Instant.parse("2020-08-30T18:43:00Z"), demoStatmessage())
         cut.interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:02Z")) shouldBe Announcement.DOUBLE_KILL
