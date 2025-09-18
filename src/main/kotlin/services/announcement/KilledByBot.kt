@@ -7,12 +7,12 @@ import nl.vanalphenict.services.StatToAnnouncment
 import kotlin.time.Instant
 
 class KilledByBot : StatToAnnouncment {
-    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Announcement {
-        if (
+    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
+        return if (
             Events.DEMOLISH.eq(statMessage.event) &&
             statMessage.victim?.team?.homeTeam==true &&
             statMessage.player.isBot())
-            return Announcement.HUMILIATION
-        return Announcement.NOTHING
+            setOf(Announcement.KILLED_BY_BOT)
+        else emptySet()
     }
 }

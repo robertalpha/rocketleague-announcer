@@ -1,6 +1,7 @@
 package services.announcement
 
-import io.kotest.matchers.shouldBe
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldHaveSize
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.Player
 import nl.vanalphenict.model.StatMessage
@@ -23,10 +24,10 @@ class RetaliationTest {
         val p2 = getPlayerSteam(getOrangeTeam())
 
 
-        cut.interpret(demo(p1,p2), Instant.parse("2020-08-30T18:43:02Z")) shouldBe Announcement.NOTHING
-        cut.interpret(demo(p1,p2), Instant.parse("2020-08-30T18:43:03Z")) shouldBe Announcement.NOTHING
-        cut.interpret(demo(p2,p1), Instant.parse("2020-08-30T18:43:04Z")) shouldBe Announcement.RETALIATION
-        cut.interpret(demo(p2,p1), Instant.parse("2020-08-30T18:43:05Z")) shouldBe Announcement.NOTHING
+        cut.interpret(demo(p1,p2), Instant.parse("2020-08-30T18:43:02Z")) shouldHaveSize 0
+        cut.interpret(demo(p1,p2), Instant.parse("2020-08-30T18:43:03Z")) shouldHaveSize 0
+        cut.interpret(demo(p2,p1), Instant.parse("2020-08-30T18:43:04Z")) shouldContain Announcement.RETALIATION
+        cut.interpret(demo(p2,p1), Instant.parse("2020-08-30T18:43:05Z")) shouldHaveSize 0
 
 
     }

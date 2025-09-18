@@ -13,16 +13,16 @@ class Retaliation() : StatToAnnouncment {
 
     private val grudgeDuration = 30.seconds
 
-    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Announcement {
-        if (!Events.DEMOLISH.eq(statMessage.event)) return Announcement.NOTHING
+    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
+        if (!Events.DEMOLISH.eq(statMessage.event)) return emptySet()
 
         val current:Pair<String,String> =  (statMessage.player.botSaveId()) to (statMessage.victim!!.botSaveId())
         grudges[current] = currentTimeStamp
         val reverted:Pair<String,String> = current.second to current.first
         return if (grudges.containsKey(reverted) && grudges[reverted]!!.plus(grudgeDuration) > currentTimeStamp) {
             grudges.remove(reverted)
-            Announcement.RETALIATION
-        } else Announcement.NOTHING
+            setOf(Announcement.RETALIATION)
+        } else emptySet()
     }
 
 }

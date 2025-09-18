@@ -9,13 +9,11 @@ import kotlin.time.Instant
 
 class FirstBlood(private val repository: StatRepository) : StatToAnnouncment  {
 
-    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Announcement {
-        if (!Events.DEMOLISH.eq(statMessage.event)) return Announcement.NOTHING
-
-        if (repository.getStatHistory(statMessage.matchGUID)
-            .count {(_,message) -> Events.DEMOLISH.eq(message.event)} > 0) {
-            return Announcement.NOTHING
-        }
-        return Announcement.FIRST_BLOOD
+    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
+        return if (Events.DEMOLISH.eq(statMessage.event)  &&
+                repository.getStatHistory(statMessage.matchGUID)
+                    .count {(_,message) -> Events.DEMOLISH.eq(message.event)} == 0)
+            return setOf(Announcement.FIRST_BLOOD)
+        else emptySet()
     }
 }
