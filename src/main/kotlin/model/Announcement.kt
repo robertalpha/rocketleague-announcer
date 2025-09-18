@@ -1,16 +1,16 @@
 package nl.vanalphenict.model
 
 enum class Announcement {
-    KILLED_BY_BOT,
-    OWN_GOAL,
-    RETALIATION,
-    MASSACRE,
-    PENTA_KILL,
-    QUAD_KILL,
-    TRIPLE_KILL,
-    DOUBLE_KILL,
-    KILL,
-    KILLED,
-    FIRST_BLOOD,
-    COMBO_BREAKER;
+    KILLED_BY_BOT,  //When a bot kills a player
+    OWN_GOAL,       //When a player scores an own goal
+    REVENGE,        //When a player kills an opponent who killed him
+    MASSACRE,       //Every kill in a killstreak longer than 5
+    PENTA_KILL,     //Killstreak of 5
+    QUAD_KILL,      //Killstreak of 4
+    TRIPLE_KILL,    //Killstreak of 3
+    DOUBLE_KILL,    //Killstreak of 2
+    KILL,           //Player of the away team is killed
+    KILLED,         //Player of the home team is killed
+    FIRST_BLOOD,    //First kill in the match
+    COMBO_BREAKER;  //Someone broke a killstreak of at least 2
 }

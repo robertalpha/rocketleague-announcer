@@ -7,8 +7,6 @@ import nl.vanalphenict.model.Events
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
 
-import nl.vanalphenict.utility.TimeUtils.Companion.bothHappenWithin
-
 class Retaliation() : StatToAnnouncment {
 
     private val grudges : MutableMap<Pair<String,String>, Instant> = HashMap()
@@ -23,7 +21,7 @@ class Retaliation() : StatToAnnouncment {
         val reverted:Pair<String,String> = current.second to current.first
         return if (grudges.containsKey(reverted) && grudges[reverted]!!.plus(grudgeDuration) > currentTimeStamp) {
             grudges.remove(reverted)
-            setOf(Announcement.RETALIATION)
+            setOf(Announcement.REVENGE)
         } else emptySet()
     }
 

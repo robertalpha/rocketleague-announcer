@@ -26,7 +26,7 @@ class RetaliationTest {
 
         cut.interpret(demo(p1,p2), Instant.parse("2020-08-30T18:43:02Z")) shouldHaveSize 0
         cut.interpret(demo(p1,p2), Instant.parse("2020-08-30T18:43:03Z")) shouldHaveSize 0
-        cut.interpret(demo(p2,p1), Instant.parse("2020-08-30T18:43:04Z")) shouldContain Announcement.RETALIATION
+        cut.interpret(demo(p2,p1), Instant.parse("2020-08-30T18:43:04Z")) shouldContain Announcement.REVENGE
         cut.interpret(demo(p2,p1), Instant.parse("2020-08-30T18:43:05Z")) shouldHaveSize 0
 
 

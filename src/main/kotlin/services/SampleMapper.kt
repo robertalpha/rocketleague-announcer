@@ -7,7 +7,7 @@ class SampleMapper {
     private val mapping = mapOf<Announcement, Pair<Int, String>>(
         Announcement.KILLED_BY_BOT  to ( 10 to "718360|HUMILIATION" ),
         Announcement.OWN_GOAL       to (  9 to "718360|HUMILIATION" ),
-        Announcement.RETALIATION    to (  8 to "718360|RETALIATION" ),
+        Announcement.REVENGE        to (  8 to "718360|RETALIATION" ),
         Announcement.MASSACRE       to (  7 to "718360|MASSACRE" ),
         Announcement.PENTA_KILL     to (  6 to "718360|PENTA_KILL" ),
         Announcement.QUAD_KILL      to (  5 to "718360|QUAD_KILL" ) ,
