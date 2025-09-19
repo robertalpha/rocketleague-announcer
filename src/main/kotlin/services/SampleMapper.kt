@@ -5,17 +5,11 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.MappingConfig
+import java.io.InputStream
 
 class SampleMapper {
 
-    @OptIn(ExperimentalSerializationApi::class)
-    constructor() {
-        val conf: MappingConfig = Json.decodeFromStream({}.javaClass.getResourceAsStream("/mapping.json"))
-        parseMapping(conf)
-    }
-
-    val mapping = mutableMapOf<Announcement, Pair<Int, Collection<String>>>()
-
+    private val mapping = mutableMapOf<Announcement, Pair<Int, Collection<String>>>()
 
     private fun parseMapping(mappingConfig: MappingConfig) {
         mapping.clear()
@@ -40,4 +34,9 @@ class SampleMapper {
         return mapping[announcement]!!.second.random()
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
+    fun readSampleMapping(stream: InputStream) {
+        val conf: MappingConfig = Json.decodeFromStream(stream)
+        parseMapping(conf)
+    }
 }
