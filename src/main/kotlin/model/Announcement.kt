@@ -12,5 +12,6 @@ enum class Announcement {
     KILL,           //Player of the away team is killed
     KILLED,         //Player of the home team is killed
     FIRST_BLOOD,    //First kill in the match
+    WITNESS,        //Player of the home team is killed, but the team scores goal
     COMBO_BREAKER;  //Someone broke a killstreak of at least 2
 }
