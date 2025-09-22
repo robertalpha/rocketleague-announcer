@@ -111,10 +111,10 @@ data class Color(
 )
 
 enum class Events(private val eventName: String) {
+    DEMOLITION("Demolition"),
     DEMOLISH("Demolish"),
     OWN_GOAL("OwnGoal"),
     GOAL("Goal");
-
 
     fun eq(other: String) : Boolean {
         return eventName == other

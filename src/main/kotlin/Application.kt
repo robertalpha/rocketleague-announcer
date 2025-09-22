@@ -21,6 +21,7 @@ import nl.vanalphenict.services.announcement.OwnGoal
 import nl.vanalphenict.services.announcement.Retaliation
 import nl.vanalphenict.services.announcement.Witness
 import nl.vanalphenict.services.impl.EventPersister
+import java.io.FileInputStream
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -45,10 +46,14 @@ fun Application.module() {
     }
 
     val voice = Voice(System.getenv("TOKEN"))
-    voice.readSamples(System.getenv("SAMPLES"))
+//    voice.readSamples(System.getenv("SAMPLES"))
 
     val sampleMapper = SampleMapper()
-    sampleMapper.readSampleMapping({}.javaClass.getResourceAsStream("/mapping.json"))
+//    sampleMapper.readSampleMapping({}.javaClass.getResourceAsStream("/mapping.json"))
+
+    voice.readSamples("./testsamples/duke")
+    sampleMapper.readSampleMapping(FileInputStream("./testsamples/duke/duke.json"))
+
     val repository = EventRepository()
     val statRepository = StatRepository()
     val eventPersister = EventPersister(repository, statRepository)
