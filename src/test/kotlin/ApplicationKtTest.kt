@@ -14,7 +14,7 @@ class ApplicationTest : AbstractMessagingTest() {
 
             //FIXME put val broker = "tcp://127.0.0.1:mappedPort" in system env
 
-            module()
+            module(brokerPort =  mappedPort)
         }
         val response = client.get("/")
         assertEquals(HttpStatusCode.OK, response.status)

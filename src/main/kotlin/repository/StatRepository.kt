@@ -1,9 +1,15 @@
 package nl.vanalphenict.repository
 
 import kotlin.time.Instant
+import nl.vanalphenict.model.Events
 import nl.vanalphenict.model.StatMessage
 
 class StatRepository {
+
+    companion object {
+        fun List<Pair<Instant, StatMessage>>.filterType(messageType: Events) = this.filter { messageType.eq(it.second.event) }
+        fun List<Pair<Instant, StatMessage>>.sortedDescending() = this.sortedByDescending { it.first }
+    }
 
     private val statHistory = mutableListOf<Pair<Instant, StatMessage>>()
 

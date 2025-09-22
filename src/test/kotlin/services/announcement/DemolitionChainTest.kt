@@ -12,7 +12,6 @@ import support.getBlueTeam
 import support.getOrangeTeam
 import support.getPlayerEpic
 import support.getPlayerSteam
-import kotlin.test.Test
 
 class DemolitionChainTest {
     @Test
@@ -21,6 +20,7 @@ class DemolitionChainTest {
         val cut = DemolitionChain(repo)
 
 
+        cut.interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:00Z")) shouldBe Announcement.NOTHING
         repo.addStatMessage(Instant.parse("2020-08-30T18:43:00Z"), demoStatmessage())
         cut.interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:02Z")) shouldContain Announcement.DOUBLE_KILL
         repo.addStatMessage(Instant.parse("2020-08-30T18:43:06Z"), demoStatmessage())
