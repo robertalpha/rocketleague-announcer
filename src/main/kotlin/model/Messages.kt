@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class GameEventMessage(
     val matchGUID: String,
     val gameEvent: String,
-    val teams: List<Team> = emptyList()
+    val teams: List<Team>? = emptyList()
 )
 
 @Serializable

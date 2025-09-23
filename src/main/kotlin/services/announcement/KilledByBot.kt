@@ -7,6 +7,8 @@ import nl.vanalphenict.services.StatToAnnouncment
 import kotlin.time.Instant
 
 class KilledByBot : StatToAnnouncment {
+    override fun listenTo() = setOf(Events.DEMOLISH)
+
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
         return if (
             Events.DEMOLISH.eq(statMessage.event) &&

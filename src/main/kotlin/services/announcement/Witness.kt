@@ -9,11 +9,12 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 class Witness(val statRepository: StatRepository): StatToAnnouncment {
+    override fun listenTo() = setOf(Events.GOAL)
 
     private val witnessWindow = 3.seconds
 
     override fun interpret(statMessage: StatMessage,currentTimeStamp: Instant): Set<Announcement> {
-        if (!Events.GOAL.eq(statMessage.event) || !statMessage.player.team!!.homeTeam) return emptySet()
+        if (!statMessage.player.team!!.homeTeam!!) return emptySet()
 
         if (statRepository.getStatHistory(statMessage.matchGUID)
                 .filter { (instant, _) -> currentTimeStamp.minus(instant) < witnessWindow }

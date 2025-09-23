@@ -8,13 +8,13 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 class Revenge() : StatToAnnouncment {
+    override fun listenTo() = setOf(Events.DEMOLISH)
 
     private val grudges : MutableMap<Pair<String,String>, Instant> = HashMap()
 
     private val grudgeDuration = 60.seconds
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
-        if (!Events.DEMOLISH.eq(statMessage.event)) return emptySet()
 
         val current:Pair<String,String> =  (statMessage.player.botSaveId()) to (statMessage.victim!!.botSaveId())
         grudges[current] = currentTimeStamp

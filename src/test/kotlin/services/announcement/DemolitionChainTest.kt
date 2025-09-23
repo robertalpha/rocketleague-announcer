@@ -2,6 +2,7 @@ package services.announcement
 
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
+import kotlin.test.Test
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatMessage
@@ -20,7 +21,7 @@ class DemolitionChainTest {
         val cut = DemolitionChain(repo)
 
 
-        cut.interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:00Z")) shouldBe Announcement.NOTHING
+        cut.interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:00Z")) shouldHaveSize 0
         repo.addStatMessage(Instant.parse("2020-08-30T18:43:00Z"), demoStatmessage())
         cut.interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:02Z")) shouldContain Announcement.DOUBLE_KILL
         repo.addStatMessage(Instant.parse("2020-08-30T18:43:06Z"), demoStatmessage())

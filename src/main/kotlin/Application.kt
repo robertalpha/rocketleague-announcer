@@ -2,15 +2,17 @@ package nl.vanalphenict
 
 import com.janoz.discord.Voice
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
 import io.ktor.server.plugins.calllogging.CallLogging
-import nl.vanalphenict.messaging.MessagingClient
-import nl.vanalphenict.services.EventHandler
-import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.request.httpMethod
 import io.ktor.server.webjars.Webjars
+import java.io.FileInputStream
+import nl.vanalphenict.messaging.MessagingClient
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.AnnouncementHandler
+import nl.vanalphenict.services.EventHandler
 import nl.vanalphenict.services.EventRepository
 import nl.vanalphenict.services.SampleMapper
 import nl.vanalphenict.services.announcement.DemolitionChain
@@ -21,7 +23,8 @@ import nl.vanalphenict.services.announcement.OwnGoal
 import nl.vanalphenict.services.announcement.Retaliation
 import nl.vanalphenict.services.announcement.Witness
 import nl.vanalphenict.services.impl.EventPersister
-import java.io.FileInputStream
+import services.announcement.Extermination
+import services.announcement.MutualDestruction
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -33,12 +36,9 @@ fun Application.module(
         brokerPort: Int = 1883
     ) {
 
-    val token = System.getenv("TOKEN")
-    val sampleDir = System.getenv("SAMPLES")
-
-    val brokerProtocolEnv = System.getenv("BROKER_PROTOCOL")
+    val brokerProtocolEnv = "ssl"
     val brokerAddressEnv = System.getenv("BROKER_ADDRESS")
-    val brokerPortEnv = System.getenv("BROKER_ADDRESS")
+    val brokerPortEnv = System.getenv("BROKER_PORT")
     val brokerUrl = "${brokerProtocolEnv?:brokerProtocol}://${brokerAddressEnv?:brokerAddress}:${brokerPortEnv?:brokerPort}"
 
 
@@ -58,8 +58,13 @@ fun Application.module(
         }
     }
 
-    val voice = null // Voice(token) # fixme
-    //  voice.readSamples(sampleDir)
+    val voice = Voice(System.getenv("TOKEN"))
+
+    val sampleMapper = SampleMapper()
+
+    voice.readSamples(System.getenv("SAMPLE_DIR"))
+    sampleMapper.readSampleMapping(FileInputStream(System.getenv("SAMPLE_TEMPLATE")))
+
 
     val repository = EventRepository()
     val statRepository = StatRepository()
@@ -68,6 +73,8 @@ fun Application.module(
         voice,
         listOf(
             DemolitionChain(statRepository),
+            Extermination(statRepository),
+            MutualDestruction(statRepository),
             Witness(statRepository),
             FirstBlood(statRepository),
             KilledByBot(),
@@ -76,7 +83,12 @@ fun Application.module(
             Kill()),
         sampleMapper)
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
-    val client = MessagingClient(eventHandler, brokerUrl)
+    val client = try {
+        MessagingClient(eventHandler, brokerUrl)
+    } catch (ex: Exception) {
+        println("could not connect to broker")
+        throw ex
+    }
 
     configureRouting(client)
 }

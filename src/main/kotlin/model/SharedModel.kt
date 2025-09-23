@@ -49,14 +49,14 @@ data class Player(
 
 @Serializable
 data class Team(
-    val clubId: Int,
-    val homeTeam: Boolean,
-    val index:Int,
-    val name:String,
-    val num:Int,
-    val score: Int,
-    val primaryColor: Color,
-    val secondaryColor: Color,
+    val clubId: Int? = null,
+    val homeTeam: Boolean? = null,
+    val index:Int? = null,
+    val name:String? = null,
+    val num:Int? = null,
+    val score: Int? = null,
+    val primaryColor: Color? = null,
+    val secondaryColor: Color? = null,
     val players: List<Player>? = Collections.emptyList()) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -73,8 +73,8 @@ data class Team(
     }
 
     override fun hashCode(): Int {
-        var result = clubId
-        result = 31 * result + index
+        var result = clubId?:0
+        result = 31 * result + (index?:0)
         result = 31 * result + (players?.hashCode() ?: 0)
         return result
     }

@@ -8,13 +8,13 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 class DemoChain: StatToAnnouncment  {
+    override fun listenTo() = setOf(Events.DEMOLISH)
 
     private val pivotDuration = 11.seconds
 
     private val data:MutableMap<String, Pair<Int, Instant>> = HashMap()
 
     override fun interpret(statMessage: StatMessage,currentTimeStamp: Instant): Set<Announcement> {
-        if (!Events.DEMOLISH.eq(statMessage.event)) return emptySet()
 
         val streak = data.computeIfAbsent(statMessage.matchGUID) { Pair(0, currentTimeStamp) }
 

@@ -9,13 +9,13 @@ import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.StatToAnnouncment
 
 class DemolitionChain(private val statRepository: StatRepository) : StatToAnnouncment {
+    override fun listenTo() = setOf(Events.DEMOLISH)
 
     private val PIVOT_DURATION = 11.seconds
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
 
-        if (!Events.DEMOLISH.eq(statMessage.event) ||
-            statMessage.player.team?.homeTeam == false) return emptySet()
+        if (statMessage.player.team?.homeTeam == false) return emptySet()
 
         var demos = statRepository.getStatHistory(statMessage.matchGUID)
             .filter { (_,message) -> Events.DEMOLISH.eq(message.event) }

@@ -9,12 +9,16 @@ class AnnouncementHandler(
     private val interpreters : List<StatToAnnouncment>,
     private val sampleMapper: SampleMapper) : EventHandler {
 
-    val gid: Long = System.getenv("GID").toLong()
-    val vid: Long = System.getenv("VID").toLong()
+    val groupIDEnv = System.getenv("GUILD_ID")
+    
+    val gid: Long = groupIDEnv.toLong()
+    val vid: Long = System.getenv("VOICE_CHANNEL_ID").toLong()
 
     override fun handleStatMessage(msg: StatMessage) {
         val announcements = kotlin.collections.HashSet<Announcement>()
-        interpreters.forEach {
+        interpreters.filter { interpreter ->
+            interpreter.listenTo().any{event -> event.eq(msg.event)}
+        }.forEach {
             announcements.addAll(it.interpret(msg))
         }
         val sample = sampleMapper.getSample(announcements)

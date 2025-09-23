@@ -30,10 +30,17 @@ class MessagingClient(
 
 
     init {
-        val clientId = "rl-announcer_client"
+        val clientId = "rouncerdouncer"
 
         client = MqttClient(serverAddress, clientId, MemoryPersistence())
         val options = MqttConnectOptions()
+
+        val username = System.getenv("BROKER_USERNAME")
+        val password = System.getenv("BROKER_PASSWORD")
+
+        username?.let {  options.userName = username }
+        password?.let {  options.password = password.toCharArray() }
+        options.isCleanSession = true
 
         client.connect(options)
 
@@ -94,4 +101,6 @@ class MessagingClient(
         message.setQos(QOS)
         client.publish(topic, message)
     }
+
+
 }

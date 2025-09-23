@@ -8,11 +8,11 @@ import kotlin.time.Instant
 
 class Kill: StatToAnnouncment  {
 
+    override fun listenTo() = setOf(Events.DEMOLISH)
+
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
-        return if (Events.DEMOLISH.eq(statMessage.event))
             return if (statMessage.player.team?.homeTeam == true)
                 setOf(Announcement.KILL)
             else setOf(Announcement.KILLED)
-        else emptySet()
     }
 }

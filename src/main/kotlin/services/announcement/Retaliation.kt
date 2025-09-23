@@ -8,18 +8,18 @@ import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
 
 class Retaliation() : StatToAnnouncment {
+    override fun listenTo() = setOf(Events.DEMOLISH)
 
     private val grudges : MutableMap<String, Instant> = HashMap()
 
     private val grudgeDuration = 10.seconds
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
-        if (!Events.DEMOLISH.eq(statMessage.event)) return emptySet()
 
         val killer = statMessage.player
         val victim = statMessage.victim!!
 
-        if (killer.team!!.homeTeam) {
+        if (killer.team!!.homeTeam!!) {
             val grudge: Instant? = grudges.remove(victim.botSaveId())
             if (grudge != null && grudge.plus(grudgeDuration) > currentTimeStamp) {
                 return setOf(Announcement.RETALIATION)

@@ -10,15 +10,17 @@ import nl.vanalphenict.repository.StatRepository.Companion.filterType
 
 class FirstBlood(private val repository: StatRepository) : StatToAnnouncment  {
 
-    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Announcement {
-        if (!Events.DEMOLISH.eq(statMessage.event)) return Announcement.NOTHING
+    override fun listenTo() = setOf(Events.DEMOLISH)
+
+    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
+        if (!Events.DEMOLISH.eq(statMessage.event)) return emptySet()
 
         if(repository.getStatHistory(statMessage.matchGUID)
             .filterType(Events.DEMOLISH)
             .isEmpty()) {
-            return Announcement.FIRST_BLOOD
+            return setOf(Announcement.FIRST_BLOOD)
         }
 
-        return Announcement.NOTHING
+        return emptySet()
     }
 }

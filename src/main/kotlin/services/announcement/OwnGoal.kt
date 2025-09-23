@@ -1,14 +1,15 @@
 package nl.vanalphenict.services.announcement
 
+import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.Events
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
-import kotlin.time.Instant
 
 class OwnGoal: StatToAnnouncment   {
+    override fun listenTo() = setOf(Events.OWN_GOAL)
+
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
-        return if (Events.OWN_GOAL.eq(statMessage.event))  setOf(Announcement.OWN_GOAL)
-        else emptySet()
+        return setOf(Announcement.OWN_GOAL)
     }
 }
