@@ -7,24 +7,27 @@ import nl.vanalphenict.model.Events
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
 
-import nl.vanalphenict.utility.TimeUtils.Companion.bothHappenWithin
-
 class Retaliation() : StatToAnnouncment {
 
-    private val grudges : MutableMap<Pair<String,String>, Instant> = HashMap()
+    private val grudges : MutableMap<String, Instant> = HashMap()
 
-    private val grudgeDuration = 30.seconds
+    private val grudgeDuration = 10.seconds
 
-    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Announcement {
-        if (!Events.DEMOLISH.eq(statMessage.event)) return Announcement.NOTHING
+    override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
+        if (!Events.DEMOLISH.eq(statMessage.event)) return emptySet()
 
-        val current:Pair<String,String> =  (statMessage.player.botSaveId()) to (statMessage.victim!!.botSaveId())
-        grudges[current] = currentTimeStamp
-        val reverted:Pair<String,String> = current.second to current.first
-        return if (grudges.containsKey(reverted) && grudges[reverted]!!.plus(grudgeDuration) > currentTimeStamp) {
-            grudges.remove(reverted)
-            Announcement.RETALIATION
-        } else Announcement.NOTHING
+        val killer = statMessage.player
+        val victim = statMessage.victim!!
+
+        if (killer.team!!.homeTeam) {
+            val grudge: Instant? = grudges.remove(victim.botSaveId())
+            if (grudge != null && grudge.plus(grudgeDuration) > currentTimeStamp) {
+                return setOf(Announcement.RETALIATION)
+            }
+        } else {
+            grudges[killer.botSaveId()] = currentTimeStamp
+        }
+        return emptySet()
     }
 
 }

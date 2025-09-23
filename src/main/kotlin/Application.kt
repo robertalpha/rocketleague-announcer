@@ -12,12 +12,16 @@ import io.ktor.server.webjars.Webjars
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.AnnouncementHandler
 import nl.vanalphenict.services.EventRepository
+import nl.vanalphenict.services.SampleMapper
 import nl.vanalphenict.services.announcement.DemolitionChain
 import nl.vanalphenict.services.announcement.FirstBlood
+import nl.vanalphenict.services.announcement.Kill
 import nl.vanalphenict.services.announcement.KilledByBot
 import nl.vanalphenict.services.announcement.OwnGoal
 import nl.vanalphenict.services.announcement.Retaliation
+import nl.vanalphenict.services.announcement.Witness
 import nl.vanalphenict.services.impl.EventPersister
+import java.io.FileInputStream
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -54,19 +58,23 @@ fun Application.module(
         }
     }
 
-
     val voice = null // Voice(token) # fixme
     //  voice.readSamples(sampleDir)
 
     val repository = EventRepository()
     val statRepository = StatRepository()
     val eventPersister = EventPersister(repository, statRepository)
-    val announcementHandler = AnnouncementHandler(voice,listOf(
-        DemolitionChain(statRepository),
-        FirstBlood(statRepository),
-        KilledByBot(),
-        OwnGoal(),
-        Retaliation()))
+    val announcementHandler = AnnouncementHandler(
+        voice,
+        listOf(
+            DemolitionChain(statRepository),
+            Witness(statRepository),
+            FirstBlood(statRepository),
+            KilledByBot(),
+            OwnGoal(),
+            Retaliation(),
+            Kill()),
+        sampleMapper)
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
     val client = MessagingClient(eventHandler, brokerUrl)
 
