@@ -21,7 +21,8 @@ import nl.vanalphenict.services.announcement.FirstBlood
 import nl.vanalphenict.services.announcement.Kill
 import nl.vanalphenict.services.announcement.KilledByBot
 import nl.vanalphenict.services.announcement.Retaliation
-import nl.vanalphenict.services.announcement.Witness
+import nl.vanalphenict.services.announcement.WitnessSave
+import nl.vanalphenict.services.announcement.WitnessScore
 import nl.vanalphenict.services.impl.EventPersister
 import services.announcement.Extermination
 import services.announcement.MutualDestruction
@@ -75,7 +76,8 @@ fun Application.module(
             DemolitionChain(statRepository),
             Extermination(statRepository),
             MutualDestruction(statRepository),
-            Witness(statRepository),
+            WitnessScore(statRepository),
+            WitnessSave(statRepository),
             FirstBlood(statRepository),
             KilledByBot(),
             Retaliation(),
