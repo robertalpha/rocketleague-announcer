@@ -19,4 +19,17 @@ enum class Announcement {
     EXTERMINATION,  // 7 demolitions = extermination
     EXTERMINATION_DOUBLE, // 14 demolitions = second extermination
     MUTUAL_DESTRUCTION, //Player demolishes opponent, but is demolished as well
+
+    // Direct mapping from Rocket League events
+    AERIAL_GOAL,
+    BACKWARD_GOAL,
+    BICYCLE_GOAL,
+    LONG_GOAL,
+    TURTLE_GOAL,
+    POOL_SHOT,
+    HATTRICK,
+
+    SAVE,
+    EPIC_SAVE,
+
 }

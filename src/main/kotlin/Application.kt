@@ -15,11 +15,11 @@ import nl.vanalphenict.services.AnnouncementHandler
 import nl.vanalphenict.services.EventHandler
 import nl.vanalphenict.services.EventRepository
 import nl.vanalphenict.services.SampleMapper
+import nl.vanalphenict.services.announcement.AsIs
 import nl.vanalphenict.services.announcement.DemolitionChain
 import nl.vanalphenict.services.announcement.FirstBlood
 import nl.vanalphenict.services.announcement.Kill
 import nl.vanalphenict.services.announcement.KilledByBot
-import nl.vanalphenict.services.announcement.OwnGoal
 import nl.vanalphenict.services.announcement.Retaliation
 import nl.vanalphenict.services.announcement.Witness
 import nl.vanalphenict.services.impl.EventPersister
@@ -78,9 +78,10 @@ fun Application.module(
             Witness(statRepository),
             FirstBlood(statRepository),
             KilledByBot(),
-            OwnGoal(),
             Retaliation(),
-            Kill()),
+            Kill(),
+            AsIs()
+        ),
         sampleMapper)
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
     val client = try {
