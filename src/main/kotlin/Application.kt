@@ -37,7 +37,7 @@ fun Application.module(
         brokerPort: Int = 1883
     ) {
 
-    val brokerProtocolEnv = "ssl"
+    val brokerProtocolEnv = System.getenv("BROKER_PROTOCOL")
     val brokerAddressEnv = System.getenv("BROKER_ADDRESS")
     val brokerPortEnv = System.getenv("BROKER_PORT")
     val brokerUrl = "${brokerProtocolEnv?:brokerProtocol}://${brokerAddressEnv?:brokerAddress}:${brokerPortEnv?:brokerPort}"
