@@ -10,14 +10,15 @@ import io.ktor.server.request.httpMethod
 import io.ktor.server.webjars.Webjars
 import java.io.FileInputStream
 import nl.vanalphenict.messaging.MessagingClient
+import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.AnnouncementHandler
 import nl.vanalphenict.services.EventHandler
-import nl.vanalphenict.services.EventRepository
 import nl.vanalphenict.services.SampleMapper
 import nl.vanalphenict.services.announcement.AsIs
 import nl.vanalphenict.services.announcement.DemolitionChain
 import nl.vanalphenict.services.announcement.FirstBlood
+import nl.vanalphenict.services.announcement.KickOffKill
 import nl.vanalphenict.services.announcement.Kill
 import nl.vanalphenict.services.announcement.KilledByBot
 import nl.vanalphenict.services.announcement.Retaliation
@@ -77,9 +78,9 @@ fun Application.module(
         configs.add(SampleMapper.constructSampleMapper(FileInputStream(sampleMapping)))
     }
 
-    val repository = EventRepository()
     val statRepository = StatRepository()
-    val eventPersister = EventPersister(repository, statRepository)
+    val gameEventRepository = GameEventRepository()
+    val eventPersister = EventPersister(statRepository, gameEventRepository)
     val announcementHandler = AnnouncementHandler(
         voice.discordService,
         listOf(
@@ -87,6 +88,7 @@ fun Application.module(
             DemolitionChain(statRepository),
             Extermination(statRepository),
             FirstBlood(statRepository),
+            KickOffKill(gameEventRepository),
             Kill(),
             KilledByBot(),
             MutualDestruction(statRepository),
