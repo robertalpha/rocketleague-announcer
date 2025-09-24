@@ -19,7 +19,7 @@ class WitnessScore(val statRepository: StatRepository): StatToAnnouncment {
         return if (statRepository.getStatHistory(statMessage.matchGUID)
                 .filter { (instant, _) -> currentTimeStamp.minus(instant) < witnessWindow }
                 .filter { (_, message) -> Events.DEMOLISH.eq(message.event) }
-                .count { (_, message) -> message.victim!!.botSaveId() == statMessage.player.botSaveId() } > 0) {
+                .count { (_, message) -> statMessage.player.isSame(message.victim) } > 0) {
             setOf(Announcement.WITNESS)
         } else emptySet()
     }

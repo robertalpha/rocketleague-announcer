@@ -25,7 +25,7 @@ class WitnessSave(val statRepository: StatRepository): StatToAnnouncment {
                     Events.SAVE.eq(message.event) ||
                     Events.EPIC_SAVE.eq(message.event)
                 }
-                .count { (_, message) -> message.player.botSaveId() == statMessage.victim!!.botSaveId() } > 0) {
+                .count { (_, message) -> message.player.isSame(statMessage.victim) } > 0) {
              setOf(Announcement.WITNESS)
         } else  emptySet()
     }
