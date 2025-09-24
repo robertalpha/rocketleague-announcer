@@ -60,18 +60,27 @@ fun Application.module(
     }
 
     val voice = Voice(System.getenv("TOKEN"))
+    voice.sampleService.readSamplesZip(javaClass.getResourceAsStream("/samples/FPS.zip"))
 
-    val sampleMapper = SampleMapper()
+    val configs: MutableList<SampleMapper> = ArrayList()
 
-    voice.readSamples(System.getenv("SAMPLE_DIR"))
-    sampleMapper.readSampleMapping(FileInputStream(System.getenv("SAMPLE_TEMPLATE")))
+    configs.add(SampleMapper.constructSampleMapper(
+        javaClass.getResourceAsStream("/samples/FPS.mapping.json")))
 
+
+    System.getenv("SAMPLE_DIR")?.let { sampleDir ->
+        voice.sampleService.readSamples(sampleDir)
+    }
+
+    System.getenv("SAMPLE_MAPPING")?.let { sampleMapping ->
+        configs.add(SampleMapper.constructSampleMapper(FileInputStream(sampleMapping)))
+    }
 
     val repository = EventRepository()
     val statRepository = StatRepository()
     val eventPersister = EventPersister(repository, statRepository)
     val announcementHandler = AnnouncementHandler(
-        voice,
+        voice.discordService,
         listOf(
             DemolitionChain(statRepository),
             Extermination(statRepository),
@@ -84,7 +93,7 @@ fun Application.module(
             Kill(),
             AsIs()
         ),
-        sampleMapper)
+        configs.last()) // For now use environment when available, otherwise default
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
     val client = try {
         MessagingClient(eventHandler, brokerUrl)
@@ -94,4 +103,5 @@ fun Application.module(
     }
 
     configureRouting(client)
+
 }

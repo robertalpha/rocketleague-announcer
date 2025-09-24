@@ -1,17 +1,15 @@
 package nl.vanalphenict.services
 
-import com.janoz.discord.Voice
+import com.janoz.discord.DiscordService
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatMessage
 
 class AnnouncementHandler(
-    private val voice: Voice,
+    private val discordService: DiscordService,
     private val interpreters : List<StatToAnnouncment>,
-    private val sampleMapper: SampleMapper) : EventHandler {
+    private var sampleMapper: SampleMapper) : EventHandler {
 
-    val groupIDEnv = System.getenv("GUILD_ID")
-    
-    val gid: Long = groupIDEnv.toLong()
+    val gid: Long = System.getenv("GUILD_ID").toLong()
     val vid: Long = System.getenv("VOICE_CHANNEL_ID").toLong()
 
     override fun handleStatMessage(msg: StatMessage) {
@@ -25,7 +23,11 @@ class AnnouncementHandler(
         if (sample != null) triggerSound(sample)
     }
 
-    fun triggerSound(sample: String) {
-        voice.play(sample, gid, vid)
+    private fun triggerSound(sample: String) {
+        discordService.play(sample, gid, vid)
+    }
+
+    fun replaceMapping(newMap : SampleMapper) {
+        sampleMapper = newMap
     }
 }

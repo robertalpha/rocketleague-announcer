@@ -7,16 +7,11 @@ import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.MappingConfig
 import java.io.InputStream
 
-class SampleMapper {
-
-    private val mapping = mutableMapOf<Announcement, Pair<Int, Collection<String>>>()
-
-    private fun parseMapping(mappingConfig: MappingConfig) {
-        mapping.clear()
-        mappingConfig.mapping.forEach {
-            mapping[it.announcement] = it.weight to it.samples
-        }
-    }
+class SampleMapper(
+    val name: String,
+    val info: String,
+    val src: String?,
+    private val mapping: Map<Announcement, Pair<Int, Collection<String>>>) {
 
     private fun highestScore(one : Announcement, two : Announcement) : Announcement {
         return if (mapping[one]!!.first > mapping[two]!!.first)
@@ -34,9 +29,15 @@ class SampleMapper {
         return mapping[announcement]!!.second.random()
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    fun readSampleMapping(stream: InputStream) {
-        val conf: MappingConfig = Json.decodeFromStream(stream)
-        parseMapping(conf)
+    companion object {
+        @OptIn(ExperimentalSerializationApi::class)
+        fun constructSampleMapper(stream: InputStream) : SampleMapper{
+            val conf: MappingConfig = Json.decodeFromStream(stream)
+            val mapping = mutableMapOf<Announcement, Pair<Int, Collection<String>>>()
+            conf.mapping.forEach {
+                mapping[it.announcement] = it.weight to it.samples
+            }
+            return SampleMapper(conf.name, conf.info, conf.src, mapping)
+        }
     }
 }
