@@ -21,6 +21,7 @@ import nl.vanalphenict.services.announcement.FirstBlood
 import nl.vanalphenict.services.announcement.Kill
 import nl.vanalphenict.services.announcement.KilledByBot
 import nl.vanalphenict.services.announcement.Retaliation
+import nl.vanalphenict.services.announcement.Revenge
 import nl.vanalphenict.services.announcement.WitnessSave
 import nl.vanalphenict.services.announcement.WitnessScore
 import nl.vanalphenict.services.impl.EventPersister
@@ -82,16 +83,17 @@ fun Application.module(
     val announcementHandler = AnnouncementHandler(
         voice.discordService,
         listOf(
+            AsIs(),
             DemolitionChain(statRepository),
             Extermination(statRepository),
+            FirstBlood(statRepository),
+            Kill(),
+            KilledByBot(),
             MutualDestruction(statRepository),
+            Retaliation(),
+            Revenge(),
             WitnessScore(statRepository),
             WitnessSave(statRepository),
-            FirstBlood(statRepository),
-            KilledByBot(),
-            Retaliation(),
-            Kill(),
-            AsIs()
         ),
         configs.last()) // For now use environment when available, otherwise default
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()

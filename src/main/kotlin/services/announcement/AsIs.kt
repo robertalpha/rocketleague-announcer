@@ -30,6 +30,6 @@ class AsIs: StatToAnnouncment   {
         return mapping
             .filter { (e,_) -> e.eq(statMessage.event) }
             .map{ (_,a) -> setOf(a) }
-            .getOrElse(0) { emptySet() }
+            .firstOrNull() ?: emptySet()
     }
 }
