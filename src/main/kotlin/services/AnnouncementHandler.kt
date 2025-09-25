@@ -1,31 +1,41 @@
 package nl.vanalphenict.services
 
-import com.janoz.discord.Voice
+import com.janoz.discord.DiscordService
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatMessage
+import java.util.HashSet
 
 class AnnouncementHandler(
-    private val voice: Voice,
-    private val interpreters : List<StatToAnnouncment>,
-    private val sampleMapper: SampleMapper) : EventHandler {
+    private val discordService: DiscordService,
+    interpreters : Collection<StatToAnnouncment>,
+    private var sampleMapper: SampleMapper) : EventHandler {
 
-    val groupIDEnv = System.getenv("GUILD_ID")
-    
-    val gid: Long = groupIDEnv.toLong()
-    val vid: Long = System.getenv("VOICE_CHANNEL_ID").toLong()
+    private val interpreterMap : MutableMap<String, Set<StatToAnnouncment>> = HashMap()
+    private val gid: Long = System.getenv("GUILD_ID").toLong()
+    private val vid: Long = System.getenv("VOICE_CHANNEL_ID").toLong()
+
+    init {
+        interpreters.forEach { interpreter ->
+            interpreter.listenTo().forEach { event ->
+                    interpreterMap[event.name] =
+                        (interpreterMap[event.name] ?: HashSet()).plus(interpreter)
+            }
+        };
+    }
 
     override fun handleStatMessage(msg: StatMessage) {
         val announcements = kotlin.collections.HashSet<Announcement>()
-        interpreters.filter { interpreter ->
-            interpreter.listenTo().any{event -> event.eq(msg.event)}
-        }.forEach {
-            announcements.addAll(it.interpret(msg))
+        interpreterMap[msg.event]?.let {
+            it.forEach { interpreter -> announcements.addAll(interpreter.interpret(msg)) }
         }
-        val sample = sampleMapper.getSample(announcements)
-        if (sample != null) triggerSound(sample)
+        sampleMapper.getSample(announcements)?.let { triggerSound(it) }
     }
 
-    fun triggerSound(sample: String) {
-        voice.play(sample, gid, vid)
+    private fun triggerSound(sample: String) {
+        discordService.play(sample, gid, vid)
+    }
+
+    fun replaceMapping(newMap : SampleMapper) {
+        sampleMapper = newMap
     }
 }

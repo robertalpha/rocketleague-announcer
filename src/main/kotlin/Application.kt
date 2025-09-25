@@ -10,18 +10,21 @@ import io.ktor.server.request.httpMethod
 import io.ktor.server.webjars.Webjars
 import java.io.FileInputStream
 import nl.vanalphenict.messaging.MessagingClient
+import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.AnnouncementHandler
 import nl.vanalphenict.services.EventHandler
-import nl.vanalphenict.services.EventRepository
 import nl.vanalphenict.services.SampleMapper
+import nl.vanalphenict.services.announcement.AsIs
 import nl.vanalphenict.services.announcement.DemolitionChain
 import nl.vanalphenict.services.announcement.FirstBlood
+import nl.vanalphenict.services.announcement.KickOffKill
 import nl.vanalphenict.services.announcement.Kill
 import nl.vanalphenict.services.announcement.KilledByBot
-import nl.vanalphenict.services.announcement.OwnGoal
 import nl.vanalphenict.services.announcement.Retaliation
-import nl.vanalphenict.services.announcement.Witness
+import nl.vanalphenict.services.announcement.Revenge
+import nl.vanalphenict.services.announcement.WitnessSave
+import nl.vanalphenict.services.announcement.WitnessScore
 import nl.vanalphenict.services.impl.EventPersister
 import services.announcement.Extermination
 import services.announcement.MutualDestruction
@@ -36,7 +39,7 @@ fun Application.module(
         brokerPort: Int = 1883
     ) {
 
-    val brokerProtocolEnv = "ssl"
+    val brokerProtocolEnv = System.getenv("BROKER_PROTOCOL")
     val brokerAddressEnv = System.getenv("BROKER_ADDRESS")
     val brokerPortEnv = System.getenv("BROKER_PORT")
     val brokerUrl = "${brokerProtocolEnv?:brokerProtocol}://${brokerAddressEnv?:brokerAddress}:${brokerPortEnv?:brokerPort}"
@@ -59,29 +62,42 @@ fun Application.module(
     }
 
     val voice = Voice(System.getenv("TOKEN"))
+    voice.sampleService.readSamplesZip(javaClass.getResourceAsStream("/samples/FPS.zip"))
 
-    val sampleMapper = SampleMapper()
+    val configs: MutableList<SampleMapper> = ArrayList()
 
-    voice.readSamples(System.getenv("SAMPLE_DIR"))
-    sampleMapper.readSampleMapping(FileInputStream(System.getenv("SAMPLE_TEMPLATE")))
+    configs.add(SampleMapper.constructSampleMapper(
+        javaClass.getResourceAsStream("/samples/FPS.mapping.json")))
 
 
-    val repository = EventRepository()
+    System.getenv("SAMPLE_DIR")?.let { sampleDir ->
+        voice.sampleService.readSamples(sampleDir)
+    }
+
+    System.getenv("SAMPLE_MAPPING")?.let { sampleMapping ->
+        configs.add(SampleMapper.constructSampleMapper(FileInputStream(sampleMapping)))
+    }
+
     val statRepository = StatRepository()
-    val eventPersister = EventPersister(repository, statRepository)
+    val gameEventRepository = GameEventRepository()
+    val eventPersister = EventPersister(statRepository, gameEventRepository)
     val announcementHandler = AnnouncementHandler(
-        voice,
+        voice.discordService,
         listOf(
+            AsIs(),
             DemolitionChain(statRepository),
             Extermination(statRepository),
-            MutualDestruction(statRepository),
-            Witness(statRepository),
             FirstBlood(statRepository),
+            KickOffKill(gameEventRepository),
+            Kill(),
             KilledByBot(),
-            OwnGoal(),
+            MutualDestruction(statRepository),
             Retaliation(),
-            Kill()),
-        sampleMapper)
+            Revenge(),
+            WitnessScore(statRepository),
+            WitnessSave(statRepository),
+        ),
+        configs.last()) // For now use environment when available, otherwise default
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
     val client = try {
         MessagingClient(eventHandler, brokerUrl)
@@ -91,4 +107,5 @@ fun Application.module(
     }
 
     configureRouting(client)
+
 }

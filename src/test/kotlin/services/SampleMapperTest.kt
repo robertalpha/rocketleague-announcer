@@ -3,20 +3,14 @@ package services
 import io.kotest.matchers.shouldBe
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.services.SampleMapper
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class SampleMapperTest {
 
-    val sampleMapper = SampleMapper()
-
-    @BeforeTest
-    fun loadMapping() {
-        sampleMapper.readSampleMapping({}.javaClass.getResourceAsStream("/mapping.json"))
-    }
 
     @Test
     fun testMapping() {
+        val sampleMapper = SampleMapper.constructSampleMapper({}.javaClass.getResourceAsStream("/samples/FPS.mapping.json"))
         sampleMapper.getSample(setOf(
             Announcement.KILL,
             Announcement.KILLED,

@@ -15,8 +15,22 @@ enum class Announcement {
     FIRST_BLOOD,    //First kill in the match
     WITNESS,        //Player of the home team is killed, but the team scores a goal
     COMBO_BREAKER,  //Someone broke a killstreak of at least 2
+    KICK_OFF_KILL,  //Kill during kickoff
 
-    EXTERMINATION,  // 7 demolitions = extermination
-    EXTERMINATION_DOUBLE, // 14 demolitions = second extermination
-    MUTUAL_DESTRUCTION, //Player demolishes opponent, but is demolished as well
+    EXTERMINATION,          // 7 demolitions = extermination
+    EXTERMINATION_DOUBLE,   // 14 demolitions = second extermination
+    MUTUAL_DESTRUCTION,     // Player demolishes opponent, but is demolished as well
+
+    // Direct mapping from Rocket League events
+    AERIAL_GOAL,
+    BACKWARD_GOAL,
+    BICYCLE_GOAL,
+    LONG_GOAL,
+    TURTLE_GOAL,
+    POOL_SHOT,
+    HATTRICK,
+
+    SAVE,
+    EPIC_SAVE,
+
 }

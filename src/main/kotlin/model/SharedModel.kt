@@ -114,7 +114,16 @@ enum class Events(private val eventName: String) {
     DEMOLITION("Demolition"),
     DEMOLISH("Demolish"),
     OWN_GOAL("OwnGoal"),
-    GOAL("Goal");
+    GOAL("Goal"),
+    AERIAL_GOAL("AerialGoal"),
+    BACKWARD_GOAL("BackwardsGoal"),
+    BICYCLE_GOAL("BicycleGoal"),
+    LONG_GOAL("LongGoal"),
+    TURTLE_GOAL("TurtleGoal"),
+    POOL_SHOT("PoolShot"),
+    HATTRICK("HatTrick"),
+    SAVE("Save"),
+    EPIC_SAVE("EpicSave");
 
     fun eq(other: String) : Boolean {
         return eventName == other

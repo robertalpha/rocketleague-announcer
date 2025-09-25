@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class MappingConfig(
     val name: String,
     val info: String,
+    val src: String? = null,
     val mapping: Collection<Mapping>
 )
 
