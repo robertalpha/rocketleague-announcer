@@ -62,13 +62,13 @@ fun Application.module(
     }
 
     val voice = Voice(System.getenv("TOKEN"))
-    voice.sampleService.readSamplesZip(javaClass.getResourceAsStream("/samples/FPS.zip"))
+//    voice.sampleService.readSamplesZip(javaClass.getResourceAsStream("/samples/FPS.zip"))
 
     val configs: MutableList<SampleMapper> = ArrayList()
-
-    configs.add(SampleMapper.constructSampleMapper(
-        javaClass.getResourceAsStream("/samples/FPS.mapping.json")))
-
+//
+//    configs.add(SampleMapper.constructSampleMapper(
+//        javaClass.getResourceAsStream("/samples/FPS.mapping.json")))
+//
 
     System.getenv("SAMPLE_DIR")?.let { sampleDir ->
         voice.sampleService.readSamples(sampleDir)

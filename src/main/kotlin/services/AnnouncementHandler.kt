@@ -20,7 +20,7 @@ class AnnouncementHandler(
                     interpreterMap[event.name] =
                         (interpreterMap[event.name] ?: HashSet()).plus(interpreter)
             }
-        };
+        }
     }
 
     override fun handleStatMessage(msg: StatMessage) {

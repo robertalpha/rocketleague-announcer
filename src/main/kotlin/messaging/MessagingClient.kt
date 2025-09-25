@@ -42,6 +42,8 @@ class MessagingClient(
         password?.let {  options.password = password.toCharArray() }
         options.isCleanSession = true
 
+        options.isAutomaticReconnect = true
+
         client.connect(options)
 
         fun logUnexpectedMessage(message: MqttMessage, topic: String) {
