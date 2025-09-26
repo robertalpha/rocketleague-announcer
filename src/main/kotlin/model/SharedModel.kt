@@ -110,7 +110,7 @@ data class Color(
     val B: Int
 )
 
-enum class Events(private val eventName: String) {
+enum class Events(val eventName: String) {
     DEMOLITION("Demolition"),
     DEMOLISH("Demolish"),
     OWN_GOAL("OwnGoal"),
