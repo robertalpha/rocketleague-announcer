@@ -3,7 +3,6 @@ package nl.vanalphenict.services
 import com.janoz.discord.DiscordService
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatMessage
-import java.util.HashSet
 
 class AnnouncementHandler(
     private val discordService: DiscordService,
@@ -17,14 +16,14 @@ class AnnouncementHandler(
     init {
         interpreters.forEach { interpreter ->
             interpreter.listenTo().forEach { event ->
-                    interpreterMap[event.name] =
-                        (interpreterMap[event.name] ?: HashSet()).plus(interpreter)
+                    interpreterMap[event.eventName] =
+                        (interpreterMap[event.eventName] ?: HashSet()).plus(interpreter)
             }
-        };
+        }
     }
 
     override fun handleStatMessage(msg: StatMessage) {
-        val announcements = kotlin.collections.HashSet<Announcement>()
+        val announcements = HashSet<Announcement>()
         interpreterMap[msg.event]?.let {
             it.forEach { interpreter -> announcements.addAll(interpreter.interpret(msg)) }
         }

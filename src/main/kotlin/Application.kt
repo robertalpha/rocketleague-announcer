@@ -28,6 +28,8 @@ import nl.vanalphenict.services.announcement.WitnessScore
 import nl.vanalphenict.services.impl.EventPersister
 import services.announcement.Extermination
 import services.announcement.MutualDestruction
+import java.nio.file.Files
+import kotlin.io.path.Path
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -67,16 +69,21 @@ fun Application.module(
     val configs: MutableList<SampleMapper> = ArrayList()
 
     configs.add(SampleMapper.constructSampleMapper(
-        javaClass.getResourceAsStream("/samples/FPS.mapping.json")))
-
+        javaClass.getResourceAsStream("/samples/FPS.mapping.json")!!))
 
     System.getenv("SAMPLE_DIR")?.let { sampleDir ->
         voice.sampleService.readSamples(sampleDir)
     }
 
-    System.getenv("SAMPLE_MAPPING")?.let { sampleMapping ->
-        configs.add(SampleMapper.constructSampleMapper(FileInputStream(sampleMapping)))
-    }
+    System.getenv("SAMPLE_MAPPING_DIR")?.let { sampleMappingDir ->
+        Files.list(Path(sampleMappingDir))
+            .filter { it.endsWith("mapping.json") }
+            .forEach { sampleMapping ->
+        configs.add(
+            SampleMapper.constructSampleMapper(
+                FileInputStream(
+                    sampleMapping.toFile())))
+    }}
 
     val statRepository = StatRepository()
     val gameEventRepository = GameEventRepository()
