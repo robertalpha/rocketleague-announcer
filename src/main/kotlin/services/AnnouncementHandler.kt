@@ -10,8 +10,8 @@ class AnnouncementHandler(
     private var sampleMapper: SampleMapper) : EventHandler {
 
     private val interpreterMap : MutableMap<String, Set<StatToAnnouncment>> = HashMap()
-    private val gid: Long = System.getenv("GUILD_ID").toLong()
-    private val vid: Long = System.getenv("VOICE_CHANNEL_ID").toLong()
+    private val gid: Long = System.getenv("GUILD_ID")?.toLong()?:-1L
+    private val vid: Long = System.getenv("VOICE_CHANNEL_ID")?.toLong()?:-2L
 
     init {
         interpreters.forEach { interpreter ->

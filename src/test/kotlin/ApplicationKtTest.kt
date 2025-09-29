@@ -11,10 +11,7 @@ class ApplicationTest : AbstractMessagingTest() {
     fun testRoot() = testApplication {
         application {
             val mappedPort = mosquitto.getMappedPort(1883)
-
-            //FIXME put val broker = "tcp://127.0.0.1:mappedPort" in system env
-
-            module(brokerPort =  mappedPort)
+            module(brokerAddress = "tcp://localhost:$mappedPort", mocked = true)
         }
         val response = client.get("/")
         assertEquals(HttpStatusCode.OK, response.status)

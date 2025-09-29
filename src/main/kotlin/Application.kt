@@ -36,16 +36,9 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module(
-        brokerProtocol: String = "tcp",
-        brokerAddress: String = "127.0.0.1",
-        brokerPort: Int = 1883
+        brokerAddress: String = "tcp://localhost:1883",
+        mocked: Boolean = false
     ) {
-
-    val brokerProtocolEnv = System.getenv("BROKER_PROTOCOL")
-    val brokerAddressEnv = System.getenv("BROKER_ADDRESS")
-    val brokerPortEnv = System.getenv("BROKER_PORT")
-    val brokerUrl = "${brokerProtocolEnv?:brokerProtocol}://${brokerAddressEnv?:brokerAddress}:${brokerPortEnv?:brokerPort}"
-
 
     install(ContentNegotiation) {
         json()
@@ -63,11 +56,10 @@ fun Application.module(
         }
     }
 
-    val token = System.getenv("TOKEN")
-    val voice = if ("MOCK".equals(token)) {
+    val voice = if (mocked) {
         VoiceFactory.createVoiceContextMock()
     } else {
-        VoiceFactory.createVoiceContext(token)
+        VoiceFactory.createVoiceContext(System.getenv("TOKEN"))
     }
 
     voice.sampleService.readSamplesZip(javaClass.getResourceAsStream("/samples/FPS.zip"))
@@ -113,7 +105,7 @@ fun Application.module(
         configs.last()) // For now use environment when available, otherwise default
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
     val client = try {
-        MessagingClient(eventHandler, brokerUrl)
+        MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS") ?: brokerAddress)
     } catch (ex: Exception) {
         println("could not connect to broker")
         throw ex
