@@ -28,6 +28,7 @@ import nl.vanalphenict.services.announcement.WitnessScore
 import nl.vanalphenict.services.impl.EventPersister
 import services.announcement.Extermination
 import services.announcement.MutualDestruction
+import java.lang.System
 import java.nio.file.Files
 import kotlin.io.path.Path
 
@@ -39,22 +40,6 @@ fun Application.module(
         brokerAddress: String = "tcp://localhost:1883",
         mocked: Boolean = false
     ) {
-
-    install(ContentNegotiation) {
-        json()
-    }
-    install(Webjars) {
-        path = "assets"
-    }
-
-    install(CallLogging) {
-        format { call ->
-            val status = call.response.status()
-            val httpMethod = call.request.httpMethod.value
-            val userAgent = call.request.headers["User-Agent"]
-            "Status: $status, HTTP method: $httpMethod, User agent: $userAgent"
-        }
-    }
 
     val voice = if (mocked) {
         VoiceFactory.createVoiceContextMock()
@@ -102,6 +87,8 @@ fun Application.module(
             WitnessScore(statRepository),
             WitnessSave(statRepository),
         ),
+        System.getenv("GUILD_ID")?.toLong()?:-1L,
+        System.getenv("VOICE_CHANNEL_ID")?.toLong()?:-2L,
         configs.last()) // For now use environment when available, otherwise default
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
     val client = try {
@@ -109,6 +96,23 @@ fun Application.module(
     } catch (ex: Exception) {
         println("could not connect to broker")
         throw ex
+    }
+
+
+    install(ContentNegotiation) {
+        json()
+    }
+    install(Webjars) {
+        path = "assets"
+    }
+
+    install(CallLogging) {
+        format { call ->
+            val status = call.response.status()
+            val httpMethod = call.request.httpMethod.value
+            val userAgent = call.request.headers["User-Agent"]
+            "Status: $status, HTTP method: $httpMethod, User agent: $userAgent"
+        }
     }
 
     configureRouting(client)
