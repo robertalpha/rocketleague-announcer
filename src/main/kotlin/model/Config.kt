@@ -7,7 +7,12 @@ import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class MappingConfig(val name: String, val info: String, val mapping: Collection<Mapping>)
+data class MappingConfig(
+    val name: String,
+    val info: String,
+    val src: String,
+    val mapping: Collection<Mapping>,
+)
 
 @Serializable
 data class Mapping(
