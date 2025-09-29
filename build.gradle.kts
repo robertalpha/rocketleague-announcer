@@ -12,10 +12,13 @@ val discord_voice_version: String by project
 
 plugins {
     application
-    kotlin("jvm") version "2.1.21"
-    kotlin("plugin.serialization") version "2.1.21"
+    kotlin("jvm") version "2.2.20"
+    kotlin("plugin.serialization") version "2.2.20"
 
-    id("io.ktor.plugin") version "3.2.3"
+    id("io.ktor.plugin") version "3.3.0"
+
+    // ./gradlew dependencyUpdates
+    id("com.github.ben-manes.versions") version "0.53.0"
 }
 
 kotlin{
