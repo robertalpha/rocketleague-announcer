@@ -1,6 +1,6 @@
 package nl.vanalphenict
 
-import com.janoz.discord.Voice
+import com.janoz.discord.VoiceFactory
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -63,7 +63,13 @@ fun Application.module(
         }
     }
 
-    val voice = Voice(System.getenv("TOKEN"))
+    val token = System.getenv("TOKEN")
+    val voice = if ("MOCK".equals(token)) {
+        VoiceFactory.createVoiceContextMock()
+    } else {
+        VoiceFactory.createVoiceContext(token)
+    }
+
     voice.sampleService.readSamplesZip(javaClass.getResourceAsStream("/samples/FPS.zip"))
 
     val configs: MutableList<SampleMapper> = ArrayList()
