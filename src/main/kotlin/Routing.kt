@@ -14,6 +14,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import nl.vanalphenict.messaging.MessagingClient
 import nl.vanalphenict.page.Root
+import nl.vanalphenict.services.ThemeService
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -22,19 +23,16 @@ import nl.vanalphenict.page.Root
 data class MessageLine(val topic: String, val timestamp: String)
 
 
-fun Application.configureRouting(client: MessagingClient) {
+fun Application.configureRouting(client: MessagingClient, themeService: ThemeService) {
     routing {
         get("/") {
-            call.respondHtmlTemplate(Root.LayoutTemplate()) {
+            call.respondHtmlTemplate(Root.LayoutTemplate(themeService)) {
                 header {
                     +"RocketLeage Announcer"
                 }
                 content {
                     articleTitle {
                         +"Hello from Ktor!"
-                    }
-                    articleText {
-                        +"Kotlin Framework for creating connected systems."
                     }
                     list {
                         item { +"One" }

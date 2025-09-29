@@ -30,6 +30,9 @@ import services.announcement.Extermination
 import services.announcement.MutualDestruction
 import java.nio.file.Files
 import kotlin.io.path.Path
+import nl.vanalphenict.page.themeRoutes
+import nl.vanalphenict.services.Theme
+import nl.vanalphenict.services.ThemeService
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -113,6 +116,9 @@ fun Application.module(
         throw ex
     }
 
-    configureRouting(client)
+    val themes = listOf(Theme("1","FPS"),Theme("2","Unreal"),Theme("3","DukeNukem"))
+    val themeService = ThemeService(themes)
+    configureRouting(client,themeService)
+    themeRoutes(themeService)
 
 }
