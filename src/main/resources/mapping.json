@@ -1,6 +1,7 @@
 {
   "name": "Old-school arena FPS announcer",
   "info" : "A set of voice lines inspired by the announcers of games like Unreal Tournament and Quake III Arena.",
+  "src" : "",
   "mapping": [
     {
       "announcement": "KILLED_BY_BOT",
