@@ -29,7 +29,7 @@ class MessagingTest : AbstractMessagingTest() {
 
         application {
             val mappedPort = mosquitto.getMappedPort(1883)
-            module(brokerPort = mappedPort)
+            module(brokerAddress = "tcp://localhost:$mappedPort", mocked = true)
         }
         client = createClient {
             install(ContentNegotiation) {

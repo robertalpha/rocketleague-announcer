@@ -30,9 +30,6 @@ import services.announcement.Extermination
 import services.announcement.MutualDestruction
 import java.nio.file.Files
 import kotlin.io.path.Path
-import nl.vanalphenict.page.themeRoutes
-import nl.vanalphenict.services.Theme
-import nl.vanalphenict.services.ThemeService
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -114,6 +111,23 @@ fun Application.module(
     } catch (ex: Exception) {
         println("could not connect to broker")
         throw ex
+    }
+
+
+    install(ContentNegotiation) {
+        json()
+    }
+    install(Webjars) {
+        path = "assets"
+    }
+
+    install(CallLogging) {
+        format { call ->
+            val status = call.response.status()
+            val httpMethod = call.request.httpMethod.value
+            val userAgent = call.request.headers["User-Agent"]
+            "Status: $status, HTTP method: $httpMethod, User agent: $userAgent"
+        }
     }
 
     val themes = listOf(Theme("1","FPS"),Theme("2","Unreal"),Theme("3","DukeNukem"))
