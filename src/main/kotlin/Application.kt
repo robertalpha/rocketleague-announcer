@@ -8,7 +8,6 @@ import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.request.httpMethod
 import io.ktor.server.webjars.Webjars
-import java.io.FileInputStream
 import nl.vanalphenict.messaging.MessagingClient
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.repository.StatRepository
@@ -28,7 +27,7 @@ import nl.vanalphenict.services.announcement.WitnessScore
 import nl.vanalphenict.services.impl.EventPersister
 import services.announcement.Extermination
 import services.announcement.MutualDestruction
-import java.lang.System
+import java.io.FileInputStream
 import java.nio.file.Files
 import kotlin.io.path.Path
 
@@ -41,13 +40,16 @@ fun Application.module(
         mocked: Boolean = false
     ) {
 
-    val voice = if (mocked) {
+    val voiceContext = if (mocked) {
         VoiceFactory.createVoiceContextMock()
     } else {
         VoiceFactory.createVoiceContext(System.getenv("TOKEN"))
     }
 
-    voice.sampleService.readSamplesZip(javaClass.getResourceAsStream("/samples/FPS.zip"))
+    val sampleService = voiceContext.sampleService
+    val discordService = voiceContext.discordService
+
+    sampleService.readSamplesZip(javaClass.getResourceAsStream("/samples/FPS.zip"))
 
     val configs: MutableList<SampleMapper> = ArrayList()
 
@@ -55,7 +57,7 @@ fun Application.module(
         javaClass.getResourceAsStream("/samples/FPS.mapping.json")!!))
 
     System.getenv("SAMPLE_DIR")?.let { sampleDir ->
-        voice.sampleService.readSamples(sampleDir)
+        sampleService.readSamples(sampleDir)
     }
 
     System.getenv("SAMPLE_MAPPING_DIR")?.let { sampleMappingDir ->
@@ -68,11 +70,15 @@ fun Application.module(
                     sampleMapping.toFile())))
     }}
 
+    val voiceChannel = discordService.getVoiceChannel(System.getenv("VOICE_CHANNEL_ID")!!.toLong())
+
     val statRepository = StatRepository()
     val gameEventRepository = GameEventRepository()
     val eventPersister = EventPersister(statRepository, gameEventRepository)
     val announcementHandler = AnnouncementHandler(
-        voice.discordService,
+        discordService,
+        voiceChannel,
+        configs.last(),
         listOf(
             AsIs(),
             DemolitionChain(statRepository),
@@ -86,10 +92,8 @@ fun Application.module(
             Revenge(),
             WitnessScore(statRepository),
             WitnessSave(statRepository),
-        ),
-        System.getenv("GUILD_ID")?.toLong()?:-1L,
-        System.getenv("VOICE_CHANNEL_ID")?.toLong()?:-2L,
-        configs.last()) // For now use environment when available, otherwise default
+        )
+    ) // For now use environment when available, otherwise default
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
     val client = try {
         MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS") ?: brokerAddress)
@@ -118,3 +122,5 @@ fun Application.module(
     configureRouting(client)
 
 }
+
+
