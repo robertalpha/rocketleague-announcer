@@ -1,6 +1,6 @@
 package nl.vanalphenict.page
 
-import com.sun.org.apache.bcel.internal.generic.Select
+import io.github.allangomes.kotlinwind.css.I600
 import io.github.allangomes.kotlinwind.css.kw
 import io.ktor.server.html.Placeholder
 import io.ktor.server.html.PlaceholderList
@@ -8,23 +8,19 @@ import io.ktor.server.html.Template
 import io.ktor.server.html.TemplatePlaceholder
 import io.ktor.server.html.each
 import io.ktor.server.html.insert
-import java.awt.Color.blue
 import kotlinx.html.FlowContent
 import kotlinx.html.HTML
 import kotlinx.html.UL
 import kotlinx.html.article
 import kotlinx.html.b
 import kotlinx.html.body
-import kotlinx.html.button
 import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.h2
 import kotlinx.html.head
-import kotlinx.html.id
 import kotlinx.html.li
 import kotlinx.html.p
-import kotlinx.html.role
 import kotlinx.html.script
 import kotlinx.html.style
 import kotlinx.html.ul
