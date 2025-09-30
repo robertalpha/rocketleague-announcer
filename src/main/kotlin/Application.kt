@@ -1,6 +1,8 @@
 package nl.vanalphenict
 
 import com.janoz.discord.VoiceFactory
+import com.janoz.discord.domain.Guild
+import com.janoz.discord.domain.VoiceChannel
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -70,7 +72,11 @@ fun Application.module(
                     sampleMapping.toFile())))
     }}
 
-    val voiceChannel = discordService.getVoiceChannel(System.getenv("VOICE_CHANNEL_ID")!!.toLong())
+    val voiceChannel = if (mocked) {
+        VoiceChannel.builder().guild(Guild.builder().id(1L).build()).id(2L).build()
+    } else {
+        discordService.getVoiceChannel(System.getenv("VOICE_CHANNEL_ID")!!.toLong())
+    }
 
     val statRepository = StatRepository()
     val gameEventRepository = GameEventRepository()
