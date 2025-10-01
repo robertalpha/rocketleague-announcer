@@ -1,6 +1,9 @@
 ### Builder
 FROM eclipse-temurin:21.0.8_9-jdk-jammy AS builder
 
+ARG GITHUB_ACTOR
+ARG GITHUB_TOKEN
+
 WORKDIR /opt/app
 COPY gradle ./gradle
 COPY src ./src
