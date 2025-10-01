@@ -30,6 +30,10 @@ jobs:
     - uses: gradle/actions/setup-gradle@v3
     - name: Build with Gradle
       run: ./gradlew build
+      with:
+        build-args: |
+          - GITHUB_ACTOR=${{ github.actor }}
+          - GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
     - name: Log in to the Container registry
       uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
