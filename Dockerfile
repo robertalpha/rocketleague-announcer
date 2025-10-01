@@ -9,6 +9,8 @@ COPY gradle ./gradle
 COPY src ./src
 COPY gradlew build.gradle.kts gradle.properties settings.gradle.kts ./
 
+RUN echo "GITHUB_ACTOR: $GITHUB_ACTOR"
+
 RUN ./gradlew buildFatJar
 
 ### Runner
