@@ -30,7 +30,7 @@ fun Application.themeRoutes(themeService: ThemeService) {
             call.respondHtml {
                 body {
                     div {
-                        renderThemes(themeService.themes,themeService.selectedTheme.id)
+                        renderThemes(themeService.themes, themeService.selectedTheme.id)
                     }
                 }
             }
@@ -54,12 +54,12 @@ fun Application.themeRoutes(themeService: ThemeService) {
 
 }
 
- fun DIV.renderThemes(themes: List<Theme>, selectedTheme: String) {
+fun DIV.renderThemes(themes: List<Theme>, selectedTheme: String) {
 
-     style = kw.inline { flex }
-     role = "group"
+    style = kw.inline { flex }
+    role = "group"
 
-     id = "themes-div"
+    id = "themes-div"
 
     val baseCss = setOf(
         "h-10",
@@ -73,18 +73,20 @@ fun Application.themeRoutes(themeService: ThemeService) {
 
     themes.sortedBy { theme -> theme.title }.forEachIndexed { index, theme ->
         button {
-            classes = (when (index) {
-                0 -> baseCss + "rounded-l-lg"
-                themes.size - 1 -> baseCss + "rounded-r-lg"
-                else -> baseCss
-            } + (if (selectedTheme==theme.id) "bg-pink-700" else "bg-indigo-700")
-            ).filter { it.isNotBlank() }.toSet()
+            classes = (
+                    setOfNotNull(
+                            "rounded-l-lg".takeIf { index == 0 },
+                            "rounded-r-lg".takeIf { index == themes.size - 1 },
+                            "bg-pink-700".takeIf { selectedTheme == theme.id },
+                            "bg-indigo-700".takeIf { selectedTheme != theme.id }
+                        ) + baseCss
+                    )
 
             value = theme.id
             attributes["hx-post"] = "/themes"
             attributes["hx-vals"] = "{\"id\":\"${theme.id}\"}"
             attributes["hx-swap"] = "outerHTML"
-            attributes["hx-target"] ="#themes-div"
+            attributes["hx-target"] = "#themes-div"
             +theme.title
         }
     }
