@@ -10,9 +10,8 @@ import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.request.httpMethod
 import io.ktor.server.webjars.Webjars
+import java.io.File
 import java.io.FileInputStream
-import java.nio.file.Files
-import kotlin.io.path.Path
 import nl.vanalphenict.messaging.MessagingClient
 import nl.vanalphenict.page.themeRoutes
 import nl.vanalphenict.repository.GameEventRepository
@@ -20,7 +19,6 @@ import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.AnnouncementHandler
 import nl.vanalphenict.services.EventHandler
 import nl.vanalphenict.services.SampleMapper
-import nl.vanalphenict.services.Theme
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.services.announcement.AsIs
 import nl.vanalphenict.services.announcement.DemolitionChain
@@ -69,13 +67,13 @@ fun Application.module(
     }
 
     System.getenv("SAMPLE_MAPPING_DIR")?.let { sampleMappingDir ->
-        Files.list(Path(sampleMappingDir))
-            .filter { it.endsWith("mapping.json") }
+        File(sampleMappingDir).walkTopDown()
+            .filter { it.name.endsWith("mapping.json") }
             .forEach { sampleMapping ->
                 configs.add(
                     SampleMapper.constructSampleMapper(
                         FileInputStream(
-                            sampleMapping.toFile()
+                            sampleMapping
                         )
                     )
                 )
@@ -135,7 +133,7 @@ fun Application.module(
         }
     }
 
-    val themeService = ThemeService(configs.map { Theme(it.name, it.name) })
+    val themeService = ThemeService(configs, announcementHandler)
     configureRouting(client, themeService)
     themeRoutes(themeService)
 }

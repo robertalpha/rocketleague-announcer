@@ -1,6 +1,5 @@
 package nl.vanalphenict.page
 
-import io.github.allangomes.kotlinwind.css.I600
 import io.github.allangomes.kotlinwind.css.kw
 import io.ktor.server.html.Placeholder
 import io.ktor.server.html.PlaceholderList
@@ -53,7 +52,7 @@ class Root {
                         +"Select theme:"
                     }
                     div {
-                        renderThemes(themeService.themes,themeService.selectedTheme.id)
+                        renderThemes(themeService.themes,themeService.selectedTheme)
                     }
 
 

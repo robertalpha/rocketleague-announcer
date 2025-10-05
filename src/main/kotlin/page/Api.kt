@@ -24,13 +24,13 @@ fun Application.themeRoutes(themeService: ThemeService) {
         post("/themes") {
             val themeId = call.receive<String>().also {
                 val id = it.substringAfter("=")
-                themeService.selectTheme(id)
+                themeService.selectTheme(id.toInt())
             }
 
             call.respondHtml {
                 body {
                     div {
-                        renderThemes(themeService.themes, themeService.selectedTheme.id)
+                        renderThemes(themeService.themes, themeService.selectedTheme)
                     }
                 }
             }
@@ -44,7 +44,7 @@ fun Application.themeRoutes(themeService: ThemeService) {
             call.respondHtml {
                 body {
                     div {
-                        renderThemes(themeService.themes, themeService.selectedTheme.id)
+                        renderThemes(themeService.themes, themeService.selectedTheme)
                     }
                 }
             }
@@ -54,7 +54,7 @@ fun Application.themeRoutes(themeService: ThemeService) {
 
 }
 
-fun DIV.renderThemes(themes: List<Theme>, selectedTheme: String) {
+fun DIV.renderThemes(themes: List<Theme>, selectedTheme: Theme) {
 
     style = kw.inline { flex }
     role = "group"
@@ -68,21 +68,22 @@ fun DIV.renderThemes(themes: List<Theme>, selectedTheme: String) {
         "transition-colors",
         "duration-150",
         "focus:shadow-outline",
-        "hover:bg-pink-500"
+        "hover:bg-pink-700"
     )
 
     themes.sortedBy { theme -> theme.title }.forEachIndexed { index, theme ->
         button {
+            disabled = selectedTheme == theme
             classes = (
                     setOfNotNull(
                             "rounded-l-lg".takeIf { index == 0 },
                             "rounded-r-lg".takeIf { index == themes.size - 1 },
-                            "bg-pink-700".takeIf { selectedTheme == theme.id },
-                            "bg-indigo-700".takeIf { selectedTheme != theme.id }
+                            "bg-pink-700".takeIf { selectedTheme == theme },
+                            "bg-indigo-700".takeIf { selectedTheme != theme }
                         ) + baseCss
                     )
 
-            value = theme.id
+            value = theme.title
             attributes["hx-post"] = "/themes"
             attributes["hx-vals"] = "{\"id\":\"${theme.id}\"}"
             attributes["hx-swap"] = "outerHTML"
