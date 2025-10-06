@@ -1,4 +1,4 @@
-package services.announcement
+package nl.vanalphenict.services.announcement
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.Events

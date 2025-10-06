@@ -1,4 +1,4 @@
-package support
+package nl.vanalphenict.support
 
 import nl.vanalphenict.model.Club
 import nl.vanalphenict.model.Color
