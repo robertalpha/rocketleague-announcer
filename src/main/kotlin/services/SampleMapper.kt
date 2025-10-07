@@ -11,31 +11,34 @@ class SampleMapper(
     val name: String,
     val info: String,
     val src: String?,
-    private val mapping: Map<Announcement, Pair<Int, Collection<String>>>) {
+    private val mapping: Map<Announcement, AnnouncementWeight> ) {
 
-    private fun highestScore(one : Announcement, two : Announcement) : Announcement {
-        return if (mapping[one]!!.first > mapping[two]!!.first)
-            one
-        else
-            two
-    }
+    data class AnnouncementWeight(val sampleIds: Collection<String>, val weight: Int)
 
-    fun getSample(announcements: Set<Announcement>) : String? {
+    fun selector(a: Announcement ): Int = mapping[a]?.weight ?: -1
+
+    fun getPrevailingAnnouncement(announcements: Set<Announcement>) : Announcement? {
         val remaining = announcements.toMutableSet()
         remaining.retainAll(mapping.keys)
-        if (remaining.isEmpty()) return null
-        var announcement = remaining.first()
-        remaining.forEach { other -> announcement = highestScore(announcement, other) }
-        return mapping[announcement]!!.second.random()
+        return remaining.maxByOrNull { selector(it) }
+    }
+
+    fun getSample(announcement: Announcement) : String? {
+        return mapping[announcement]?.sampleIds?.random()
     }
 
     companion object {
         @OptIn(ExperimentalSerializationApi::class)
         fun constructSampleMapper(stream: InputStream) : SampleMapper{
             val conf: MappingConfig = Json.decodeFromStream(stream)
-            val mapping = mutableMapOf<Announcement, Pair<Int, Collection<String>>>()
+            val mapping = mutableMapOf<Announcement, AnnouncementWeight>()
+            val uniqueWeightValidatorSet = mutableSetOf<Int>()
             conf.mapping.forEach {
-                mapping[it.announcement] = it.weight to it.samples
+                if(uniqueWeightValidatorSet.contains(it.weight)) {
+                    throw IllegalArgumentException("Weight ${it.weight} is not unique")
+                }
+                uniqueWeightValidatorSet.add(it.weight)
+                mapping[it.announcement] = AnnouncementWeight(sampleIds = it.samples, weight = it.weight)
             }
             return SampleMapper(conf.name, conf.info, conf.src, mapping)
         }

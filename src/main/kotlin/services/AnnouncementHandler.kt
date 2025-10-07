@@ -28,7 +28,9 @@ class AnnouncementHandler(
         interpreterMap[msg.event]?.let {
             it.forEach { interpreter -> announcements.addAll(interpreter.interpret(msg)) }
         }
-        sampleMapper.getSample(announcements)?.let { triggerSound(it) }
+        sampleMapper.getPrevailingAnnouncement(announcements)?.let {
+            sampleMapper.getSample(it) }?.let { triggerSound(it)
+        }
     }
 
     private fun triggerSound(sample: String) {
