@@ -32,14 +32,11 @@ class AnnouncementHandlerTest {
         Announcement.HATTRICK to SampleMapper.AnnouncementWeight(listOf("hattrick.wav"), 4),
     ))
 
-    val voiceChannel = getVoiceChannel()
-
     val playedSampleQueue = SynchronousQueue<String>()
-    val discordService = MockDiscordService(playedSampleQueue)
 
     val cut = AnnouncementHandler(
-        discordService,
-        voiceChannel,
+        MockDiscordService(playedSampleQueue),
+        getVoiceChannel(),
         constructSampleMapper(emptyMap()),
         listOf(
             AsIs(),
@@ -78,17 +75,16 @@ class AnnouncementHandlerTest {
     fun testMultipleEventsParalel() {
         cut.replaceMapping(sampleMapper)
 
-        cut.handleStatMessage(getEvent(Events.GOAL))
+        cut.handleStatMessage(getEvent(Events.SAVE))
         playedSampleQueue.take() shouldBe "aerial_goal.wav"
         playedSampleQueue.isEmpty() shouldBe true
 
         cut.replaceMapping(sampleMapperRev)
 
-        cut.handleStatMessage(getEvent(Events.GOAL))
+        cut.handleStatMessage(getEvent(Events.SAVE))
         playedSampleQueue.take() shouldBe "hattrick.wav"
         playedSampleQueue.isEmpty() shouldBe true
     }
-
 
     @Test
     fun testMultipleEventsSerial() {
@@ -123,7 +119,7 @@ class AnnouncementHandlerTest {
     }
 
     class Goal2All() : StatToAnnouncment {
-        override fun listenTo() = setOf(Events.GOAL)
+        override fun listenTo() = setOf(Events.SAVE)
         override fun interpret(
             statMessage: StatMessage,
             currentTimeStamp: Instant
