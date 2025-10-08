@@ -12,7 +12,7 @@ will be sent to the channel when certain announcements are triggered.
       "announcement": "KILLED_BY_BOT",
       "weight": 10,
       "samples": [
-        "your_a_looser.mp3","owned.mp3"
+        "you_re_a_looser.mp3","owned.mp3"
       ]
     },
     {
@@ -34,12 +34,15 @@ The name of the mapping. This is what will be displayed in the UI.
 
 ### Info
 
-the info field can be used for extra information about the mapping.
+the info field can be used for extra information about the mapping like
+creator, sources and copyright.
 
 ## Mapping
 
-The mapping is a list of mappings. Each mapping describes what will be
-sent to the channel when a certain announcement is triggered.
+The mapping is a list mapping an announcmement to a list of samples. 
+Each mapping describes what will be sent to the channel when a 
+certain announcement is triggered. Announcements are optional so 
+only the announcements you want the announcer to react to need to be added. 
 
 ### Announcement
 
@@ -51,12 +54,14 @@ channel. For a complete list of announcements and there meanings, see
 
 Weight is used to determine which announcement will be sent. When two or
 more announcements are triggered, the one with the highest weight will be
-sent.
+sent. Every weight must be a positive unique integer.
 
 ### Samples
 
 Samples are the id's that will be played when the announcement is sent. 
-The announcer will pick one of these samples at random. The id of the 
-sample normally corresponds to the name of the file in the `samples` 
-directory, unless its in a sample pack, than th id is defined in json 
-metadata file.
+If the list contains more than one sample, the announcer will pick one
+of these samples at random. The id of the sample normally corresponds 
+to the name of the file in the `samples` directory, unless its in a 
+sample pack, than the id is defined in the json metadata file. For
+more information about sampleIds see the
+[Discord Voice documentation](https://github.com/Janoz-NL/discord-voice).

@@ -1,6 +1,10 @@
 # Configuration
 The RocketLeague Annoucner is configured via environment variables.
 
+## MQTT
+
+TODO
+
 ## Discord
 
 ### Bot token
@@ -11,22 +15,16 @@ To connect to discord you need to create a bot.
 
 This token shouold be used as environment variable `TOKEN`.
 
-### Guidl and voice channel Id's
+### Voice channel Id's
 
-To retrieve the id's of the guild and the voice channel enable
+To retrieve the id the voice channel, enable
 developer mode in discord (settings -> advanced -> developer mode).
-With developer mode enabled you can right click on the server to 
-select "Copy server ID". Use this value as environment variable 
-`GUILD_ID`.
-
-Within the server select the voice channel you want the Rocket 
+Within a server select the voice channel you want the Rocket 
 League Announcer to use. Right click on the channel and select 
 "Copy Channel ID". Use this value as environment variable 
 `VOICE_CHANNEL_ID`.
 
-## MQTT
 
-TODO
 
 ## Samples
 
@@ -37,5 +35,8 @@ like Unreal Tournament and Quake III.
 
 If you want to use your own samples, you can add these samples
 to the directory mapped by the environment variable `SAMPLES_DIR`.
-You'll need to create a mapping file to map these samples to the 
-different announcements.
+The Rocket League Announcer uses [Discord Voice](https://github.com/Janoz-NL/discord-voice) 
+to load and play the 
+samples. Read the documentation for more information about the posibilities.
+To map the announcements to these samples you need to create a mapping 
+file. The mapping file is explained in the [mapping](mapping.md) section.
