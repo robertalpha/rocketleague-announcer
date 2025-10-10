@@ -1,14 +1,14 @@
 package nl.vanalphenict.services.announcement
 
 import nl.vanalphenict.model.Announcement
-import nl.vanalphenict.model.Events
+import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 class DemoChain: StatToAnnouncment  {
-    override fun listenTo() = setOf(Events.DEMOLISH)
+    override fun listenTo() = setOf(StatEvents.DEMOLISH)
 
     private val pivotDuration = 11.seconds
 

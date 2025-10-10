@@ -3,14 +3,14 @@ package nl.vanalphenict.services.announcement
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
-import nl.vanalphenict.model.Events
+import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.services.StatToAnnouncment
 import nl.vanalphenict.utility.TimeUtils.Companion.bothHappenWithin
 
 class KickOffKill(private val gameEventRepository: GameEventRepository): StatToAnnouncment{
-    override fun listenTo() = setOf(Events.DEMOLISH)
+    override fun listenTo() = setOf(StatEvents.DEMOLISH)
 
     private val kickoffDuration = 4.seconds
 

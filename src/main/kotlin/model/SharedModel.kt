@@ -110,7 +110,7 @@ data class Color(
     val B: Int
 )
 
-enum class Events(val eventName: String) {
+enum class StatEvents(val eventName: String) {
     DEMOLITION("Demolition"),
     DEMOLISH("Demolish"),
     OWN_GOAL("OwnGoal"),
@@ -124,6 +124,14 @@ enum class Events(val eventName: String) {
     HATTRICK("HatTrick"),
     SAVE("Save"),
     EPIC_SAVE("EpicSave");
+
+    fun eq(other: String) : Boolean {
+        return eventName == other
+    }
+}
+
+enum class GameEvents(val eventName: String) {
+    START_ROUND("Function GameEvent_Soccar_TA.Active.StartRound");
 
     fun eq(other: String) : Boolean {
         return eventName == other

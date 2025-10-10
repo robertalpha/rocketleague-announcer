@@ -1,7 +1,7 @@
 package nl.vanalphenict.services.announcement
 
 import nl.vanalphenict.model.Announcement
-import nl.vanalphenict.model.Events
+import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.StatToAnnouncment
@@ -9,7 +9,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 class WitnessScore(val statRepository: StatRepository): StatToAnnouncment {
-    override fun listenTo() = setOf(Events.GOAL)
+    override fun listenTo() = setOf(StatEvents.GOAL)
 
     private val witnessWindow = 3.seconds
 
@@ -18,7 +18,7 @@ class WitnessScore(val statRepository: StatRepository): StatToAnnouncment {
 
         return if (statRepository.getStatHistory(statMessage.matchGUID)
                 .filter { (instant, _) -> currentTimeStamp.minus(instant) < witnessWindow }
-                .filter { (_, message) -> Events.DEMOLISH.eq(message.event) }
+                .filter { (_, message) -> StatEvents.DEMOLISH.eq(message.event) }
                 .count { (_, message) -> statMessage.player.isSame(message.victim) } > 0) {
             setOf(Announcement.WITNESS)
         } else emptySet()
