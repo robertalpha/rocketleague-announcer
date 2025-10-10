@@ -21,11 +21,6 @@ class StatRepository {
         return statHistory.filter { (_, message) -> matchGuid == message.matchGUID }
     }
 
-
-
-
-
-
     fun clear() {
         statHistory.clear()
     }

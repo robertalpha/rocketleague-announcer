@@ -14,4 +14,8 @@ class GameEventRepository {
     fun getGameEventHistory(matchGuid: String): List<Pair<Instant, GameEventMessage>> {
         return gameEventHistory.filter { (_, message) -> matchGuid == message.matchGUID }
     }
+
+    fun clear() {
+        gameEventHistory.clear()
+    }
 }
