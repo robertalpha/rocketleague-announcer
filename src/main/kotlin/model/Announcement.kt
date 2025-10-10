@@ -21,6 +21,8 @@ enum class Announcement {
     EXTERMINATION_DOUBLE,   // 14 demolitions = second extermination
     MUTUAL_DESTRUCTION,     // Player demolishes opponent, but is demolished as well
 
+    MATCH_START,   // Match timer has started
+
     // Direct mapping from Rocket League events
     AERIAL_GOAL,
     BACKWARD_GOAL,
@@ -32,5 +34,6 @@ enum class Announcement {
 
     SAVE,
     EPIC_SAVE,
+
 
 }

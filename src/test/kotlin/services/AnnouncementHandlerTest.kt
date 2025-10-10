@@ -41,7 +41,7 @@ class AnnouncementHandlerTest {
         listOf(
             AsIs(),
             Goal2All()
-        )
+        ), gameEventInterpreters = listOf()
     )
 
     @Test

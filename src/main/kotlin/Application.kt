@@ -28,6 +28,7 @@ import nl.vanalphenict.services.announcement.Kill
 import nl.vanalphenict.services.announcement.KilledByBot
 import nl.vanalphenict.services.announcement.Retaliation
 import nl.vanalphenict.services.announcement.Revenge
+import nl.vanalphenict.services.announcement.MatchStart
 import nl.vanalphenict.services.announcement.WitnessSave
 import nl.vanalphenict.services.announcement.WitnessScore
 import nl.vanalphenict.services.impl.EventPersister
@@ -101,12 +102,13 @@ fun Application.module(
             KickOffKill(gameEventRepository),
             Kill(),
             KilledByBot(),
-            MutualDestruction(statRepository),
+            MutualDestruction(),
             Retaliation(),
             Revenge(),
             WitnessScore(statRepository),
             WitnessSave(statRepository),
-        )
+        ),
+        listOf(MatchStart(gameEventRepository))
     ) // For now use environment when available, otherwise default
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
     val client = try {

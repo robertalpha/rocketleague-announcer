@@ -2,19 +2,22 @@ package nl.vanalphenict.services
 
 import com.janoz.discord.DiscordService
 import com.janoz.discord.domain.VoiceChannel
+import kotlin.time.Duration.Companion.milliseconds
 import nl.vanalphenict.model.Announcement
+import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.utility.DeJitter
-import kotlin.time.Duration.Companion.milliseconds
 
 class AnnouncementHandler(
     private val discordService: DiscordService,
     private val voiceChannel: VoiceChannel,
     private var sampleMapper: SampleMapper,
-    interpreters: Collection<StatToAnnouncment>
+    statInterpreters: Collection<StatToAnnouncment>,
+    gameEventInterpreters: Collection<GameEventToAnnouncement>,
 ) : EventHandler {
 
-    private val interpreterMap : MutableMap<String, Set<StatToAnnouncment>> = HashMap()
+    private val statInterpreterMap : MutableMap<String, Set<StatToAnnouncment>> = HashMap()
+    private val gameEventInterpreterMap : MutableMap<String, MutableSet<GameEventToAnnouncement>> = HashMap()
 
     private val dejitter : DeJitter<Announcement> = DeJitter(
         timeToCombine = 100.milliseconds,
@@ -23,17 +26,31 @@ class AnnouncementHandler(
     )
 
     init {
-        interpreters.forEach { interpreter ->
+        statInterpreters.forEach { interpreter ->
             interpreter.listenTo().forEach { event ->
-                    interpreterMap[event.eventName] =
-                        (interpreterMap[event.eventName] ?: HashSet()).plus(interpreter)
+                    statInterpreterMap[event.eventName] =
+                        (statInterpreterMap[event.eventName] ?: HashSet()).plus(interpreter)
+            }
+        }
+        gameEventInterpreters.forEach { interpreter ->
+            interpreter.listenTo().forEach { event ->
+                    gameEventInterpreterMap.getOrPut(event) { HashSet() }.add(interpreter)
             }
         }
     }
 
     override fun handleStatMessage(msg: StatMessage) {
         val announcements = HashSet<Announcement>()
-        interpreterMap[msg.event]?.let {
+        statInterpreterMap[msg.event]?.let {
+            it.forEach { interpreter -> announcements.addAll(interpreter.interpret(msg)) }
+        }
+        val candidate = sampleMapper.getPrevailingAnnouncement(announcements)
+        dejitter.add(candidate)
+    }
+
+    override fun handleGameEvent(msg: GameEventMessage) {
+        val announcements = HashSet<Announcement>()
+        gameEventInterpreterMap[msg.gameEvent]?.let {
             it.forEach { interpreter -> announcements.addAll(interpreter.interpret(msg)) }
         }
         val candidate = sampleMapper.getPrevailingAnnouncement(announcements)
