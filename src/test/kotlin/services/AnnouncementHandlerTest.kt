@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import net.dv8tion.jda.api.JDA
 import nl.vanalphenict.model.Announcement
-import nl.vanalphenict.model.Events
+import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.announcement.AsIs
 import nl.vanalphenict.support.getEvent
@@ -49,7 +49,7 @@ class AnnouncementHandlerTest {
     fun testNoInterpreter() {
         cut.replaceMapping(sampleMapper)
 
-        cut.handleStatMessage(getEvent(Events.DEMOLITION))
+        cut.handleStatMessage(getEvent(StatEvents.DEMOLITION))
         Thread.sleep(150)
         playedSampleQueue.isEmpty() shouldBe true
     }
@@ -58,7 +58,7 @@ class AnnouncementHandlerTest {
     fun testNoMapping() {
         cut.replaceMapping(sampleMapper)
 
-        cut.handleStatMessage(getEvent(Events.EPIC_SAVE))
+        cut.handleStatMessage(getEvent(StatEvents.EPIC_SAVE))
         Thread.sleep(150)
         playedSampleQueue.isEmpty() shouldBe true
     }
@@ -67,7 +67,7 @@ class AnnouncementHandlerTest {
     fun testSingleEvent() {
         cut.replaceMapping(sampleMapper)
 
-        cut.handleStatMessage(getEvent(Events.AERIAL_GOAL))
+        cut.handleStatMessage(getEvent(StatEvents.AERIAL_GOAL))
         playedSampleQueue.take() shouldBe "aerial_goal.wav"
         playedSampleQueue.isEmpty() shouldBe true
     }
@@ -76,13 +76,13 @@ class AnnouncementHandlerTest {
     fun testMultipleEventsParalel() {
         cut.replaceMapping(sampleMapper)
 
-        cut.handleStatMessage(getEvent(Events.SAVE))
+        cut.handleStatMessage(getEvent(StatEvents.SAVE))
         playedSampleQueue.take() shouldBe "aerial_goal.wav"
         playedSampleQueue.isEmpty() shouldBe true
 
         cut.replaceMapping(sampleMapperRev)
 
-        cut.handleStatMessage(getEvent(Events.SAVE))
+        cut.handleStatMessage(getEvent(StatEvents.SAVE))
         playedSampleQueue.take() shouldBe "hattrick.wav"
         playedSampleQueue.isEmpty() shouldBe true
     }
@@ -91,22 +91,22 @@ class AnnouncementHandlerTest {
     fun testMultipleEventsSerial() {
         cut.replaceMapping(sampleMapper)
 
-        cut.handleStatMessage(getEvent(Events.AERIAL_GOAL))
-        cut.handleStatMessage(getEvent(Events.LONG_GOAL))
+        cut.handleStatMessage(getEvent(StatEvents.AERIAL_GOAL))
+        cut.handleStatMessage(getEvent(StatEvents.LONG_GOAL))
         playedSampleQueue.take() shouldBe "aerial_goal.wav"
         playedSampleQueue.isEmpty() shouldBe true
 
-        cut.handleStatMessage(getEvent(Events.AERIAL_GOAL))
+        cut.handleStatMessage(getEvent(StatEvents.AERIAL_GOAL))
         Thread.sleep(110)
-        cut.handleStatMessage(getEvent(Events.LONG_GOAL))
+        cut.handleStatMessage(getEvent(StatEvents.LONG_GOAL))
         playedSampleQueue.take() shouldBe "aerial_goal.wav"
         playedSampleQueue.take() shouldBe "long_goal.wav"
         playedSampleQueue.isEmpty() shouldBe true
 
         cut.replaceMapping(sampleMapperRev)
 
-        cut.handleStatMessage(getEvent(Events.AERIAL_GOAL))
-        cut.handleStatMessage(getEvent(Events.LONG_GOAL))
+        cut.handleStatMessage(getEvent(StatEvents.AERIAL_GOAL))
+        cut.handleStatMessage(getEvent(StatEvents.LONG_GOAL))
         playedSampleQueue.take() shouldBe "long_goal.wav"
         playedSampleQueue.isEmpty() shouldBe true
     }
@@ -121,7 +121,7 @@ class AnnouncementHandlerTest {
     }
 
     class Save2All() : StatToAnnouncment {
-        override fun listenTo() = setOf(Events.SAVE)
+        override fun listenTo() = setOf(StatEvents.SAVE)
         override fun interpret(
             statMessage: StatMessage,
             currentTimeStamp: Instant

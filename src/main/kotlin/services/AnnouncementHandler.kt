@@ -34,7 +34,7 @@ class AnnouncementHandler(
         }
         gameEventInterpreters.forEach { interpreter ->
             interpreter.listenTo().forEach { event ->
-                    gameEventInterpreterMap.getOrPut(event) { HashSet() }.add(interpreter)
+                    gameEventInterpreterMap.getOrPut(event.eventName) { HashSet() }.add(interpreter)
             }
         }
     }

@@ -4,7 +4,7 @@ import com.janoz.discord.domain.Guild
 import com.janoz.discord.domain.VoiceChannel
 import nl.vanalphenict.model.Club
 import nl.vanalphenict.model.Color
-import nl.vanalphenict.model.Events
+import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.Player
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.model.Team
@@ -85,7 +85,7 @@ fun getClubTeam(club:Club, index: Int, home: Boolean = false, score:Int = 123) =
     secondaryColor = club.accentColor
 )
 
-fun getEvent(event: Events) = StatMessage(
+fun getEvent(event: StatEvents) = StatMessage(
     matchGUID = "123abc",
     event = event.eventName,
     player = getPlayerEpic(team = getOrangeTeam())

@@ -3,7 +3,7 @@ package nl.vanalphenict.services.announcement
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
-import nl.vanalphenict.model.Events
+import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
 import nl.vanalphenict.utility.TimeUtils.Companion.bothHappenWithin
@@ -13,7 +13,7 @@ class MutualDestruction(): StatToAnnouncment  {
     val recentDemos = mutableListOf<Pair<Instant, StatMessage>>()
     val timeWindow = 500.milliseconds
 
-    override fun listenTo() = setOf(Events.DEMOLISH)
+    override fun listenTo() = setOf(StatEvents.DEMOLISH)
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
         // clear out older demolitions

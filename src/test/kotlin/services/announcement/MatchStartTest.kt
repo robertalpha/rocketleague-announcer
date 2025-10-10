@@ -6,6 +6,7 @@ import kotlin.test.Test
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.GameEventMessage
+import nl.vanalphenict.model.GameEvents
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.support.getBlueTeam
 import nl.vanalphenict.support.getOrangeTeam
@@ -26,7 +27,7 @@ class MatchStartTest {
 
     fun startRoundMessage(matchGUID: String) = GameEventMessage(
         matchGUID = matchGUID,
-        gameEvent = START_ROUND,
+        gameEvent = GameEvents.START_ROUND.eventName,
         teams = listOf(getBlueTeam(),getOrangeTeam())
     )
 
