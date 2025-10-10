@@ -1,5 +1,7 @@
 package nl.vanalphenict.messaging
 
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.serialization.json.Json
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameTimeMessage
@@ -56,16 +58,23 @@ class MessagingClient(
         client.setCallback(object : MqttCallback {
             @Throws(Exception::class)
             override fun messageArrived(topic: String, message: MqttMessage) {
+
                 try {
                     when (topic) {
-                        TOPIC_STAT ->
-                            scrubber.processStat(decode<StatMessage>(message.payload))
+                        TOPIC_STAT -> {
+                            val stat = decode<StatMessage>(message.payload)
+                            logStatMessage(stat)
+                            scrubber.processStat(stat)
+                        }
                         TOPIC_TICKER ->
                             scrubber.processStat(decode<StatMessage>(message.payload))
                         TOPIC_GAME_TIME ->
                             scrubber.processGameTime(decode<GameTimeMessage>(message.payload))
-                        TOPIC_GAME_EVENT ->
-                            scrubber.processGameEvent(decode<GameEventMessage>(message.payload))
+                        TOPIC_GAME_EVENT -> {
+                            val msg = decode<GameEventMessage>(message.payload)
+                            logGameEvent(msg)
+                            scrubber.processGameEvent(msg)
+                        }
                         TOPIC_LOG ->
                             scrubber.processLog(decode<LogMessage>(message.payload))
                         else -> logUnexpectedMessage(message, topic)
@@ -74,6 +83,13 @@ class MessagingClient(
                     println("could not parse message: $e")
                     e.printStackTrace()
                 }
+            }
+
+            private fun logStatMessage(stat: StatMessage) {
+                println("${Clock.System.now()} - $stat")
+            }
+            private fun logGameEvent(gameEvent: GameEventMessage) {
+                println("${Clock.System.now()} - $gameEvent")
             }
 
             override fun connectionLost(cause: Throwable) {
@@ -94,7 +110,7 @@ class MessagingClient(
 
     inline fun <reified T> decode(bytes: ByteArray): T {
         val string = String(bytes)
-        println("received message: $string")
+        // println("received message: $string")
         return Json.decodeFromString<T>(string)
     }
 

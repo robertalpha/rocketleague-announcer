@@ -16,8 +16,8 @@ class Extermination(private val statRepository: StatRepository): StatToAnnouncme
                 stat.event) }
 
         return when(playerKills.count()) {
-            7 -> setOf(Announcement.EXTERMINATION)
-            14 -> setOf(Announcement.EXTERMINATION_DOUBLE)
+            6 -> setOf(Announcement.EXTERMINATION)
+            13 -> setOf(Announcement.EXTERMINATION_DOUBLE)
             else -> setOf()
         }
     }

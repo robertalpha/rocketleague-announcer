@@ -12,7 +12,7 @@ import nl.vanalphenict.utility.TimeUtils.Companion.bothHappenWithin
 class KickOffKill(private val gameEventRepository: GameEventRepository): StatToAnnouncment{
     override fun listenTo() = setOf(Events.DEMOLISH)
 
-    private val kickoffDuration = 1.seconds
+    private val kickoffDuration = 4.seconds
 
     override fun interpret(
         statMessage: StatMessage,
