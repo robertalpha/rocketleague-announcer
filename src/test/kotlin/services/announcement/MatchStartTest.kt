@@ -1,6 +1,7 @@
 package nl.vanalphenict.services.announcement
 
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import kotlin.test.Test
 import kotlin.time.Instant
@@ -10,12 +11,25 @@ import nl.vanalphenict.model.GameEvents
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.support.getBlueTeam
 import nl.vanalphenict.support.getOrangeTeam
+import kotlin.test.BeforeTest
 
 class MatchStartTest {
+    val repo = GameEventRepository()
+    val cut = MatchStart(repo)
+
+
+    @BeforeTest
+    fun setUp() {
+        repo.clear()
+    }
+
+    @Test
+    fun testListener() {
+        cut.listenTo() shouldContainExactly setOf(GameEvents.START_ROUND)
+    }
+
     @Test
     fun interpret() {
-        val repo = GameEventRepository()
-        val cut = MatchStart(repo)
 
         cut.handleGameEvent("2020-08-30T18:43:06Z", startRoundMessage("123"), repo) shouldContain Announcement.MATCH_START
         cut.handleGameEvent("2020-08-30T18:44:26Z", startRoundMessage("123"), repo) shouldHaveSize 0
