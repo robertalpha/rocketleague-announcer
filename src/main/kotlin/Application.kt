@@ -31,8 +31,8 @@ import nl.vanalphenict.services.announcement.Revenge
 import nl.vanalphenict.services.announcement.WitnessSave
 import nl.vanalphenict.services.announcement.WitnessScore
 import nl.vanalphenict.services.impl.EventPersister
-import services.announcement.Extermination
-import services.announcement.MutualDestruction
+import nl.vanalphenict.services.announcement.Extermination
+import nl.vanalphenict.services.announcement.MutualDestruction
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)

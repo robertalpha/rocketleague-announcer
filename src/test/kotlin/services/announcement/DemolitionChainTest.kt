@@ -9,10 +9,10 @@ import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.announcement.DemoChain
 import nl.vanalphenict.services.announcement.DemolitionChain
-import support.getBlueTeam
-import support.getOrangeTeam
-import support.getPlayerEpic
-import support.getPlayerSteam
+import nl.vanalphenict.support.getBlueTeam
+import nl.vanalphenict.support.getOrangeTeam
+import nl.vanalphenict.support.getPlayerEpic
+import nl.vanalphenict.support.getPlayerSteam
 
 class DemolitionChainTest {
     @Test

@@ -6,11 +6,11 @@ import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.Player
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.announcement.Retaliation
-import support.getBlueTeam
-import support.getOrangeTeam
-import support.getPlayerEpic
-import support.getPlayerSteam
-import support.getPlayerSwitch
+import nl.vanalphenict.support.getBlueTeam
+import nl.vanalphenict.support.getOrangeTeam
+import nl.vanalphenict.support.getPlayerEpic
+import nl.vanalphenict.support.getPlayerSteam
+import nl.vanalphenict.support.getPlayerSwitch
 import kotlin.test.Test
 import kotlin.time.Instant
 

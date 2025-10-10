@@ -1,4 +1,4 @@
-package utility
+package nl.vanalphenict.utility
 
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

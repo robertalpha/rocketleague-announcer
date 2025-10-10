@@ -4,6 +4,8 @@ import com.janoz.discord.DiscordService
 import com.janoz.discord.domain.VoiceChannel
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.utility.DeJitter
+import kotlin.time.Duration.Companion.milliseconds
 
 class AnnouncementHandler(
     private val discordService: DiscordService,
@@ -13,6 +15,12 @@ class AnnouncementHandler(
 ) : EventHandler {
 
     private val interpreterMap : MutableMap<String, Set<StatToAnnouncment>> = HashMap()
+
+    private val dejitter : DeJitter<Announcement> = DeJitter(
+        timeToCombine = 100.milliseconds,
+        comparator = { a, b -> sampleMapper.selector(a) - sampleMapper.selector(b)},
+        action = { announcement -> triggerSound(sampleMapper.getSample(announcement)!!) }
+    )
 
     init {
         interpreters.forEach { interpreter ->
@@ -28,7 +36,8 @@ class AnnouncementHandler(
         interpreterMap[msg.event]?.let {
             it.forEach { interpreter -> announcements.addAll(interpreter.interpret(msg)) }
         }
-        sampleMapper.getSample(announcements)?.let { triggerSound(it) }
+        val candidate = sampleMapper.getPrevailingAnnouncement(announcements)
+        dejitter.add(candidate)
     }
 
     private fun triggerSound(sample: String) {
