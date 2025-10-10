@@ -13,7 +13,8 @@ import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.announcement.AsIs
 import nl.vanalphenict.support.getEvent
 import nl.vanalphenict.support.getVoiceChannel
-import java.util.concurrent.SynchronousQueue
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.BlockingQueue
 import kotlin.test.Test
 import kotlin.time.Instant
 
@@ -32,7 +33,7 @@ class AnnouncementHandlerTest {
         Announcement.HATTRICK to SampleMapper.AnnouncementWeight(listOf("hattrick.wav"), 4),
     ))
 
-    val playedSampleQueue = SynchronousQueue<String>()
+    val playedSampleQueue = ArrayBlockingQueue<String>(10)
 
     val cut = AnnouncementHandler(
         MockDiscordService(playedSampleQueue),
@@ -40,7 +41,7 @@ class AnnouncementHandlerTest {
         constructSampleMapper(emptyMap()),
         listOf(
             AsIs(),
-            Goal2All()
+            Save2All()
         ), gameEventInterpreters = listOf()
     )
 
@@ -96,8 +97,9 @@ class AnnouncementHandlerTest {
         playedSampleQueue.isEmpty() shouldBe true
 
         cut.handleStatMessage(getEvent(Events.AERIAL_GOAL))
-        playedSampleQueue.take() shouldBe "aerial_goal.wav"
+        Thread.sleep(110)
         cut.handleStatMessage(getEvent(Events.LONG_GOAL))
+        playedSampleQueue.take() shouldBe "aerial_goal.wav"
         playedSampleQueue.take() shouldBe "long_goal.wav"
         playedSampleQueue.isEmpty() shouldBe true
 
@@ -118,7 +120,7 @@ class AnnouncementHandlerTest {
         )
     }
 
-    class Goal2All() : StatToAnnouncment {
+    class Save2All() : StatToAnnouncment {
         override fun listenTo() = setOf(Events.SAVE)
         override fun interpret(
             statMessage: StatMessage,
@@ -129,7 +131,7 @@ class AnnouncementHandlerTest {
     }
 
     class MockDiscordService(
-        val playedSampleQueue :SynchronousQueue<String>
+        val playedSampleQueue : BlockingQueue<String>
     ) : DiscordService {
 
         override fun play(sample: String?, guildId: Long, voiceChannelId: Long) {
