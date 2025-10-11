@@ -115,7 +115,6 @@ class AnnouncementHandlerTest {
         return SampleMapper(
             name = "MOCKED",
             info = "Mocked Samplemapper",
-            src = null,
             mapping = mapping
         )
     }
