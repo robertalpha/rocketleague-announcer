@@ -10,7 +10,6 @@ import java.io.InputStream
 class SampleMapper(
     val name: String,
     val info: String,
-    val src: String?,
     private val mapping: Map<Announcement, AnnouncementWeight> ) {
 
     data class AnnouncementWeight(val sampleIds: Collection<String>, val weight: Int)
@@ -40,7 +39,7 @@ class SampleMapper(
                 uniqueWeightValidatorSet.add(it.weight)
                 mapping[it.announcement] = AnnouncementWeight(sampleIds = it.samples, weight = it.weight)
             }
-            return SampleMapper(conf.name, conf.info, conf.src, mapping)
+            return SampleMapper(conf.name, conf.info, mapping)
         }
     }
 }
