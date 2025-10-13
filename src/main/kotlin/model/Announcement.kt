@@ -24,7 +24,7 @@ enum class Announcement {
 
     // Direct mapping from Rocket League events
     AERIAL_GOAL,
-    BACKWARD_GOAL,
+    BACKWARDS_GOAL,
     BICYCLE_GOAL,
     LONG_GOAL,
     TURTLE_GOAL,

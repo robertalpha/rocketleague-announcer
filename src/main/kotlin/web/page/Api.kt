@@ -1,4 +1,4 @@
-package nl.vanalphenict.page
+package nl.vanalphenict.web.page
 
 import io.github.allangomes.kotlinwind.css.kw
 import io.ktor.server.application.Application
@@ -17,6 +17,8 @@ import kotlinx.html.role
 import kotlinx.html.style
 import nl.vanalphenict.services.Theme
 import nl.vanalphenict.services.ThemeService
+import nl.vanalphenict.web.SSE_EVENT_TYPE
+import nl.vanalphenict.web.triggerSSE
 
 fun Application.themeRoutes(themeService: ThemeService) {
     routing {
@@ -35,8 +37,7 @@ fun Application.themeRoutes(themeService: ThemeService) {
                 }
             }
 
-            // TODO: handle sse
-//            triggerSSE(id)
+            triggerSSE(SSE_EVENT_TYPE.SWITCH_THEME)
         }
 
         // read themes

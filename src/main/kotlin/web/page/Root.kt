@@ -1,4 +1,4 @@
-package nl.vanalphenict.page
+package nl.vanalphenict.web.page
 
 import io.github.allangomes.kotlinwind.css.kw
 import io.ktor.server.html.Placeholder
@@ -38,28 +38,40 @@ class Root {
             }
             body {
                 style = kw.inline { flex.col.items_center.justify_center.gap[4]; }
-
+                classes = setOf("bg-gray-900")
 
                 div {
 
                     h1 {
                         classes = setOf("font-bold","leading-snug"," tracking-tight"," text-blue-600"," mx-auto"," w-full"," text-2xl"," lg:max-w-3xl"," lg:text-5xl")
-
                         insert(header)
                     }
 
                     p {
-                        +"Select theme:"
+                        classes = setOf("font-bold","leading-snug"," tracking-tight"," text-blue-400"," mx-auto")
+                        +"Theme:"
                     }
+                    div{
+                        attributes["hx-ext"] = "sse"
+                        attributes["sse-connect"] = "/sse"
+                        div {
+                            attributes["hx-trigger"] = "sse:switch_theme"
+                            attributes["hx-get"] = "/themes"
+
+                            renderThemes(themeService.themes,themeService.selectedTheme)
+                        }
+                    }
+
                     div {
-                        renderThemes(themeService.themes,themeService.selectedTheme)
+                        renderActions()
                     }
-
-
 
                 }
 
-                script { src = "assets/htmx.org/dist/htmx.js" }
+                val htmx = { e: String -> "assets/htmx.org/dist/$e" }
+                script(src = htmx("htmx.js")) {}
+                script(src = htmx("ext/json-enc.js")) {}
+                script(src = "assets/htmx-ext-sse/dist/sse.js") {}
             }
 
         }
