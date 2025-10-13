@@ -11,7 +11,7 @@ class AsIs: StatToAnnouncment   {
     private val mapping:Map <StatEvents, Announcement> = mapOf(
 //        Events.DEMOLITION to Announcement.EXECUTIONER, //Handled by Extermination.kt
         StatEvents.AERIAL_GOAL to Announcement.AERIAL_GOAL,
-        StatEvents.BACKWARD_GOAL to Announcement.BACKWARD_GOAL,
+        StatEvents.BACKWARDS_GOAL to Announcement.BACKWARDS_GOAL,
         StatEvents.BICYCLE_GOAL to Announcement.BICYCLE_GOAL,
         StatEvents.LONG_GOAL to Announcement.LONG_GOAL,
         StatEvents.TURTLE_GOAL to Announcement.TURTLE_GOAL,
