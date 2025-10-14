@@ -110,6 +110,11 @@ data class Color(
     val B: Int
 )
 
+data class RLAMetaData(
+    var prevailingAnnouncement: Announcement? = null,
+    val announcements: MutableSet<Announcement> = HashSet(),
+)
+
 enum class StatEvents(val eventName: String) {
     AERIAL_GOAL("AerialGoal"),
     ASSIST("Assist"),

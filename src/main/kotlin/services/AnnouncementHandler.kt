@@ -5,6 +5,7 @@ import com.janoz.discord.domain.VoiceChannel
 import kotlin.time.Duration.Companion.milliseconds
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.GameEventMessage
+import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.utility.DeJitter
 
@@ -39,21 +40,25 @@ class AnnouncementHandler(
         }
     }
 
-    override fun handleStatMessage(msg: StatMessage) {
+    override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         val announcements = HashSet<Announcement>()
         statInterpreterMap[msg.event]?.let {
             it.forEach { interpreter -> announcements.addAll(interpreter.interpret(msg)) }
         }
+        metaData.announcements.addAll(announcements)
         val candidate = sampleMapper.getPrevailingAnnouncement(announcements)
+        metaData.prevailingAnnouncement = candidate
         dejitter.add(candidate)
     }
 
-    override fun handleGameEvent(msg: GameEventMessage) {
+    override fun handleGameEvent(msg: GameEventMessage, metaData: RLAMetaData) {
         val announcements = HashSet<Announcement>()
         gameEventInterpreterMap[msg.gameEvent]?.let {
             it.forEach { interpreter -> announcements.addAll(interpreter.interpret(msg)) }
         }
+        metaData.announcements.addAll(announcements)
         val candidate = sampleMapper.getPrevailingAnnouncement(announcements)
+        metaData.prevailingAnnouncement = candidate
         dejitter.add(candidate)
     }
 

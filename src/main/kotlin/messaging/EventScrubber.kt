@@ -6,6 +6,7 @@ import kotlin.time.Instant
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.LogMessage
+import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.EventHandler
 
@@ -16,7 +17,7 @@ class EventScrubber(private val eventHandler: EventHandler) {
 
     fun processGameEvent(msg: GameEventMessage) {
         messagesCache.computeIfAbsent(msg.hashCode()) {
-            eventHandler.handleGameEvent(msg)
+            eventHandler.handleGameEvent(msg, RLAMetaData())
             Clock.System.now()
         }
         clearCache()
@@ -26,7 +27,7 @@ class EventScrubber(private val eventHandler: EventHandler) {
         //Filter demolish stat message. Only use ticker
         if (msg.event == "Demolish" && msg.victim == null) return
         messagesCache.computeIfAbsent(msg.hashCode()) {
-            eventHandler.handleStatMessage(msg)
+            eventHandler.handleStatMessage(msg, RLAMetaData())
             Clock.System.now()
         }
         //BallHit is a frequent stat message, never double

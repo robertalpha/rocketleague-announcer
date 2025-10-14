@@ -2,6 +2,7 @@ package nl.vanalphenict.services.impl
 
 import kotlin.time.Clock
 import nl.vanalphenict.model.GameEventMessage
+import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.repository.StatRepository
@@ -12,7 +13,8 @@ class EventPersister(
     val gameEventRepository: GameEventRepository) : EventHandler {
 
     override fun handleStatMessage(
-        msg: StatMessage
+        msg: StatMessage,
+        metaData: RLAMetaData
     ) {
         synchronized(this) {
             statRepository.addStatMessage(Clock.System.now(), msg)
@@ -20,7 +22,8 @@ class EventPersister(
     }
 
     override fun handleGameEvent(
-        msg: GameEventMessage
+        msg: GameEventMessage,
+        metaData: RLAMetaData
     ) {
         synchronized(this) {
             gameEventRepository.addGameEventMessage(Clock.System.now(), msg)

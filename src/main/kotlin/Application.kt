@@ -35,6 +35,7 @@ import nl.vanalphenict.services.announcement.Revenge
 import nl.vanalphenict.services.announcement.WitnessSave
 import nl.vanalphenict.services.announcement.WitnessScore
 import nl.vanalphenict.services.impl.EventPersister
+import nl.vanalphenict.services.impl.SsePublisher
 import nl.vanalphenict.web.configureRouting
 import nl.vanalphenict.web.configureSSE
 import nl.vanalphenict.web.page.themeRoutes
@@ -115,7 +116,7 @@ fun Application.module(
         ),
         listOf(MatchStart(gameEventRepository))
     ) // For now use environment when available, otherwise default
-    val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).build()
+    val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).add(SsePublisher()).build()
     val client = try {
         MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS") ?: brokerAddress)
     } catch (ex: Exception) {
