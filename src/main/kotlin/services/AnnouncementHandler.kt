@@ -5,6 +5,7 @@ import com.janoz.discord.domain.VoiceChannel
 import kotlin.time.Duration.Companion.milliseconds
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.GameEventMessage
+import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.utility.DeJitter
@@ -49,6 +50,18 @@ class AnnouncementHandler(
         val candidate = sampleMapper.getPrevailingAnnouncement(announcements)
         metaData.prevailingAnnouncement = candidate
         dejitter.add(candidate)
+    }
+
+    override fun handleGameTime(msg: GameTimeMessage) {
+        if (!msg.overtime) {
+            when (msg.remaining) {
+                1 -> dejitter.add(Announcement.LEFT_1)
+                2 -> dejitter.add(Announcement.LEFT_2)
+                3 -> dejitter.add(Announcement.LEFT_3)
+                4 -> dejitter.add(Announcement.LEFT_4)
+                5 -> dejitter.add(Announcement.LEFT_5)
+            }
+        }
     }
 
     override fun handleGameEvent(msg: GameEventMessage, metaData: RLAMetaData) {
