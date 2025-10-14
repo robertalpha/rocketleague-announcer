@@ -21,7 +21,6 @@ data class StatMessage(
     val event: String,
     val player: Player,
     val victim: Player? = null,
-    val icon : String = getIcon()
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -45,38 +44,6 @@ data class StatMessage(
         result = 31 * result + (victim?.hashCode() ?: 0)
         return result
     }
-}
-
-fun getIcon(): String {
-    return listOf("AerialGoal.webp",
-        "Assist.webp",
-        "BackwardsGoal.webp",
-        "BicycleGoal.webp",
-        "BicycleHit.webp",
-        "BreakoutDamage.webp",
-        "BreakoutDamageLarge.webp",
-        "Center.webp",
-        "Clear.webp",
-        "Demolish.webp",
-        "Demolition.webp",
-        "EpicSave.webp",
-        "FirstTouch.webp",
-        "Goal.webp",
-        "HatTrick.webp",
-        "HighFive.webp",
-        "HoopsSwishGoal.webp",
-        "LongGoal.webp",
-        "LowFive.webp",
-        "MVP.webp",
-        "OvertimeGoal.webp",
-        "Playmaker.webp",
-        "PoolShot.webp",
-        "Save.webp",
-        "Savior.webp",
-        "Shot.webp",
-        "TurtleGoal.webp",
-        "Win.webp"
-    ).random()
 }
 
 @Serializable

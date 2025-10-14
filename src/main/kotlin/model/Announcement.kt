@@ -22,6 +22,12 @@ enum class Announcement {
 
     MATCH_START,            // Match has started
 
+    LEFT_5,                 // 5 secconds left
+    LEFT_4,                 // 4 secconds left
+    LEFT_3,                 // 3 secconds left
+    LEFT_2,                 // 2 secconds left
+    LEFT_1,                 // 1 secconds left
+
     // Direct mapping from Rocket League events
     AERIAL_GOAL,
     BACKWARDS_GOAL,
