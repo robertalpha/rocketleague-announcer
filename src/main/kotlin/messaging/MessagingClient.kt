@@ -1,13 +1,13 @@
 package nl.vanalphenict.messaging
 
 import kotlin.time.Clock
-import kotlin.time.Instant
 import kotlinx.serialization.json.Json
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.LogMessage
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.EventHandler
+import nl.vanalphenict.utility.TimeService
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttClient
@@ -18,7 +18,8 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 
 class MessagingClient(
     eventHandler: EventHandler,
-    serverAddress: String
+    serverAddress: String,
+    timeService: TimeService
 ) {
     private val TOPIC_ROOT = "rl2mqtt"
     private val TOPIC_STAT = "$TOPIC_ROOT/stat"
@@ -27,7 +28,7 @@ class MessagingClient(
     private val TOPIC_GAME_TIME = "$TOPIC_ROOT/gametime"
     private val TOPIC_LOG = "$TOPIC_ROOT/log"
     private val QOS = 1
-    private var scrubber: EventScrubber = EventScrubber(eventHandler)
+    private var scrubber: EventScrubber = EventScrubber(eventHandler, timeService = timeService)
     private var client: MqttClient
 
 

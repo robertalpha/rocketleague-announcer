@@ -25,7 +25,7 @@ import nl.vanalphenict.services.ThemeService
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class MessageLine(val topic: String, val timestamp: String)
+data class MessageLine(val topic: String, val message: String)
 
 
 fun Application.configureRouting(client: MessagingClient, themeService: ThemeService) {
@@ -59,7 +59,7 @@ fun Application.configureRouting(client: MessagingClient, themeService: ThemeSer
         post("/") {
             val msg = call.receive<String>()
             val line = Json.decodeFromString<MessageLine>(msg)
-            client.send(line.topic, msg)
+            client.send(line.topic, line.message)
             call.respond(HttpStatusCode.OK)
         }
     }

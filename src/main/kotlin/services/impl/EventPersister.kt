@@ -1,23 +1,38 @@
 package nl.vanalphenict.services.impl
 
-import kotlin.time.Clock
+import kotlinx.coroutines.runBlocking
+import kotlinx.html.body
+import kotlinx.html.classes
+import kotlinx.html.li
+import kotlinx.html.stream.createHTML
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.EventHandler
+import nl.vanalphenict.utility.TimeService
+import nl.vanalphenict.web.SSE_EVENT_TYPE
+import nl.vanalphenict.web.triggerUpdateSSE
+import nl.vanalphenict.web.view.actionListItem
 
 class EventPersister(
     val statRepository: StatRepository,
-    val gameEventRepository: GameEventRepository) : EventHandler {
+    val gameEventRepository: GameEventRepository,
+    val timeService: TimeService) : EventHandler {
 
     override fun handleStatMessage(
         msg: StatMessage,
         metaData: RLAMetaData
     ) {
         synchronized(this) {
-            statRepository.addStatMessage(Clock.System.now(), msg)
+            statRepository.addStatMessage(timeService.now(), msg)
+            val actionItem = Pair(timeService.now(), msg)
+            val htmlText = createHTML().body {
+                actionListItem(actionItem)
+            }
+            runBlocking {  triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
+
         }
     }
 
@@ -26,7 +41,7 @@ class EventPersister(
         metaData: RLAMetaData
     ) {
         synchronized(this) {
-            gameEventRepository.addGameEventMessage(Clock.System.now(), msg)
+            gameEventRepository.addGameEventMessage(timeService.now(), msg)
         }
     }
 }

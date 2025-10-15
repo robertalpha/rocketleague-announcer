@@ -18,8 +18,9 @@ enum class SSE_EVENT_TYPE {
     NEW_ACTION, SWITCH_THEME
 }
 val sseFlow = MutableSharedFlow<SseEvent>()
-suspend fun triggerSSE(event: SSE_EVENT_TYPE) {
-    sseFlow.emit(SseEvent(event = event.name.lowercase(), data = "SSE"))
+
+suspend fun triggerUpdateSSE(event: SSE_EVENT_TYPE, html: String) {
+    sseFlow.emit(SseEvent(event = event.name.lowercase(), data = html))
 }
 
 fun Application.configureSSE() {
@@ -35,9 +36,6 @@ suspend fun ApplicationCall.respondSse(eventFlow: Flow<SseEvent>) {
     response.cacheControl(CacheControl.NoCache(null))
     respondBytesWriter(contentType = ContentType.Text.EventStream) {
         eventFlow.collect { event ->
-//            if (event.data == id)
-//                return@collect
-
             if (event.id != null) {
                 writeStringUtf8("id: ${event.id}\n")
             }

@@ -54,11 +54,9 @@ class Root {
                     div{
                         attributes["hx-ext"] = "sse"
                         attributes["sse-connect"] = "/sse"
+                        attributes["sse-swap"] = "switch_theme"
                         div {
-                            attributes["hx-trigger"] = "sse:switch_theme"
-                            attributes["hx-get"] = "/themes"
-
-                            renderThemes(themeService.themes,themeService.selectedTheme)
+                            renderThemes(themeService.themes, themeService.selectedTheme)
                         }
                     }
 

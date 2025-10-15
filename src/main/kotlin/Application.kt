@@ -1,7 +1,7 @@
 package nl.vanalphenict
 
+import com.janoz.discord.DiscordService
 import com.janoz.discord.VoiceFactory
-import com.janoz.discord.domain.Guild
 import com.janoz.discord.domain.VoiceChannel
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -13,8 +13,16 @@ import io.ktor.server.sse.SSE
 import io.ktor.server.webjars.Webjars
 import java.io.File
 import java.io.FileInputStream
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import nl.vanalphenict.messaging.MessagingClient
+import nl.vanalphenict.model.Color
+import nl.vanalphenict.model.Player
+import nl.vanalphenict.model.StatEvents
+import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.model.Team
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.AnnouncementHandler
@@ -35,6 +43,8 @@ import nl.vanalphenict.services.announcement.Revenge
 import nl.vanalphenict.services.announcement.WitnessSave
 import nl.vanalphenict.services.announcement.WitnessScore
 import nl.vanalphenict.services.impl.EventPersister
+import nl.vanalphenict.utility.TimeService
+import nl.vanalphenict.utility.TimeServiceImpl
 import nl.vanalphenict.services.impl.SsePublisher
 import nl.vanalphenict.web.configureRouting
 import nl.vanalphenict.web.configureSSE
@@ -47,15 +57,8 @@ fun main(args: Array<String>) {
 
 fun Application.module(
     brokerAddress: String = "tcp://localhost:1883",
-    mocked: Boolean = false
 ) {
-
-    val voiceContext = if (mocked) {
-        VoiceFactory.createVoiceContextMock()
-    } else {
-        VoiceFactory.createVoiceContext(System.getenv("TOKEN"))
-    }
-
+    val voiceContext = VoiceFactory.createVoiceContext(System.getenv("TOKEN"))
     val sampleService = voiceContext.sampleService
     val discordService = voiceContext.discordService
 
@@ -87,15 +90,17 @@ fun Application.module(
             }
     }
 
-    val voiceChannel = if (mocked) {
-        VoiceChannel.builder().guild(Guild.builder().id(1L).build()).id(2L).build()
-    } else {
-        discordService.getVoiceChannel(System.getenv("VOICE_CHANNEL_ID")!!.toLong())
-    }
+    val voiceChannel = discordService.getVoiceChannel(System.getenv("VOICE_CHANNEL_ID")!!.toLong())
+    val timeService = TimeServiceImpl()
+
+    moduleWithDependencies(discordService, voiceChannel, configs, brokerAddress, timeService)
+}
+
+fun Application.moduleWithDependencies(discordService: DiscordService, voiceChannel: VoiceChannel, configs: MutableList<SampleMapper>, brokerAddress: String, timeService: TimeService) {
 
     val statRepository = StatRepository()
     val gameEventRepository = GameEventRepository()
-    val eventPersister = EventPersister(statRepository, gameEventRepository)
+    val eventPersister = EventPersister(statRepository, gameEventRepository, timeService)
     val announcementHandler = AnnouncementHandler(
         discordService,
         voiceChannel,
@@ -115,10 +120,10 @@ fun Application.module(
             WitnessSave(statRepository),
         ),
         listOf(MatchStart(gameEventRepository))
-    ) // For now use environment when available, otherwise default
+    )
     val eventHandler = EventHandler.Builder(announcementHandler).add(eventPersister).add(SsePublisher()).build()
     val client = try {
-        MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS") ?: brokerAddress)
+        MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS") ?: brokerAddress, timeService)
     } catch (ex: Exception) {
         println("could not connect to broker")
         throw ex
@@ -152,5 +157,35 @@ fun Application.module(
     actionRoutes(statRepository)
     configureSSE()
 
+    feedTest(eventPersister)
 }
 
+
+
+
+fun Application.feedTest(eventPersister: EventPersister) {
+    this.launch {
+        repeat(60) {
+            println("adding message..")
+            eventPersister.handleStatMessage(
+                StatMessage(
+                    matchGUID = "1234",
+                    event = StatEvents.entries.toTypedArray().random().eventName,
+                    player = Player(
+                        id = "123",
+                        name = "PlayerName",
+                        team = Team(
+                            name = "Jemoeder",
+                            primaryColor = Color(0,170,0)
+                        )
+                    ),
+                    victim = Player(
+                        id = "323",
+                        name = "Victim"
+                    ),
+                )
+            )
+            delay(200.milliseconds)
+        }
+    }
+}
