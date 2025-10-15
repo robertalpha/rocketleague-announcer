@@ -20,6 +20,7 @@ import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.AnnouncementHandler
 import nl.vanalphenict.services.EventHandler
+import nl.vanalphenict.services.GameTimeTrackerService
 import nl.vanalphenict.services.SampleMapper
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.services.announcement.AsIs
@@ -96,6 +97,7 @@ fun Application.moduleWithDependencies(discordService: DiscordService, voiceChan
     val statRepository = StatRepository()
     val gameEventRepository = GameEventRepository()
     val eventPersister = EventPersister(statRepository, gameEventRepository, timeService)
+    val gameTimeTrackerService = GameTimeTrackerService()
     val announcementHandler = AnnouncementHandler(
         discordService,
         voiceChannel,
@@ -117,7 +119,10 @@ fun Application.moduleWithDependencies(discordService: DiscordService, voiceChan
         listOf(MatchStart(gameEventRepository))
     )
     val eventHandler =
-        EventHandler.Builder(announcementHandler).add(eventPersister).add(SsePublisher(timeService)).build()
+        EventHandler.Builder(announcementHandler)
+            .add(eventPersister)
+            .add(SsePublisher(timeService, gameTimeTrackerService))
+            .add(gameTimeTrackerService).build()
     val client = try {
         MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS") ?: brokerAddress, timeService)
     } catch (ex: Exception) {
@@ -150,6 +155,6 @@ fun Application.moduleWithDependencies(discordService: DiscordService, voiceChan
     val themeService = ThemeService(configs, announcementHandler)
     configureRouting(client, themeService)
     themeRoutes(themeService)
-    actionRoutes(statRepository)
+    actionRoutes(statRepository, gameTimeTrackerService)
     configureSSE()
 }

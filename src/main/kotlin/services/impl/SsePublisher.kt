@@ -7,12 +7,13 @@ import kotlinx.html.stream.createHTML
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.EventHandler
+import nl.vanalphenict.services.GameTimeTrackerService
 import nl.vanalphenict.utility.TimeService
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import nl.vanalphenict.web.triggerUpdateSSE
 import nl.vanalphenict.web.view.actionListItem
 
-class SsePublisher(val timeService: TimeService) : EventHandler {
+class SsePublisher(val timeService: TimeService, val gameTimeTrackerService: GameTimeTrackerService) : EventHandler {
 
     private val log = KotlinLogging.logger {}
 
