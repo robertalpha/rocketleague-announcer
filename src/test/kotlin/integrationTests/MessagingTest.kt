@@ -39,7 +39,7 @@ class MessagingTest : AbstractMessagingTest() {
     @Test
     fun testLines() = testApplication {
 
-        val testFile = "RL_log_20250903_copy.txt"
+        val testFile = "RL_log_20250903.txt"
 
         val timeServiceMock = TimeServiceMock()
 

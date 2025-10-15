@@ -13,16 +13,8 @@ import io.ktor.server.sse.SSE
 import io.ktor.server.webjars.Webjars
 import java.io.File
 import java.io.FileInputStream
-import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import nl.vanalphenict.messaging.MessagingClient
-import nl.vanalphenict.model.Color
-import nl.vanalphenict.model.Player
-import nl.vanalphenict.model.StatEvents
-import nl.vanalphenict.model.StatMessage
-import nl.vanalphenict.model.Team
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.AnnouncementHandler
@@ -156,36 +148,4 @@ fun Application.moduleWithDependencies(discordService: DiscordService, voiceChan
     themeRoutes(themeService)
     actionRoutes(statRepository)
     configureSSE()
-
-    feedTest(eventPersister)
-}
-
-
-
-
-fun Application.feedTest(eventPersister: EventPersister) {
-    this.launch {
-        repeat(60) {
-            println("adding message..")
-            eventPersister.handleStatMessage(
-                StatMessage(
-                    matchGUID = "1234",
-                    event = StatEvents.entries.toTypedArray().random().eventName,
-                    player = Player(
-                        id = "123",
-                        name = "PlayerName",
-                        team = Team(
-                            name = "Jemoeder",
-                            primaryColor = Color(0,170,0)
-                        )
-                    ),
-                    victim = Player(
-                        id = "323",
-                        name = "Victim"
-                    ),
-                )
-            )
-            delay(200.milliseconds)
-        }
-    }
 }
