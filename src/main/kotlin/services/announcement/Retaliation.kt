@@ -19,7 +19,7 @@ class Retaliation() : StatToAnnouncment {
         val killer = statMessage.player
         val victim = statMessage.victim!!
 
-        if (killer.team!!.homeTeam!!) {
+        if (killer.team?.homeTeam == true) {
             val grudge: Instant? = grudges.remove(victim.botSaveId())
             if (grudge != null && grudge.plus(grudgeDuration) > currentTimeStamp) {
                 return setOf(Announcement.RETALIATION)

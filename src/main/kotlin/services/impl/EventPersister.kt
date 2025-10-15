@@ -27,12 +27,6 @@ class EventPersister(
     ) {
         synchronized(this) {
             statRepository.addStatMessage(timeService.now(), msg)
-            val actionItem = Pair(timeService.now(), msg)
-            val htmlText = createHTML().body {
-                actionListItem(actionItem)
-            }
-            runBlocking {  triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
-
         }
     }
 

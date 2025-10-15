@@ -17,7 +17,7 @@ class WitnessSave(val statRepository: StatRepository): StatToAnnouncment {
         statMessage: StatMessage,
         currentTimeStamp: Instant
     ): Set<Announcement> {
-        if (statMessage.player.team!!.homeTeam!!) return emptySet()
+        if (statMessage.player.team?.homeTeam == true) return emptySet()
 
         return if (statRepository.getStatHistory(statMessage.matchGUID)
                 .filter { (instant, _) -> currentTimeStamp.minus(instant) < witnessWindow }

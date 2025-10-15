@@ -17,7 +17,7 @@ class EventScrubber(private val eventHandler: EventHandler, private val timeServ
 
     fun processGameEvent(msg: GameEventMessage) {
         messagesCache.computeIfAbsent(msg.hashCode()) {
-            eventHandler.handleStatMessage(msg, RLAMetaData())
+            eventHandler.handleGameEvent(msg, RLAMetaData())
             timeService.now()
         }
         clearCache()

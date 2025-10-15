@@ -14,7 +14,7 @@ class WitnessScore(val statRepository: StatRepository): StatToAnnouncment {
     private val witnessWindow = 3.seconds
 
     override fun interpret(statMessage: StatMessage,currentTimeStamp: Instant): Set<Announcement> {
-        if (!statMessage.player.team!!.homeTeam!!) return emptySet()
+        if (statMessage.player.team?.homeTeam == false) return emptySet()
 
         return if (statRepository.getStatHistory(statMessage.matchGUID)
                 .filter { (instant, _) -> currentTimeStamp.minus(instant) < witnessWindow }
