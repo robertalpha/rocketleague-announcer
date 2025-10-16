@@ -1,5 +1,6 @@
 package nl.vanalphenict.messaging
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.time.Clock
 import kotlinx.serialization.json.Json
 import nl.vanalphenict.model.JsonGameEventMessage
@@ -30,6 +31,7 @@ class MessagingClient(
     private val QOS = 1
     private var scrubber: EventScrubber = EventScrubber(eventHandler, timeService = timeService)
     private var client: MqttClient
+    private val log = KotlinLogging.logger {}
 
 
     init {
@@ -50,10 +52,12 @@ class MessagingClient(
         client.connect(options)
 
         fun logUnexpectedMessage(message: MqttMessage, topic: String) {
-            println("unexpected message on non subscribed topic:")
-            println("topic: $topic")
-            println("qos: " + message.qos)
-            println("message content: " + String(message.payload))
+            log.warn { """
+                unexpected message on non subscribed topic:")
+                topic: ${topic}
+                qos: ${message.qos}
+                message content: ${String(message.payload)}
+            """.trimIndent()}
         }
 
         client.setCallback(object : MqttCallback {
@@ -81,24 +85,24 @@ class MessagingClient(
                         else -> logUnexpectedMessage(message, topic)
                     }
                 } catch (e: Exception) {
-                    println("could not parse message: $e")
+                    log.error { "could not parse message: $e" }
                     e.printStackTrace()
                 }
             }
 
-            private fun logStatMessage(stat: StatMessage) {
-                println("${Clock.System.now()} - $stat")
+            private fun logStatMessage(stat: JsonStatMessage) {
+                log.trace {"${Clock.System.now()} - $stat" }
             }
-            private fun logGameEvent(gameEvent: GameEventMessage) {
-                println("${Clock.System.now()} - $gameEvent")
+            private fun logGameEvent(gameEvent: JsonGameEventMessage) {
+                log.trace {"${Clock.System.now()} - $gameEvent" }
             }
 
             override fun connectionLost(cause: Throwable) {
-                println("connectionLost: " + cause.message)
+                log.trace { "connectionLost: " + cause.message }
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken) {
-//                println("deliveryComplete: " + token.isComplete)
+                log.trace { "deliveryComplete: " + token.isComplete }
             }
         })
 
@@ -111,7 +115,6 @@ class MessagingClient(
 
     inline fun <reified T> decode(bytes: ByteArray): T {
         val string = String(bytes)
-        // println("received message: $string")
         return Json.decodeFromString<T>(string)
     }
 
@@ -120,6 +123,4 @@ class MessagingClient(
         message.setQos(QOS)
         client.publish(topic, message)
     }
-
-
 }

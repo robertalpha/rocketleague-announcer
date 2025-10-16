@@ -1,8 +1,9 @@
 package nl.vanalphenict.model
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.Color
 
-
+private val log = KotlinLogging.logger {  }
 
 fun parseTeam(src : JsonTeam) : Team = Team(src,null)
 
@@ -14,7 +15,7 @@ fun parsePlayer(src : JsonPlayer) : Player {
 fun parseGameEventMessage(src : JsonGameEventMessage) : GameEventMessage? {
     val event = GameEvents.entries.find{ it.eq(src.gameEvent)}
     if (event == null) {
-        println("Event \"${src.gameEvent}\" not supported.")
+        log.trace { "Event \"${src.gameEvent}\" not supported." }
         return null
     }
     return GameEventMessage(
@@ -26,7 +27,7 @@ fun parseGameEventMessage(src : JsonGameEventMessage) : GameEventMessage? {
 fun parseStatMessage(src : JsonStatMessage) : StatMessage? {
     val event = StatEvents.entries.find{ it.eq(src.event)}
     if (event == null) {
-        println("Event \"${src.event}\" not supported.")
+        log.trace { "Event \"${src.event}\" not supported." }
         return null
     }
     return if (event == StatEvents.DEMOLISH)
