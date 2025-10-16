@@ -1,7 +1,6 @@
 package nl.vanalphenict.web.view
 
 import kotlin.time.Instant
-import kotlinx.html.BODY
 import kotlinx.html.HtmlBlockTag
 import kotlinx.html.LI
 import kotlinx.html.classes

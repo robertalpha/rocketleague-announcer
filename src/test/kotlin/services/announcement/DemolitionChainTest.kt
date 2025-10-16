@@ -6,7 +6,6 @@ import kotlin.test.Test
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.JsonStatMessage
-import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.announcement.DemoChain

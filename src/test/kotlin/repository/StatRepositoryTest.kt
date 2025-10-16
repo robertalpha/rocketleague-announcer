@@ -7,8 +7,6 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
-import nl.vanalphenict.model.StatMessage
-import nl.vanalphenict.model.Team
 import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.utility.TimeUtils.Companion.bothHappenWithin

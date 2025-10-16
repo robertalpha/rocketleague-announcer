@@ -10,7 +10,7 @@ class SampleMapperTest {
 
 
     @Test
-    fun TestPrevailingNoMapping() {
+    fun testPrevailingNoMapping() {
         sampleMapper.getPrevailingAnnouncement(setOf(
             Announcement.KILL,
             Announcement.KILLED,
@@ -19,7 +19,7 @@ class SampleMapperTest {
     }
 
     @Test
-    fun TestPrevailingSingleMapping() {
+    fun testPrevailingSingleMapping() {
         sampleMapper.getPrevailingAnnouncement(setOf(
             Announcement.KILLED,
             Announcement.FIRST_BLOOD

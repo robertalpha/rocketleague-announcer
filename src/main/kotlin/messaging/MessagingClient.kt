@@ -54,7 +54,7 @@ class MessagingClient(
         fun logUnexpectedMessage(message: MqttMessage, topic: String) {
             log.warn { """
                 unexpected message on non subscribed topic:")
-                topic: ${topic}
+                topic: $topic
                 qos: ${message.qos}
                 message content: ${String(message.payload)}
             """.trimIndent()}
@@ -120,7 +120,7 @@ class MessagingClient(
 
     fun send(topic: String, body: String) {
         val message = MqttMessage(body.toByteArray())
-        message.setQos(QOS)
+        message.qos = QOS
         client.publish(topic, message)
     }
 }

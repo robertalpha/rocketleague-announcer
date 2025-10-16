@@ -1,8 +1,5 @@
 package nl.vanalphenict.model
 
-import kotlinx.serialization.Serializable
-import java.util.Collections
-
 data class RLAMetaData(
     var prevailingAnnouncement: Announcement? = null,
     val announcements: MutableSet<Announcement> = HashSet(),

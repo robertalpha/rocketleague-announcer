@@ -80,20 +80,15 @@ data class JsonPlayer(
         return result
     }
 
-    fun isSame(other: JsonPlayer?): Boolean {
-        if (other == null) return false
-        return other.botSaveId() == botSaveId()
-    }
-
     fun isBot(): Boolean {
-        return id.equals("Unknown|0|0")
+        return id == "Unknown|0|0"
     }
 
     fun botSaveId(): String {
-        if (isBot())
-            return "bot|" + name + "|0"
+        return if (isBot())
+            "bot|$name|0"
         else
-            return id
+            id
     }
 }
 

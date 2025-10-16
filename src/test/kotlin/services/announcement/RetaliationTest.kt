@@ -5,8 +5,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.JsonPlayer
 import nl.vanalphenict.model.JsonStatMessage
-import nl.vanalphenict.model.Player
-import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.services.announcement.Retaliation
 import nl.vanalphenict.support.getBlueTeam

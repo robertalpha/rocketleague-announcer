@@ -80,7 +80,7 @@ class MessagingTest : AbstractMessagingTest() {
                         incoming.collect { event ->
                             log.trace { """
                                 Event from server:
-                                ${event}
+                                $event
                             """.trimIndent()}
                             sseData.add(event)
                         }

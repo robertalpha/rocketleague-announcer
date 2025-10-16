@@ -7,8 +7,6 @@ import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.JsonPlayer
 import nl.vanalphenict.model.JsonStatMessage
-import nl.vanalphenict.model.Player
-import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.support.getBlueTeam
 import nl.vanalphenict.support.getOrangeTeam
