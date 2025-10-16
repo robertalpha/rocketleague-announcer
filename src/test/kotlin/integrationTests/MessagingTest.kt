@@ -3,6 +3,7 @@ package integrationTests
 import com.janoz.discord.VoiceFactory
 import com.janoz.discord.domain.Guild
 import com.janoz.discord.domain.VoiceChannel
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.shouldBe
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -35,6 +36,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Testcontainers
 class MessagingTest : AbstractMessagingTest() {
 
+    private val log = KotlinLogging.logger { }
 
     @Test
     fun testLines() = testApplication {
@@ -76,8 +78,10 @@ class MessagingTest : AbstractMessagingTest() {
             withContext(Dispatchers.IO) {
                 sseClient.sse(path = "/sse") {
                         incoming.collect { event ->
-                            println("Event from server:")
-                            println(event)
+                            log.trace { """
+                                Event from server:
+                                $event
+                            """.trimIndent()}
                             sseData.add(event)
                         }
                 }
@@ -93,8 +97,8 @@ class MessagingTest : AbstractMessagingTest() {
            }
        }
         eventually(10.seconds) {
-            sseData.size shouldBe 48
-            sseData.count { it.data?.contains("Goal.webp") ?: false } shouldBe 7
+            sseData.size shouldBe 33
+            sseData.count { it.data?.contains("Goal.webp") ?: false } shouldBe 6
             sseData.count { it.data?.contains("Win.webp") ?: false } shouldBe 3
         }
     }
@@ -103,14 +107,14 @@ class MessagingTest : AbstractMessagingTest() {
     data class TestMessage(val topic: String, val message: String)
 
     private fun parseMessagesFromResource(testFile: String): List<MessageLine> {
-        val stream = javaClass.getClassLoader().getResourceAsStream(testFile)
+        val stream = javaClass.getClassLoader().getResourceAsStream(testFile)!!
 
         val lines = String(stream.readAllBytes()).lines()
         return  lines.filter { it.isNotBlank() }.map {
             try {
                 Json.decodeFromString(MessageLine.serializer(), it)
             } catch (e: Exception) {
-                println("could nor parse MessageLine: ${it}$")
+                log.error { "could nor parse MessageLine: ${it}$" }
                 throw e
             }
         }.sortedBy { it.timestamp }

@@ -14,11 +14,7 @@ class DeJitterTest {
     @Test
     fun testDeJitter() {
         val answers = ArrayList<Long>()
-        val deJittered = DeJitter<Long>(
-            100.milliseconds,
-             this::compare,
-            { o -> answers.add(o) }
-        )
+        val deJittered = DeJitter<Long>(100.milliseconds, this::compare, answers::add)
 
         true shouldBe true
 

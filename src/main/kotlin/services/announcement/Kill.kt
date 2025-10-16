@@ -11,7 +11,7 @@ class Kill: StatToAnnouncment  {
     override fun listenTo() = setOf(StatEvents.DEMOLISH)
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
-            return if (statMessage.player.team?.homeTeam == true)
+            return if (statMessage.player.team.homeTeam)
                 setOf(Announcement.KILL)
             else setOf(Announcement.KILLED)
     }

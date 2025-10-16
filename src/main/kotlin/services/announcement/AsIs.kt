@@ -28,7 +28,7 @@ class AsIs: StatToAnnouncment   {
 
     override fun interpret(statMessage: StatMessage,currentTimeStamp: Instant): Set<Announcement> {
         return mapping
-            .filter { (e,_) -> e.eq(statMessage.event) }
+            .filter { (e,_) -> e == statMessage.event }
             .map{ (_,a) -> setOf(a) }
             .firstOrNull() ?: emptySet()
     }

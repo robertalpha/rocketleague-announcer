@@ -5,7 +5,8 @@ import io.kotest.matchers.collections.shouldHaveSize
 import kotlin.test.Test
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
-import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.model.JsonStatMessage
+import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.announcement.DemoChain
 import nl.vanalphenict.services.announcement.DemolitionChain
@@ -47,11 +48,13 @@ class DemolitionChainTest {
 
     }
 
-    fun demoStatmessage() = StatMessage(
-        matchGUID= "123",
-        event= "Demolish",
-        player= getPlayerEpic(getBlueTeam()),
-        victim= getPlayerSteam(getOrangeTeam())
-    )
+    fun demoStatmessage() = parseStatMessage(
+        JsonStatMessage(
+            matchGUID = "123",
+            event = "Demolish",
+            player = getPlayerEpic(getBlueTeam()),
+            victim = getPlayerSteam(getOrangeTeam())
+        )
+    )!!
 
 }

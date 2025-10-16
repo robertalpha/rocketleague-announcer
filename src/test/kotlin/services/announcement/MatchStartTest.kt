@@ -8,6 +8,8 @@ import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameEvents
+import nl.vanalphenict.model.JsonGameEventMessage
+import nl.vanalphenict.model.parseGameEventMessage
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.support.getBlueTeam
 import nl.vanalphenict.support.getOrangeTeam
@@ -39,11 +41,13 @@ class MatchStartTest {
         cut.handleGameEvent("2020-08-30T19:02:00Z", startRoundMessage("222"), repo) shouldHaveSize 0
   }
 
-    fun startRoundMessage(matchGUID: String) = GameEventMessage(
-        matchGUID = matchGUID,
-        gameEvent = GameEvents.START_ROUND.eventName,
-        teams = listOf(getBlueTeam(),getOrangeTeam())
-    )
+    fun startRoundMessage(matchGUID: String) = parseGameEventMessage(
+        JsonGameEventMessage(
+            matchGUID = matchGUID,
+            gameEvent = GameEvents.START_ROUND.eventName,
+            teams = listOf(getBlueTeam(), getOrangeTeam())
+        )
+    )!!
 
     private fun MatchStart.handleGameEvent(ts: String, event: GameEventMessage, repository: GameEventRepository): Set<Announcement> {
         val announcements = this.interpret(event, Instant.parse(ts))

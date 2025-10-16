@@ -1,12 +1,13 @@
 package repository
 
 import io.kotest.matchers.shouldBe
+import nl.vanalphenict.model.JsonStatMessage
+import nl.vanalphenict.model.JsonTeam
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
-import nl.vanalphenict.model.StatMessage
-import nl.vanalphenict.model.Team
+import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.utility.TimeUtils.Companion.bothHappenWithin
 import nl.vanalphenict.support.getBlueTeam
@@ -28,33 +29,36 @@ class StatRepositoryTest {
 
     @Test
     fun testGetByGuid() {
-        val orange: Team = getOrangeTeam()
-        val blue: Team = getBlueTeam()
+        val orange: JsonTeam = getOrangeTeam()
+        val blue: JsonTeam = getBlueTeam()
 
 
         val first = Instant.parse("2020-01-01T12:00:00Z")
         statRepository.addStatMessage(
             first,
-            StatMessage(
+            parseStatMessage(JsonStatMessage(
                 "GUID123", "Demolish",
                 getPlayerSteam(orange),
                 getPlayerEpic(blue)
-            ))
+            ))!!
+        )
         statRepository.addStatMessage(
             Instant.parse("2020-01-01T12:00:01Z"),
-            StatMessage(
+            parseStatMessage(JsonStatMessage(
                 "GUID123", "Demolish",
                 getPlayerSwitch(blue),
                 getPlayerSteam(orange)
-            ))
+            ))!!
+        )
 
         statRepository.addStatMessage(
             Instant.parse("2020-01-01T12:00:02Z"),
-            StatMessage(
+            parseStatMessage(JsonStatMessage(
                 "OTHER", "Demolish",
                 getBot(blue),
                 getPlayerPlaystation(orange)
-            ))
+            ))!!
+        )
 
         val result = statRepository.getStatHistory("GUID123")
         result.size shouldBe 2

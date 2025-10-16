@@ -1,7 +1,6 @@
 package nl.vanalphenict.web.view
 
 import kotlin.time.Instant
-import kotlinx.html.BODY
 import kotlinx.html.HtmlBlockTag
 import kotlinx.html.LI
 import kotlinx.html.classes
@@ -11,6 +10,7 @@ import kotlinx.html.p
 import kotlinx.html.span
 import kotlinx.html.style
 import kotlinx.html.visit
+import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.StatMessage
 
 fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>) {
@@ -23,33 +23,32 @@ fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>) {
                 classes = setOf("shrink-0")
                 img {
                     classes = setOf("w-8", "h-8", "rounded-full")
-                    src = "web/icons/${actionItem.second.event}.webp"
+                    src = "web/icons/${actionItem.second.event.eventName}.webp"
                 }
             }
             div {
                 classes = setOf("flex-1", "min-w-0")
+                val msg = actionItem.second
                 p {
 
                     classes = setOf("text-sm", "font-medium", "text-gray-900", "truncate", "dark:text-white")
-                    actionItem.second.player.team?.let {
+                    msg.player.team.let {
                         span {
-                            style = if (it.primaryColor != null) {
-                                "color: rgb(${it.primaryColor.R},${it.primaryColor.G},${it.primaryColor.B});"
-                            } else ""
+                            style = "color: rgb(${it.primaryColor.red},${it.primaryColor.green},${it.primaryColor.blue});"
                             +"[${it.name}] "
                         }
                     }
 
-                    +actionItem.second.player.name
+                    +msg.player.name
                 }
                 p {
                     classes = setOf("text-sm", "text-gray-500", "truncate", "dark:text-gray-400")
-                    +actionItem.second.event
+                    msg.event
                 }
-                actionItem.second.victim?.let {
+                if (msg is KillMessage) {
                     p {
                         classes = setOf("text-sm", "text-gray-500", "truncate", "dark:text-red-400")
-                        +actionItem.second.victim!!.name
+                        +msg.victim.name
                     }
                 }
             }

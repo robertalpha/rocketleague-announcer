@@ -3,6 +3,7 @@ package nl.vanalphenict
 import com.janoz.discord.DiscordService
 import com.janoz.discord.VoiceFactory
 import com.janoz.discord.domain.VoiceChannel
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -46,6 +47,8 @@ import nl.vanalphenict.web.routing.actionRoutes
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
+
+val log = KotlinLogging.logger {}
 
 fun Application.module(
     brokerAddress: String = "tcp://localhost:1883",
@@ -118,7 +121,7 @@ fun Application.moduleWithDependencies(discordService: DiscordService, voiceChan
     val client = try {
         MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS") ?: brokerAddress, timeService)
     } catch (ex: Exception) {
-        println("could not connect to broker")
+        log.error { "could not connect to broker" }
         throw ex
     }
 

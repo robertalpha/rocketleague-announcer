@@ -12,8 +12,9 @@ class Extermination(private val statRepository: StatRepository): StatToAnnouncme
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
 
-            val playerKills = statRepository.getStatHistory(statMessage.matchGUID).filter { (_, stat) -> stat.player.id == statMessage.player.id && StatEvents.DEMOLISH.eq(
-                stat.event) }
+            val playerKills = statRepository.getStatHistory(statMessage.matchGUID)
+                .filter { (_, stat) -> stat.player.id == statMessage.player.id &&
+                        StatEvents.DEMOLISH == stat.event }
 
         return when(playerKills.count()) {
             6 -> setOf(Announcement.EXTERMINATION)

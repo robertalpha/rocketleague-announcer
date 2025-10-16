@@ -16,7 +16,7 @@ class MatchStart(private val gameEventRepository: GameEventRepository): GameEven
     ): Set<Announcement> {
 
         return if (gameEventRepository.getGameEventHistory(statMessage.matchGUID)
-            .count { (_,event) -> GameEvents.START_ROUND.eq(event.gameEvent) } == 0 )
+            .count { (_,event) -> GameEvents.START_ROUND == event.gameEvent } == 0 )
             setOf(Announcement.MATCH_START)
         else emptySet()
     }

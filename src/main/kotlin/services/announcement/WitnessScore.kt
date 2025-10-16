@@ -1,6 +1,7 @@
 package nl.vanalphenict.services.announcement
 
 import nl.vanalphenict.model.Announcement
+import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.StatRepository
@@ -14,12 +15,12 @@ class WitnessScore(val statRepository: StatRepository): StatToAnnouncment {
     private val witnessWindow = 3.seconds
 
     override fun interpret(statMessage: StatMessage,currentTimeStamp: Instant): Set<Announcement> {
-        if (statMessage.player.team?.homeTeam == false) return emptySet()
+        if (!statMessage.player.team.homeTeam) return emptySet()
 
         return if (statRepository.getStatHistory(statMessage.matchGUID)
                 .filter { (instant, _) -> currentTimeStamp.minus(instant) < witnessWindow }
-                .filter { (_, message) -> StatEvents.DEMOLISH.eq(message.event) }
-                .count { (_, message) -> statMessage.player.isSame(message.victim) } > 0) {
+                .count { (_, message) -> message is KillMessage &&
+                        statMessage.player.id == message.victim.id } > 0) {
             setOf(Announcement.WITNESS)
         } else emptySet()
     }

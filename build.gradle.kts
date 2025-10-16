@@ -10,6 +10,7 @@ val logback_version: String by project
 val testcontainers_version: String by project
 val eclipse_paho_version: String by project
 val discord_voice_version: String by project
+val kotlin_logging_version: String by project
 
 plugins {
     application
@@ -67,6 +68,7 @@ dependencies {
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:$eclipse_paho_version")
 
     implementation("com.janoz.discord:discord-voice:$discord_voice_version" )
+    implementation("io.github.oshai:kotlin-logging-jvm:$kotlin_logging_version")
 
     testImplementation("org.testcontainers:testcontainers:$testcontainers_version")
     testImplementation("org.testcontainers:junit-jupiter:$testcontainers_version")
