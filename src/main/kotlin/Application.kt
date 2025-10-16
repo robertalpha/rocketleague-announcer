@@ -119,10 +119,10 @@ fun Application.moduleWithDependencies(discordService: DiscordService, voiceChan
         listOf(MatchStart(gameEventRepository))
     )
     val eventHandler =
-        EventHandler.Builder(announcementHandler)
+        EventHandler.Builder(gameTimeTrackerService)
+            .add(announcementHandler)
             .add(eventPersister)
-            .add(SsePublisher(timeService, gameTimeTrackerService))
-            .add(gameTimeTrackerService).build()
+            .add(SsePublisher(timeService)).build()
     val client = try {
         MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS") ?: brokerAddress, timeService)
     } catch (ex: Exception) {

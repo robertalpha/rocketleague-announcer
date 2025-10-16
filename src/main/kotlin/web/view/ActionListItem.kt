@@ -14,7 +14,7 @@ import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.StatMessage
 
-fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>, timeLeft: GameTimeMessage) {
+fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>, timeLeft: GameTimeMessage?) {
     li {
         classes=setOf("py-3","sm:py-4")
 
@@ -62,7 +62,7 @@ fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>, timeLeft
                     "text-gray-900",
                     "dark:text-white"
                 )
-                + "${timeLeft.remaining}"
+                + "${timeLeft?.remaining}"
             }
         }
     }

@@ -1,6 +1,7 @@
 package nl.vanalphenict.services.impl
 
 import nl.vanalphenict.model.GameEventMessage
+import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.JsonGameTimeMessage
 import nl.vanalphenict.model.JsonLogMessage
 import nl.vanalphenict.model.RLAMetaData
@@ -18,7 +19,7 @@ class EventDistributor(private val left: EventHandler, private val right: EventH
         right.handleGameEvent(msg, metaData)
     }
 
-    override fun handleGameTime(msg: JsonGameTimeMessage) {
+    override fun handleGameTime(msg: GameTimeMessage) {
         left.handleGameTime(msg)
         right.handleGameTime(msg)
     }

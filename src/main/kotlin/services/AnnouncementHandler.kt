@@ -6,7 +6,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameEvents
-import nl.vanalphenict.model.JsonGameTimeMessage
+import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
@@ -54,7 +54,7 @@ class AnnouncementHandler(
         dejitter.add(candidate)
     }
 
-    override fun handleGameTime(msg: JsonGameTimeMessage) {
+    override fun handleGameTime(msg: GameTimeMessage) {
         if (!msg.overtime) {
             when (msg.remaining) {
                 1 -> dejitter.add(Announcement.LEFT_1)

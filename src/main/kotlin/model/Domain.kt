@@ -2,6 +2,7 @@ package nl.vanalphenict.model
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.Color
+import kotlin.String
 
 private val log = KotlinLogging.logger {  }
 
@@ -22,6 +23,14 @@ fun parseGameEventMessage(src : JsonGameEventMessage) : GameEventMessage? {
         src.matchGUID,
         event,
         src.teams?.map { parseTeam(it) } ?:emptyList())
+}
+
+fun parseGameTimeMessage(src : JsonGameTimeMessage) : GameTimeMessage {
+    return GameTimeMessage(
+        matchGUID = src.matchGUID,
+        remaining = src.remaining,
+        overtime = src.overtime
+    )
 }
 
 fun parseStatMessage(src : JsonStatMessage) : StatMessage? {
@@ -49,6 +58,12 @@ fun parseStatMessage(src : JsonStatMessage) : StatMessage? {
 
 
 
+
+data class GameTimeMessage(
+    val matchGUID: String,
+    val remaining: Int,
+    val overtime: Boolean
+)
 
 data class GameEventMessage(
     val matchGUID: String,
