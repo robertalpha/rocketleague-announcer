@@ -11,6 +11,7 @@ import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.services.announcement.AsIs
 import nl.vanalphenict.support.getEvent
 import nl.vanalphenict.support.getVoiceChannel

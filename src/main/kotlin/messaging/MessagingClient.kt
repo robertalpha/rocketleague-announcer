@@ -2,10 +2,10 @@ package nl.vanalphenict.messaging
 
 import kotlin.time.Clock
 import kotlinx.serialization.json.Json
-import nl.vanalphenict.model.GameEventMessage
-import nl.vanalphenict.model.GameTimeMessage
-import nl.vanalphenict.model.LogMessage
-import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.model.JsonGameEventMessage
+import nl.vanalphenict.model.JsonGameTimeMessage
+import nl.vanalphenict.model.JsonLogMessage
+import nl.vanalphenict.model.JsonStatMessage
 import nl.vanalphenict.services.EventHandler
 import nl.vanalphenict.utility.TimeService
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
@@ -63,21 +63,21 @@ class MessagingClient(
                 try {
                     when (topic) {
                         TOPIC_STAT -> {
-                            val stat = decode<StatMessage>(message.payload)
+                            val stat = decode<JsonStatMessage>(message.payload)
                             logStatMessage(stat)
                             scrubber.processStat(stat)
                         }
                         TOPIC_TICKER ->
-                            scrubber.processStat(decode<StatMessage>(message.payload))
+                            scrubber.processStat(decode<JsonStatMessage>(message.payload))
                         TOPIC_GAME_TIME ->
-                            scrubber.processGameTime(decode<GameTimeMessage>(message.payload))
+                            scrubber.processGameTime(decode<JsonGameTimeMessage>(message.payload))
                         TOPIC_GAME_EVENT -> {
-                            val msg = decode<GameEventMessage>(message.payload)
+                            val msg = decode<JsonGameEventMessage>(message.payload)
                             logGameEvent(msg)
                             scrubber.processGameEvent(msg)
                         }
                         TOPIC_LOG ->
-                            scrubber.processLog(decode<LogMessage>(message.payload))
+                            scrubber.processLog(decode<JsonLogMessage>(message.payload))
                         else -> logUnexpectedMessage(message, topic)
                     }
                 } catch (e: Exception) {

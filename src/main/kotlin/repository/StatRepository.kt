@@ -7,7 +7,7 @@ import nl.vanalphenict.model.StatMessage
 class StatRepository {
 
     companion object {
-        fun List<Pair<Instant, StatMessage>>.filterType(messageType: StatEvents) = this.filter { messageType.eq(it.second.event) }
+        fun List<Pair<Instant, StatMessage>>.filterType(messageType: StatEvents) = this.filter { messageType== it.second.event }
         fun List<Pair<Instant, StatMessage>>.sortedDescending() = this.sortedByDescending { it.first }
     }
 

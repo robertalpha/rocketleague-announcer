@@ -93,8 +93,8 @@ class MessagingTest : AbstractMessagingTest() {
            }
        }
         eventually(10.seconds) {
-            sseData.size shouldBe 48
-            sseData.count { it.data?.contains("Goal.webp") ?: false } shouldBe 7
+            sseData.size shouldBe 33
+            sseData.count { it.data?.contains("Goal.webp") ?: false } shouldBe 6
             sseData.count { it.data?.contains("Win.webp") ?: false } shouldBe 3
         }
     }

@@ -3,6 +3,7 @@ package nl.vanalphenict.services.announcement
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
+import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
@@ -16,16 +17,18 @@ class Retaliation() : StatToAnnouncment {
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
 
-        val killer = statMessage.player
-        val victim = statMessage.victim!!
+        if (statMessage !is KillMessage) return emptySet()
 
-        if (killer.team?.homeTeam == true) {
-            val grudge: Instant? = grudges.remove(victim.botSaveId())
+        val killer = statMessage.player
+        val victim = statMessage.victim
+
+        if (killer.team.homeTeam) {
+            val grudge: Instant? = grudges.remove(victim.id)
             if (grudge != null && grudge.plus(grudgeDuration) > currentTimeStamp) {
                 return setOf(Announcement.RETALIATION)
             }
         } else {
-            grudges[killer.botSaveId()] = currentTimeStamp
+            grudges[killer.id] = currentTimeStamp
         }
         return emptySet()
     }

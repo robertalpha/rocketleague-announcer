@@ -3,6 +3,7 @@ package nl.vanalphenict.services.announcement
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
+import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
@@ -20,10 +21,11 @@ class MutualDestruction(): StatToAnnouncment  {
         recentDemos.removeIf { (ts,_) ->
             !ts.bothHappenWithin(currentTimeStamp, timeWindow)
         }
-
+        if (statMessage !is KillMessage) return emptySet()
         if(recentDemos.any { (_, previousDemo) ->
-            previousDemo.player.id == statMessage.victim?.id &&
-            previousDemo.victim?.id == statMessage.player.id
+            previousDemo is KillMessage &&
+            previousDemo.player.id == statMessage.victim.id &&
+            previousDemo.victim.id == statMessage.player.id
         }) {
             return setOf(Announcement.MUTUAL_DESTRUCTION)
         }

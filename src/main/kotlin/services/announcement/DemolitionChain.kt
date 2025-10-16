@@ -15,11 +15,11 @@ class DemolitionChain(private val statRepository: StatRepository) : StatToAnnoun
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
 
-        if (statMessage.player.team?.homeTeam == false) return emptySet()
+        if (!statMessage.player.team.homeTeam) return emptySet()
 
         var demos = statRepository.getStatHistory(statMessage.matchGUID)
-            .filter { (_,message) -> StatEvents.DEMOLISH.eq(message.event) }
-            .filter { (_,message) -> message.player.team?.homeTeam == true }
+            .filter { (_,message) -> StatEvents.DEMOLISH == message.event }
+            .filter { (_,message) -> message.player.team.homeTeam }
             .sortedByDescending { it.first }
 
         var pivot = currentTimeStamp

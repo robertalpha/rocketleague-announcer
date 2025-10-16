@@ -13,8 +13,6 @@ class FirstBlood(private val repository: StatRepository) : StatToAnnouncment  {
     override fun listenTo() = setOf(StatEvents.DEMOLISH)
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
-        if (!StatEvents.DEMOLISH.eq(statMessage.event)) return emptySet()
-
         if(repository.getStatHistory(statMessage.matchGUID)
             .filterType(StatEvents.DEMOLISH)
             .isEmpty()) {

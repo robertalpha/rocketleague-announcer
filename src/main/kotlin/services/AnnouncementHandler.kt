@@ -5,8 +5,10 @@ import com.janoz.discord.domain.VoiceChannel
 import kotlin.time.Duration.Companion.milliseconds
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.GameEventMessage
-import nl.vanalphenict.model.GameTimeMessage
+import nl.vanalphenict.model.GameEvents
+import nl.vanalphenict.model.JsonGameTimeMessage
 import nl.vanalphenict.model.RLAMetaData
+import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.utility.DeJitter
 
@@ -18,25 +20,25 @@ class AnnouncementHandler(
     gameEventInterpreters: Collection<GameEventToAnnouncement>,
 ) : EventHandler {
 
-    private val statInterpreterMap : MutableMap<String, Set<StatToAnnouncment>> = HashMap()
-    private val gameEventInterpreterMap : MutableMap<String, MutableSet<GameEventToAnnouncement>> = HashMap()
+    private val statInterpreterMap : MutableMap<StatEvents, Set<StatToAnnouncment>> = HashMap()
+    private val gameEventInterpreterMap : MutableMap<GameEvents, MutableSet<GameEventToAnnouncement>> = HashMap()
 
     private val dejitter : DeJitter<Announcement> = DeJitter(
         timeToCombine = 100.milliseconds,
         comparator = { a, b -> sampleMapper.selector(a) - sampleMapper.selector(b)},
-        action = { announcement -> triggerSound(sampleMapper.getSample(announcement)!!) }
+        action = { announcement -> triggerSound(sampleMapper.getSample(announcement)) }
     )
 
     init {
         statInterpreters.forEach { interpreter ->
             interpreter.listenTo().forEach { event ->
-                    statInterpreterMap[event.eventName] =
-                        (statInterpreterMap[event.eventName] ?: HashSet()).plus(interpreter)
+                    statInterpreterMap[event] =
+                        (statInterpreterMap[event] ?: HashSet()).plus(interpreter)
             }
         }
         gameEventInterpreters.forEach { interpreter ->
             interpreter.listenTo().forEach { event ->
-                    gameEventInterpreterMap.getOrPut(event.eventName) { HashSet() }.add(interpreter)
+                    gameEventInterpreterMap.getOrPut(event) { HashSet() }.add(interpreter)
             }
         }
     }
@@ -52,7 +54,7 @@ class AnnouncementHandler(
         dejitter.add(candidate)
     }
 
-    override fun handleGameTime(msg: GameTimeMessage) {
+    override fun handleGameTime(msg: JsonGameTimeMessage) {
         if (!msg.overtime) {
             when (msg.remaining) {
                 1 -> dejitter.add(Announcement.LEFT_1)
@@ -75,7 +77,7 @@ class AnnouncementHandler(
         dejitter.add(candidate)
     }
 
-    private fun triggerSound(sample: String) {
+    private fun triggerSound(sample: String?) {
         discordService.play(sample, voiceChannel)
     }
 

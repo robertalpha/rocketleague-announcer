@@ -1,6 +1,7 @@
 package nl.vanalphenict.services.announcement
 
 import nl.vanalphenict.model.Announcement
+import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.StatRepository
@@ -17,15 +18,16 @@ class WitnessSave(val statRepository: StatRepository): StatToAnnouncment {
         statMessage: StatMessage,
         currentTimeStamp: Instant
     ): Set<Announcement> {
-        if (statMessage.player.team?.homeTeam == true) return emptySet()
+        if (statMessage.player.team.homeTeam) return emptySet()
+        if (statMessage !is KillMessage) return emptySet()
 
         return if (statRepository.getStatHistory(statMessage.matchGUID)
                 .filter { (instant, _) -> currentTimeStamp.minus(instant) < witnessWindow }
                 .filter { (_, message) ->
-                    StatEvents.SAVE.eq(message.event) ||
-                    StatEvents.EPIC_SAVE.eq(message.event)
+                    (StatEvents.SAVE == message.event) ||
+                    (StatEvents.EPIC_SAVE == message.event)
                 }
-                .count { (_, message) -> message.player.isSame(statMessage.victim) } > 0) {
+                .count { (_, message) -> message.player.id == statMessage.victim.id } > 0) {
              setOf(Announcement.WITNESS)
         } else  emptySet()
     }

@@ -2,10 +2,10 @@ package model
 
 import kotlin.test.Test
 import kotlinx.serialization.json.Json
-import nl.vanalphenict.model.GameEventMessage
-import nl.vanalphenict.model.GameTimeMessage
-import nl.vanalphenict.model.LogMessage
-import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.model.JsonGameEventMessage
+import nl.vanalphenict.model.JsonGameTimeMessage
+import nl.vanalphenict.model.JsonLogMessage
+import nl.vanalphenict.model.JsonStatMessage
 import kotlin.test.assertNotNull
 
 class JsonDeserializerTest {
@@ -38,37 +38,37 @@ class JsonDeserializerTest {
 
     @Test
     fun parseStatMessageTest() {
-        val output = genericDecode<StatMessage>(statMessage)
+        val output = genericDecode<JsonStatMessage>(statMessage)
         assertNotNull(output)
     }
 
     @Test
     fun parseGameEventMessageTest() {
-        val output = genericDecode<GameEventMessage>(gameEventMessage)
+        val output = genericDecode<JsonGameEventMessage>(gameEventMessage)
         assertNotNull(output)
     }
 
     @Test
     fun parseGameEventStartMessageTest() {
-        val output = genericDecode<GameEventMessage>(gameEventStartMessage)
+        val output = genericDecode<JsonGameEventMessage>(gameEventStartMessage)
         assertNotNull(output)
     }
 
     @Test
     fun parseGameEventNullTeamsMessageTest() {
-        val output = genericDecode<GameEventMessage>(gameEventNullTeamsMessage)
+        val output = genericDecode<JsonGameEventMessage>(gameEventNullTeamsMessage)
         assertNotNull(output)
     }
 
     @Test
     fun parseLogMessageTest() {
-        val output = genericDecode<LogMessage>(logMessage)
+        val output = genericDecode<JsonLogMessage>(logMessage)
         assertNotNull(output)
     }
 
     @Test
     fun parseGameTimeMessageTest() {
-        val output = genericDecode<GameTimeMessage>(gameTimeMessage)
+        val output = genericDecode<JsonGameTimeMessage>(gameTimeMessage)
         assertNotNull(output)
     }
 
