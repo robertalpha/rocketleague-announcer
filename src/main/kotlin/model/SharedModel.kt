@@ -5,7 +5,7 @@ data class RLAMetaData(
     val announcements: MutableSet<Announcement> = HashSet(),
 )
 
-enum class StatEvents(val eventName: String) {
+enum class StatEvents(val eventName: String, val showInUI: Boolean = true) {
     AERIAL_GOAL("AerialGoal"),
     ASSIST("Assist"),
     BACKWARDS_GOAL("BackwardsGoal"),
@@ -34,7 +34,23 @@ enum class StatEvents(val eventName: String) {
     SAVIOR("Savior"),
     SAVE("Save"),
     SHOT("Shot"),
-    WIN("Win");
+    WIN("Win"),
+
+    // meta stat events, not used in action view
+    BOOSTUSED("BoostUsed", showInUI = false),
+    DODGES("Dodges", showInUI = false),
+    AERIALHIT("AerialHit", showInUI = false),
+    BOOSTPICKUPS("BoostPickups", showInUI = false),
+    SMALLBOOSTSCOLLECTED("SmallBoostsCollected", showInUI = false),
+    BIGBOOSTSCOLLECTED("BigBoostsCollected", showInUI = false),
+    INFECTEDPLAYERSDEFEATED("InfectedPlayersDefeated", showInUI = false),
+    TIMEPLAYED("TimePlayed", showInUI = false),
+    FASTESTGOAL("FastestGoal", showInUI = false),
+    DISTANCEDRIVENMETERS("DistanceDrivenMeters", showInUI = false),
+    DISTANCEFLOWN("DistanceFlown", showInUI = false),
+    DOUBLEGRAPPLE("DoubleGrapple", showInUI = false),
+    MAXDODGESTREAK("MaxDodgeStreak", showInUI = false),
+    ;
 
     fun eq(other: String) : Boolean {
         return eventName == other
