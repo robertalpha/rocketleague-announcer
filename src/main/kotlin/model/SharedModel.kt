@@ -42,7 +42,11 @@ enum class StatEvents(val eventName: String) {
 }
 
 enum class GameEvents(val eventName: String) {
-    START_ROUND("Function GameEvent_Soccar_TA.Active.StartRound");
+    START_ROUND("Function GameEvent_Soccar_TA.Active.StartRound"),
+    TEAMS_CREATED("Function TAGame.GameEvent_Soccar_TA.OnAllTeamsCreated"),
+    PLAYER_ADDED("Function TAGame.GameEvent_TA.EventPlayerAdded"),
+    PLAYER_REMOVED("Function TAGame.GameEvent_TA.EventPlayerRemoved"),
+    MATCH_ENDED("Function TAGame.GameEvent_Soccar_TA.EventMatchEnded");
 
     fun eq(other: String) : Boolean {
         return eventName == other
