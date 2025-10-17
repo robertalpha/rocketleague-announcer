@@ -3,6 +3,7 @@ package nl.vanalphenict.model
 data class RLAMetaData(
     var prevailingAnnouncement: Announcement? = null,
     val announcements: MutableSet<Announcement> = HashSet(),
+    var gameTime: GameTimeMessage? = null,
 )
 
 enum class StatEvents(val eventName: String) {

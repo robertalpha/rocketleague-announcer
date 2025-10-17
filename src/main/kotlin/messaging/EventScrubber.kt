@@ -10,6 +10,7 @@ import nl.vanalphenict.model.JsonStatMessage
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.parseGameEventMessage
+import nl.vanalphenict.model.parseGameTimeMessage
 import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.services.EventHandler
 import nl.vanalphenict.utility.TimeService
@@ -47,7 +48,7 @@ class EventScrubber(private val eventHandler: EventHandler, private val timeServ
 
     fun processGameTime(msg: JsonGameTimeMessage) {
         messagesCache.computeIfAbsent(msg.hashCode()) {
-            eventHandler.handleGameTime(msg)
+            eventHandler.handleGameTime(parseGameTimeMessage(msg))
             timeService.now()
         }
         clearCache()
