@@ -20,11 +20,13 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
         msg: StatMessage,
         metaData: RLAMetaData
     ) {
-        log.trace {"SSE HANDLER" }
-        val actionItem = Pair(timeService.now(), msg)
-        val htmlText = createHTML().body {
-            actionListItem(actionItem)
+        if (msg.event.showInUI) {
+            log.trace {"SSE HANDLER" }
+            val actionItem = Pair(timeService.now(), msg)
+            val htmlText = createHTML().body {
+                actionListItem(actionItem)
+            }
+            runBlocking {  triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
         }
-        runBlocking {  triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
     }
 }
