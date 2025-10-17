@@ -9,9 +9,10 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import kotlinx.html.body
 import nl.vanalphenict.repository.StatRepository
+import nl.vanalphenict.services.GameTimeTrackerService
 import nl.vanalphenict.web.view.actionListItem
 
-fun Application.actionRoutes(statRepository: StatRepository) {
+fun Application.actionRoutes(statRepository: StatRepository, gameTimeTrackerService: GameTimeTrackerService) {
     routing {
         get("/actions") {
             val actions = statRepository.getLatestMatch()
@@ -19,7 +20,7 @@ fun Application.actionRoutes(statRepository: StatRepository) {
             call.respondHtml {
                 body {
                     for (actionItem in actions.sortedByDescending { (timestamp,_ ) -> timestamp }) {
-                        actionListItem(actionItem)
+                        actionListItem(actionItem, gameTimeTrackerService.getGameTime(actionItem.second.matchGUID).remaining)
                     }
                 }
             }
