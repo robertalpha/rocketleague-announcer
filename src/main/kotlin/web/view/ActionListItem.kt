@@ -44,7 +44,7 @@ fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>, timeLeft
                 }
                 p {
                     classes = setOf("text-sm", "text-gray-500", "truncate", "dark:text-gray-400")
-                    msg.event
+                    +msg.event.eventName
                 }
                 if (msg is KillMessage) {
                     p {
