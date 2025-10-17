@@ -13,9 +13,13 @@ import nl.vanalphenict.model.parseGameEventMessage
 import nl.vanalphenict.model.parseGameTimeMessage
 import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.services.EventHandler
+import nl.vanalphenict.services.GameTimeTrackerService
 import nl.vanalphenict.utility.TimeService
 
-class EventScrubber(private val eventHandler: EventHandler, private val timeService: TimeService) {
+class EventScrubber(
+    private val eventHandler: EventHandler,
+    private val gameTimeTrackerService: GameTimeTrackerService,
+    private val timeService: TimeService) {
 
     private val log = KotlinLogging.logger { }
 
@@ -24,7 +28,11 @@ class EventScrubber(private val eventHandler: EventHandler, private val timeServ
     fun processGameEvent(msg: JsonGameEventMessage) {
         messagesCache.computeIfAbsent(msg.hashCode()) {
             parseGameEventMessage(msg)?.let {
-                eventHandler.handleGameEvent(it, RLAMetaData())
+                val time = gameTimeTrackerService.getGameTime(msg.matchGUID)
+                eventHandler.handleGameEvent(it, RLAMetaData(
+                    matchGUID = it.matchGUID,
+                    overtime = time.overtime,
+                    remaining = time.remaining))
             } ?: log.warn { "Unable to parse game event message: $msg" }
             timeService.now()
         }
@@ -36,7 +44,11 @@ class EventScrubber(private val eventHandler: EventHandler, private val timeServ
         if (StatEvents.DEMOLISH.eq(msg.event) && msg.victim == null) return
         messagesCache.computeIfAbsent(msg.hashCode()) {
             parseStatMessage(msg)?.let {
-                eventHandler.handleStatMessage(it, RLAMetaData())
+                val time = gameTimeTrackerService.getGameTime(msg.matchGUID)
+                eventHandler.handleStatMessage(it, RLAMetaData(
+                    matchGUID = it.matchGUID,
+                    overtime = time.overtime,
+                    remaining = time.remaining))
             } ?: log.warn { "Unable to parse stat message: $msg" }
             timeService.now()
         }
@@ -48,7 +60,9 @@ class EventScrubber(private val eventHandler: EventHandler, private val timeServ
 
     fun processGameTime(msg: JsonGameTimeMessage) {
         messagesCache.computeIfAbsent(msg.hashCode()) {
-            eventHandler.handleGameTime(parseGameTimeMessage(msg))
+            val gameTimeMessage = parseGameTimeMessage(msg)
+            gameTimeTrackerService.storeGameTime(gameTimeMessage)
+            eventHandler.handleGameTime(gameTimeMessage)
             timeService.now()
         }
         clearCache()

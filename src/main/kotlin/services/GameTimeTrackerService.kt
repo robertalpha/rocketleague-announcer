@@ -1,28 +1,16 @@
 package nl.vanalphenict.services
 
 import nl.vanalphenict.model.GameTimeMessage
-import nl.vanalphenict.model.RLAMetaData
-import nl.vanalphenict.model.StatMessage
+import kotlin.time.Duration.Companion.seconds
 
-class GameTimeTrackerService : EventHandler {
+class GameTimeTrackerService {
 
-     private var latestGameTime: GameTimeMessage = GameTimeMessage("123", 300, false)
+    private val gameTimes = HashMap<String, GameTimeMessage>()
 
-    override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
-        synchronized(this) {
-            metaData.gameTime = latestGameTime
-        }
+    fun storeGameTime(message: GameTimeMessage) {
+        gameTimes[message.matchGUID] = message
     }
 
-    override fun handleGameTime(msg: GameTimeMessage) {
-        synchronized(this) {
-            latestGameTime = msg
-        }
-    }
-
-    fun getLatestGameTime(): GameTimeMessage {
-        synchronized(this){
-            return latestGameTime
-        }
-    }
+    fun getGameTime(matchGUID: String): GameTimeMessage =
+        gameTimes[matchGUID] ?: GameTimeMessage(matchGUID,300.seconds,false)
 }

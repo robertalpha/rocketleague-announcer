@@ -20,7 +20,7 @@ fun Application.actionRoutes(statRepository: StatRepository, gameTimeTrackerServ
             call.respondHtml {
                 body {
                     for (actionItem in actions.sortedByDescending { (timestamp,_ ) -> timestamp }) {
-                        actionListItem(actionItem, gameTimeTrackerService.getLatestGameTime())
+                        actionListItem(actionItem, gameTimeTrackerService.getGameTime(actionItem.second.matchGUID).remaining)
                     }
                 }
             }

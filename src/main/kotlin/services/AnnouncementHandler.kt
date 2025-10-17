@@ -56,7 +56,7 @@ class AnnouncementHandler(
 
     override fun handleGameTime(msg: GameTimeMessage) {
         if (!msg.overtime) {
-            when (msg.remaining) {
+            when (msg.remaining.inWholeSeconds.toInt()) {
                 1 -> dejitter.add(Announcement.LEFT_1)
                 2 -> dejitter.add(Announcement.LEFT_2)
                 3 -> dejitter.add(Announcement.LEFT_3)

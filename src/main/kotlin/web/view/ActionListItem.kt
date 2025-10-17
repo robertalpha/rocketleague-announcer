@@ -10,11 +10,12 @@ import kotlinx.html.p
 import kotlinx.html.span
 import kotlinx.html.style
 import kotlinx.html.visit
-import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
+import kotlin.time.Duration
 
-fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>, timeLeft: GameTimeMessage?) {
+fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>, timeLeft: Duration) {
     li {
         classes=setOf("py-3","sm:py-4")
 
@@ -62,7 +63,7 @@ fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>, timeLeft
                     "text-gray-900",
                     "dark:text-white"
                 )
-                + "${timeLeft?.remaining}"
+                + timeLeft.toGameString
             }
         }
     }
