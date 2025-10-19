@@ -1,8 +1,8 @@
 package nl.vanalphenict.model
 
 /**
- * Home and away teams are determined by which players are sending in events. PLayers sinding
- * in events are considered home team. Results might get unpredictable when people from both
+ * Home and away teams are determined by which players are sending in events. Players sending
+ * in events are considered home team. Results might get unpredictable when players from both
  * teams are connected.
  */
 enum class Announcement {
