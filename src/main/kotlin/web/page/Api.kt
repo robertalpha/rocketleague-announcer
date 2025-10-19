@@ -27,14 +27,14 @@ fun Application.themeRoutes(themeService: ThemeService) {
     routing {
         // select a theme
         post("/themes") {
-            val themeId = call.receive<String>().also {
-                val id = it.substringAfter("=")
-                themeService.selectTheme(id.toInt())
-            }
+            val themeId =
+                call.receive<String>().also {
+                    val id = it.substringAfter("=")
+                    themeService.selectTheme(id.toInt())
+                }
 
-            val htmlText = createHTML().div {
-                renderThemes(themeService.themes, themeService.selectedTheme)
-            }
+            val htmlText =
+                createHTML().div { renderThemes(themeService.themes, themeService.selectedTheme) }
             triggerUpdateSSE(SSE_EVENT_TYPE.SWITCH_THEME, htmlText)
             call.respond(HttpStatusCode.OK)
         }
@@ -42,16 +42,10 @@ fun Application.themeRoutes(themeService: ThemeService) {
         // read themes
         get("/themes") {
             call.respondHtml {
-                body {
-                    div {
-                        renderThemes(themeService.themes, themeService.selectedTheme)
-                    }
-                }
+                body { div { renderThemes(themeService.themes, themeService.selectedTheme) } }
             }
         }
     }
-
-
 }
 
 fun DIV.renderThemes(themes: List<Theme>, selectedTheme: Theme) {
@@ -64,33 +58,34 @@ fun DIV.renderThemes(themes: List<Theme>, selectedTheme: Theme) {
     attributes["sse-connect"] = "/sse"
     attributes["sse-swap"] = "switch_theme"
 
-    val baseCss = setOf(
-        "h-10",
-        "px-5",
-        "text-indigo-100",
-        "transition-colors",
-        "duration-150",
-        "focus:shadow-outline",
-        "hover:bg-pink-700"
-    )
+    val baseCss =
+        setOf(
+            "h-10",
+            "px-5",
+            "text-indigo-100",
+            "transition-colors",
+            "duration-150",
+            "focus:shadow-outline",
+            "hover:bg-pink-700",
+        )
 
-    themes.sortedBy { theme -> theme.title }.forEachIndexed { index, theme ->
-        button {
-            disabled = selectedTheme == theme
-            classes = (
-                    setOfNotNull(
-                            "rounded-l-lg".takeIf { index == 0 },
-                            "rounded-r-lg".takeIf { index == themes.size - 1 },
-                            "bg-pink-700".takeIf { selectedTheme == theme },
-                            "bg-indigo-700".takeIf { selectedTheme != theme }
-                        ) + baseCss
-                    )
+    themes
+        .sortedBy { theme -> theme.title }
+        .forEachIndexed { index, theme ->
+            button {
+                disabled = selectedTheme == theme
+                classes =
+                    (setOfNotNull(
+                        "rounded-l-lg".takeIf { index == 0 },
+                        "rounded-r-lg".takeIf { index == themes.size - 1 },
+                        "bg-pink-700".takeIf { selectedTheme == theme },
+                        "bg-indigo-700".takeIf { selectedTheme != theme },
+                    ) + baseCss)
 
-            value = theme.title
-            attributes["hx-post"] = "/themes"
-            attributes["hx-vals"] = "{\"id\":\"${theme.id}\"}"
-            +theme.title
+                value = theme.title
+                attributes["hx-post"] = "/themes"
+                attributes["hx-vals"] = "{\"id\":\"${theme.id}\"}"
+                +theme.title
+            }
         }
-    }
 }
-

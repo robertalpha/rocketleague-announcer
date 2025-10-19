@@ -11,7 +11,7 @@ import nl.vanalphenict.services.StatToAnnouncment
 class Retaliation() : StatToAnnouncment {
     override fun listenTo() = setOf(StatEvents.DEMOLISH)
 
-    private val grudges : MutableMap<String, Instant> = HashMap()
+    private val grudges: MutableMap<String, Instant> = HashMap()
 
     private val grudgeDuration = 10.seconds
 
@@ -32,5 +32,4 @@ class Retaliation() : StatToAnnouncment {
         }
         return emptySet()
     }
-
 }

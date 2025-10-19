@@ -16,17 +16,12 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
 
     private val log = KotlinLogging.logger {}
 
-    override fun handleStatMessage(
-        msg: StatMessage,
-        metaData: RLAMetaData
-    ) {
+    override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         if (msg.event.showInUI) {
-            log.trace {"SSE HANDLER" }
+            log.trace { "SSE HANDLER" }
             val actionItem = Pair(timeService.now(), msg)
-            val htmlText = createHTML().body {
-                actionListItem(actionItem, metaData.remaining)
-            }
-            runBlocking {  triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
+            val htmlText = createHTML().body { actionListItem(actionItem, metaData.remaining) }
+            runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
         }
     }
 }

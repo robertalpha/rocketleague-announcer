@@ -19,9 +19,10 @@ import nl.vanalphenict.utility.TimeService
 class EventScrubber(
     private val eventHandler: EventHandler,
     private val gameTimeTrackerService: GameTimeTrackerService,
-    private val timeService: TimeService) {
+    private val timeService: TimeService,
+) {
 
-    private val log = KotlinLogging.logger { }
+    private val log = KotlinLogging.logger {}
 
     private val messagesCache: MutableMap<Int, Instant> = HashMap()
 
@@ -29,10 +30,14 @@ class EventScrubber(
         messagesCache.computeIfAbsent(msg.hashCode()) {
             parseGameEventMessage(msg)?.let {
                 val time = gameTimeTrackerService.getGameTime(msg.matchGUID)
-                eventHandler.handleGameEvent(it, RLAMetaData(
-                    matchGUID = it.matchGUID,
-                    overtime = time.overtime,
-                    remaining = time.remaining))
+                eventHandler.handleGameEvent(
+                    it,
+                    RLAMetaData(
+                        matchGUID = it.matchGUID,
+                        overtime = time.overtime,
+                        remaining = time.remaining,
+                    ),
+                )
             } ?: log.warn { "Unable to parse game event message: $msg" }
             timeService.now()
         }
@@ -40,19 +45,23 @@ class EventScrubber(
     }
 
     fun processStat(msg: JsonStatMessage) {
-        //Filter demolish stat message. Only use ticker
+        // Filter demolish stat message. Only use ticker
         if (StatEvents.DEMOLISH.eq(msg.event) && msg.victim == null) return
         messagesCache.computeIfAbsent(msg.hashCode()) {
             parseStatMessage(msg)?.let {
                 val time = gameTimeTrackerService.getGameTime(msg.matchGUID)
-                eventHandler.handleStatMessage(it, RLAMetaData(
-                    matchGUID = it.matchGUID,
-                    overtime = time.overtime,
-                    remaining = time.remaining))
+                eventHandler.handleStatMessage(
+                    it,
+                    RLAMetaData(
+                        matchGUID = it.matchGUID,
+                        overtime = time.overtime,
+                        remaining = time.remaining,
+                    ),
+                )
             } ?: log.warn { "Unable to parse stat message: $msg" }
             timeService.now()
         }
-        //BallHit is a frequent stat message, never double
+        // BallHit is a frequent stat message, never double
         if (msg.event != "BallHit") {
             clearCache()
         }
@@ -73,6 +82,6 @@ class EventScrubber(
     }
 
     private fun clearCache() {
-        messagesCache.entries.removeIf { it.value.plus (500.milliseconds) < timeService.now() }
+        messagesCache.entries.removeIf { it.value.plus(500.milliseconds) < timeService.now() }
     }
 }

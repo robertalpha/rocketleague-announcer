@@ -8,5 +8,9 @@ import nl.vanalphenict.model.GameEvents
 
 interface GameEventToAnnouncement {
     fun listenTo(): Set<GameEvents>
-    fun interpret(statMessage: GameEventMessage, currentTimeStamp: Instant = Clock.System.now()): Set<Announcement>
+
+    fun interpret(
+        statMessage: GameEventMessage,
+        currentTimeStamp: Instant = Clock.System.now(),
+    ): Set<Announcement>
 }

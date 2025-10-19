@@ -42,12 +42,13 @@ application {
 }
 
 // Static code analysis tools, for later
-//spotless {
-//    kotlin {
-//        target("src/**/*.kt")
-//        ktfmt("0.47").googleStyle()
-//    }
-//}
+spotless {
+    kotlin {
+        target("src/**/*.kt")
+        targetExclude("src/main/kotlin/model/Announcement.kt")
+        ktfmt().kotlinlangStyle()
+    }
+}
 
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")

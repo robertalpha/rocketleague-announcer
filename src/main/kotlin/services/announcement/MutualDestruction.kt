@@ -9,7 +9,7 @@ import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
 import nl.vanalphenict.utility.TimeUtils.Companion.bothHappenWithin
 
-class MutualDestruction(): StatToAnnouncment  {
+class MutualDestruction() : StatToAnnouncment {
 
     val recentDemos = mutableListOf<Pair<Instant, StatMessage>>()
     val timeWindow = 500.milliseconds
@@ -18,15 +18,15 @@ class MutualDestruction(): StatToAnnouncment  {
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
         // clear out older demolitions
-        recentDemos.removeIf { (ts,_) ->
-            !ts.bothHappenWithin(currentTimeStamp, timeWindow)
-        }
+        recentDemos.removeIf { (ts, _) -> !ts.bothHappenWithin(currentTimeStamp, timeWindow) }
         if (statMessage !is KillMessage) return emptySet()
-        if(recentDemos.any { (_, previousDemo) ->
-            previousDemo is KillMessage &&
-            previousDemo.player.id == statMessage.victim.id &&
-            previousDemo.victim.id == statMessage.player.id
-        }) {
+        if (
+            recentDemos.any { (_, previousDemo) ->
+                previousDemo is KillMessage &&
+                    previousDemo.player.id == statMessage.victim.id &&
+                    previousDemo.victim.id == statMessage.player.id
+            }
+        ) {
             return setOf(Announcement.MUTUAL_DESTRUCTION)
         }
 

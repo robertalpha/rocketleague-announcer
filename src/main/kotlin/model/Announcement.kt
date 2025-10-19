@@ -1,9 +1,9 @@
 package nl.vanalphenict.model
 
 /**
- * Home and away teams are determined by which players are sending in events. Players sending
- * in events are considered home team. Results might get unpredictable when players from both
- * teams are connected.
+ * Home and away teams are determined by which players are sending in events. Players sending in
+ * events are considered home team. Results might get unpredictable when players from both teams are
+ * connected.
  */
 enum class Announcement {
     KILLED_BY_BOT,          // When a bot kills a player

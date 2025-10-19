@@ -15,8 +15,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 data class SseEvent(val data: String, val event: String? = null, val id: String? = null)
 
 enum class SSE_EVENT_TYPE {
-    NEW_ACTION, SWITCH_THEME
+    NEW_ACTION,
+    SWITCH_THEME,
 }
+
 val sseFlow = MutableSharedFlow<SseEvent>()
 
 suspend fun triggerUpdateSSE(event: SSE_EVENT_TYPE, html: String) {
@@ -25,11 +27,7 @@ suspend fun triggerUpdateSSE(event: SSE_EVENT_TYPE, html: String) {
 
 fun Application.configureSSE() {
 
-    routing {
-        get("/sse") {
-            call.respondSse(sseFlow)
-        }
-    }
+    routing { get("/sse") { call.respondSse(sseFlow) } }
 }
 
 suspend fun ApplicationCall.respondSse(eventFlow: Flow<SseEvent>) {

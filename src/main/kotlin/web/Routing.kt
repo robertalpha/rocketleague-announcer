@@ -18,27 +18,21 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import nl.vanalphenict.messaging.MessagingClient
-import nl.vanalphenict.web.page.Root
 import nl.vanalphenict.services.ThemeService
-
+import nl.vanalphenict.web.page.Root
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
 data class MessageLine(val topic: String, val message: String)
 
-
 fun Application.configureRouting(client: MessagingClient, themeService: ThemeService) {
     routing {
         get("/") {
             call.respondHtmlTemplate(Root.LayoutTemplate(themeService)) {
-                header {
-                    +"RocketLeage Announcer"
-                }
+                header { +"RocketLeage Announcer" }
                 content {
-                    articleTitle {
-                        +"Hello from Ktor!"
-                    }
+                    articleTitle { +"Hello from Ktor!" }
                     list {
                         item { +"One" }
                         item { +"Two" }

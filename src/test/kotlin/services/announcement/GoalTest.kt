@@ -1,6 +1,8 @@
 package nl.vanalphenict.services.announcement
 
 import io.kotest.matchers.collections.shouldContainExactly
+import kotlin.test.Test
+import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.JsonStatMessage
 import nl.vanalphenict.model.StatEvents
@@ -8,15 +10,12 @@ import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.support.getBot
 import nl.vanalphenict.support.getOrangeTeam
 import nl.vanalphenict.support.getPlayerSteam
-import kotlin.test.Test
-import kotlin.time.Instant
 
 class GoalTest {
 
     val cut = Goal()
 
     val ts = Instant.parse("2020-08-30T18:43:02Z")
-
 
     @Test
     fun testListener() {
@@ -30,10 +29,12 @@ class GoalTest {
                 JsonStatMessage(
                     matchGUID = "123abc",
                     event = "Goal",
-                    player = getBot(getOrangeTeam(home = false))
+                    player = getBot(getOrangeTeam(home = false)),
                 )
-            )!!, ts
-        ) shouldContainExactly setOf(Announcement.GOAL, Announcement.GOAL_AWAY, Announcement.GOAL_BY_BOT)
+            )!!,
+            ts,
+        ) shouldContainExactly
+            setOf(Announcement.GOAL, Announcement.GOAL_AWAY, Announcement.GOAL_BY_BOT)
     }
 
     @Test
@@ -43,9 +44,12 @@ class GoalTest {
                 JsonStatMessage(
                     matchGUID = "123abc",
                     event = "Goal",
-                    player = getBot(getOrangeTeam(home = true))
+                    player = getBot(getOrangeTeam(home = true)),
                 )
-            )!!, ts ) shouldContainExactly setOf(Announcement.GOAL, Announcement.GOAL_HOME, Announcement.GOAL_BY_BOT)
+            )!!,
+            ts,
+        ) shouldContainExactly
+            setOf(Announcement.GOAL, Announcement.GOAL_HOME, Announcement.GOAL_BY_BOT)
     }
 
     @Test
@@ -55,9 +59,10 @@ class GoalTest {
                 JsonStatMessage(
                     matchGUID = "123abc",
                     event = "Goal",
-                    player = getPlayerSteam(getOrangeTeam(home = false))
+                    player = getPlayerSteam(getOrangeTeam(home = false)),
                 )
-            )!!, ts
+            )!!,
+            ts,
         ) shouldContainExactly setOf(Announcement.GOAL, Announcement.GOAL_AWAY)
     }
 
@@ -68,8 +73,10 @@ class GoalTest {
                 JsonStatMessage(
                     matchGUID = "123abc",
                     event = "Goal",
-                    player = getPlayerSteam(getOrangeTeam(home = true))
+                    player = getPlayerSteam(getOrangeTeam(home = true)),
                 )
-            )!!, ts ) shouldContainExactly setOf(Announcement.GOAL, Announcement.GOAL_HOME)
+            )!!,
+            ts,
+        ) shouldContainExactly setOf(Announcement.GOAL, Announcement.GOAL_HOME)
     }
 }

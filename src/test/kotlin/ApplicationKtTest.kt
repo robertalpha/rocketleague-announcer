@@ -20,13 +20,14 @@ class ApplicationTest : AbstractMessagingTest() {
             val voiceContext = VoiceFactory.createVoiceContextMock()
             val discordService = voiceContext.discordService
             val configsList = mutableListOf(SampleMapper("123", "123", emptyMap()))
-            val voiceChannel = VoiceChannel.builder().guild(Guild.builder().id(1L).build()).id(2L).build()
+            val voiceChannel =
+                VoiceChannel.builder().guild(Guild.builder().id(1L).build()).id(2L).build()
             moduleWithDependencies(
                 discordService = discordService,
                 voiceChannel = voiceChannel,
                 configs = configsList,
                 brokerAddress = "tcp://localhost:$mappedPort",
-                TimeServiceMock()
+                TimeServiceMock(),
             )
         }
         val response = client.get("/")

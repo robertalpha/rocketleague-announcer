@@ -17,12 +17,11 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 
-
 class MessagingClient(
     eventHandler: EventHandler,
     serverAddress: String,
     timeService: TimeService,
-    gameTimeTrackerService: GameTimeTrackerService
+    gameTimeTrackerService: GameTimeTrackerService,
 ) {
     private val TOPIC_ROOT = "rl2mqtt"
     private val TOPIC_STAT = "$TOPIC_ROOT/stat"
@@ -31,13 +30,14 @@ class MessagingClient(
     private val TOPIC_GAME_TIME = "$TOPIC_ROOT/gametime"
     private val TOPIC_LOG = "$TOPIC_ROOT/log"
     private val QOS = 1
-    private var scrubber: EventScrubber = EventScrubber(
-        eventHandler = eventHandler,
-        gameTimeTrackerService = gameTimeTrackerService,
-        timeService = timeService)
+    private var scrubber: EventScrubber =
+        EventScrubber(
+            eventHandler = eventHandler,
+            gameTimeTrackerService = gameTimeTrackerService,
+            timeService = timeService,
+        )
     private var client: MqttClient
     private val log = KotlinLogging.logger {}
-
 
     init {
         val clientId = "rouncerdouncer"
@@ -48,8 +48,8 @@ class MessagingClient(
         val username = System.getenv("BROKER_USERNAME")
         val password = System.getenv("BROKER_PASSWORD")
 
-        username?.let {  options.userName = username }
-        password?.let {  options.password = password.toCharArray() }
+        username?.let { options.userName = username }
+        password?.let { options.password = password.toCharArray() }
         options.isCleanSession = true
 
         options.isAutomaticReconnect = true
@@ -57,59 +57,67 @@ class MessagingClient(
         client.connect(options)
 
         fun logUnexpectedMessage(message: MqttMessage, topic: String) {
-            log.warn { """
+            log.warn {
+                """
                 unexpected message on non subscribed topic:")
                 topic: $topic
                 qos: ${message.qos}
                 message content: ${String(message.payload)}
-            """.trimIndent()}
+            """
+                    .trimIndent()
+            }
         }
 
-        client.setCallback(object : MqttCallback {
-            @Throws(Exception::class)
-            override fun messageArrived(topic: String, message: MqttMessage) {
+        client.setCallback(
+            object : MqttCallback {
+                @Throws(Exception::class)
+                override fun messageArrived(topic: String, message: MqttMessage) {
 
-                try {
-                    when (topic) {
-                        TOPIC_STAT -> {
-                            val stat = decode<JsonStatMessage>(message.payload)
-                            logStatMessage(stat)
-                            scrubber.processStat(stat)
+                    try {
+                        when (topic) {
+                            TOPIC_STAT -> {
+                                val stat = decode<JsonStatMessage>(message.payload)
+                                logStatMessage(stat)
+                                scrubber.processStat(stat)
+                            }
+                            TOPIC_TICKER ->
+                                scrubber.processStat(decode<JsonStatMessage>(message.payload))
+                            TOPIC_GAME_TIME ->
+                                scrubber.processGameTime(
+                                    decode<JsonGameTimeMessage>(message.payload)
+                                )
+                            TOPIC_GAME_EVENT -> {
+                                val msg = decode<JsonGameEventMessage>(message.payload)
+                                logGameEvent(msg)
+                                scrubber.processGameEvent(msg)
+                            }
+                            TOPIC_LOG ->
+                                scrubber.processLog(decode<JsonLogMessage>(message.payload))
+                            else -> logUnexpectedMessage(message, topic)
                         }
-                        TOPIC_TICKER ->
-                            scrubber.processStat(decode<JsonStatMessage>(message.payload))
-                        TOPIC_GAME_TIME ->
-                            scrubber.processGameTime(decode<JsonGameTimeMessage>(message.payload))
-                        TOPIC_GAME_EVENT -> {
-                            val msg = decode<JsonGameEventMessage>(message.payload)
-                            logGameEvent(msg)
-                            scrubber.processGameEvent(msg)
-                        }
-                        TOPIC_LOG ->
-                            scrubber.processLog(decode<JsonLogMessage>(message.payload))
-                        else -> logUnexpectedMessage(message, topic)
+                    } catch (e: Exception) {
+                        log.error { "could not parse message: $e" }
+                        e.printStackTrace()
                     }
-                } catch (e: Exception) {
-                    log.error { "could not parse message: $e" }
-                    e.printStackTrace()
+                }
+
+                private fun logStatMessage(stat: JsonStatMessage) {
+                    log.trace { "${Clock.System.now()} - $stat" }
+                }
+
+                private fun logGameEvent(gameEvent: JsonGameEventMessage) {
+                    log.trace { "${Clock.System.now()} - $gameEvent" }
+                }
+
+                override fun connectionLost(cause: Throwable) {
+                    log.trace { "connectionLost: " + cause.message }
+                }
+
+                override fun deliveryComplete(token: IMqttDeliveryToken) {
+                    log.trace { "deliveryComplete: " + token.isComplete }
                 }
             }
-
-            private fun logStatMessage(stat: JsonStatMessage) {
-                log.trace {"${Clock.System.now()} - $stat" }
-            }
-            private fun logGameEvent(gameEvent: JsonGameEventMessage) {
-                log.trace {"${Clock.System.now()} - $gameEvent" }
-            }
-
-            override fun connectionLost(cause: Throwable) {
-                log.trace { "connectionLost: " + cause.message }
-            }
-
-            override fun deliveryComplete(token: IMqttDeliveryToken) {
-                log.trace { "deliveryComplete: " + token.isComplete }
-            }
-        })
+        )
 
         client.subscribe(TOPIC_STAT, QOS)
         client.subscribe(TOPIC_GAME_EVENT, QOS)
