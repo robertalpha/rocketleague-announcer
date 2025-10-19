@@ -10,7 +10,7 @@ data class RLAMetaData(
     val remaining: Duration
 )
 
-enum class StatEvents(val eventName: String) {
+enum class StatEvents(val eventName: String, val showInUI: Boolean = true) {
     AERIAL_GOAL("AerialGoal"),
     ASSIST("Assist"),
     BACKWARDS_GOAL("BackwardsGoal"),
@@ -39,7 +39,23 @@ enum class StatEvents(val eventName: String) {
     SAVIOR("Savior"),
     SAVE("Save"),
     SHOT("Shot"),
-    WIN("Win");
+    WIN("Win"),
+    BOOST_USED("BoostUsed"),
+    DODGES("Dodges"),
+    AERIAL_HIT("AerialHit"),
+
+    // meta stat events, not used in action view
+    BOOST_PICKUPS("BoostPickups", showInUI = false),
+    SMALL_BOOSTS_COLLECTED("SmallBoostsCollected", showInUI = false),
+    BIG_BOOSTS_COLLECTED("BigBoostsCollected", showInUI = false),
+    INFECTED_PLAYERS_DEFEATED("InfectedPlayersDefeated", showInUI = false),
+    TIME_PLAYED("TimePlayed", showInUI = false),
+    FASTEST_GOAL("FastestGoal", showInUI = false),
+    DISTANCE_DRIVEN_METERS("DistanceDrivenMeters", showInUI = false),
+    DISTANCE_FLOWN("DistanceFlown", showInUI = false),
+    DOUBLE_GRAPPLE("DoubleGrapple", showInUI = false),
+    MAX_DODGE_STREAK("MaxDodgeStreak", showInUI = false),
+    ;
 
     fun eq(other: String) : Boolean {
         return eventName == other
@@ -47,7 +63,11 @@ enum class StatEvents(val eventName: String) {
 }
 
 enum class GameEvents(val eventName: String) {
-    START_ROUND("Function GameEvent_Soccar_TA.Active.StartRound");
+    START_ROUND("Function GameEvent_Soccar_TA.Active.StartRound"),
+    TEAMS_CREATED("Function TAGame.GameEvent_Soccar_TA.OnAllTeamsCreated"),
+    PLAYER_ADDED("Function TAGame.GameEvent_TA.EventPlayerAdded"),
+    PLAYER_REMOVED("Function TAGame.GameEvent_TA.EventPlayerRemoved"),
+    MATCH_ENDED("Function TAGame.GameEvent_Soccar_TA.EventMatchEnded");
 
     fun eq(other: String) : Boolean {
         return eventName == other

@@ -18,7 +18,7 @@ fun parsePlayer(src : JsonPlayer) : Player {
 fun parseGameEventMessage(src : JsonGameEventMessage) : GameEventMessage? {
     val event = GameEvents.entries.find{ it.eq(src.gameEvent)}
     if (event == null) {
-        log.trace { "Event \"${src.gameEvent}\" not supported." }
+        log.info { "Event \"${src.gameEvent}\" not supported." }
         return null
     }
     return GameEventMessage(
@@ -38,7 +38,7 @@ fun parseGameTimeMessage(src : JsonGameTimeMessage) : GameTimeMessage {
 fun parseStatMessage(src : JsonStatMessage) : StatMessage? {
     val event = StatEvents.entries.find{ it.eq(src.event)}
     if (event == null) {
-        log.trace { "Event \"${src.event}\" not supported." }
+        log.info { "Event \"${src.event}\" not supported." }
         return null
     }
     return if (event == StatEvents.DEMOLISH)
@@ -87,12 +87,10 @@ data class KillMessage(
 ) : StatMessage(matchGUID, event, player)
 
 class Player (src: JsonPlayer, val team:Team) {
-
     val id: String = src.botSaveId()
     val name: String = src.name
     val bot: Boolean = src.isBot()
 }
-
 
 class Team (src:JsonTeam, srcPlayer:JsonPlayer?) {
     val homeTeam: Boolean = src.homeTeam ?: false
