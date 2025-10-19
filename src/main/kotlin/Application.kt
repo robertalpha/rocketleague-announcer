@@ -14,8 +14,20 @@ import io.ktor.server.sse.SSE
 import io.ktor.server.webjars.Webjars
 import java.io.File
 import java.io.FileInputStream
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import nl.vanalphenict.messaging.MessagingClient
+import nl.vanalphenict.model.JsonColor
+import nl.vanalphenict.model.JsonPlayer
+import nl.vanalphenict.model.JsonTeam
+import nl.vanalphenict.model.KillMessage
+import nl.vanalphenict.model.Player
+import nl.vanalphenict.model.RLAMetaData
+import nl.vanalphenict.model.StatEvents
+import nl.vanalphenict.model.Team
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.AnnouncementHandler
@@ -162,4 +174,24 @@ fun Application.moduleWithDependencies(
     themeRoutes(themeService)
     actionRoutes(statRepository, gameTimeTrackerService)
     configureSSE()
+    this.launch {
+        repeat(120) {
+            val jp =
+                JsonPlayer(
+                    id = "123",
+                    name = "PlayerName",
+                    team = JsonTeam(name = "Jemoeder", primaryColor = JsonColor(0, 170, 0)),
+                )
+            eventHandler.handleStatMessage(
+                KillMessage(
+                    matchGUID = "1234",
+                    event = StatEvents.entries.toTypedArray().random(),
+                    player = Player(jp, Team(JsonTeam(), jp)),
+                    victim = Player(jp, Team(JsonTeam(), jp)),
+                ),
+                RLAMetaData(overtime = true, remaining = 200.seconds, matchGUID = "123"),
+            )
+            delay(300.milliseconds)
+        }
+    }
 }

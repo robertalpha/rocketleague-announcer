@@ -23,12 +23,9 @@ fun Application.actionRoutes(
             call.respondHtml {
                 body {
                     for (actionItem in actions.sortedByDescending { (timestamp, _) -> timestamp }) {
-                        actionListItem(
-                            actionItem,
-                            gameTimeTrackerService
-                                .getGameTime(actionItem.second.matchGUID)
-                                .remaining,
-                        )
+                        val gameTime =
+                            gameTimeTrackerService.getGameTime(actionItem.second.matchGUID)
+                        actionListItem(actionItem, gameTime.remaining, gameTime.overtime)
                     }
                 }
             }

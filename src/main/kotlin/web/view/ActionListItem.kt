@@ -15,7 +15,11 @@ import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
 
-fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>, timeLeft: Duration) {
+fun HtmlBlockTag.actionListItem(
+    actionItem: Pair<Instant, StatMessage>,
+    timeLeft: Duration,
+    overtime: Boolean,
+) {
     li {
         classes = setOf("py-3", "sm:py-4")
 
@@ -71,6 +75,16 @@ fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>, timeLeft
                         "text-gray-900",
                         "dark:text-white",
                     )
+
+                span {
+                    style = "color: RED;"
+                    +if (overtime) {
+                        "+"
+                    } else {
+                        ""
+                    }
+                }
+
                 +timeLeft.toGameString
             }
         }
