@@ -12,8 +12,10 @@ import kotlinx.html.style
 import kotlinx.html.visit
 import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
+import kotlin.time.Duration
 
-fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>) {
+fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>, timeLeft: Duration) {
     li {
         classes=setOf("py-3","sm:py-4")
 
@@ -43,7 +45,7 @@ fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>) {
                 }
                 p {
                     classes = setOf("text-sm", "text-gray-500", "truncate", "dark:text-gray-400")
-                    msg.event
+                    +msg.event.eventName
                 }
                 if (msg is KillMessage) {
                     p {
@@ -61,7 +63,7 @@ fun HtmlBlockTag.actionListItem(actionItem: Pair<Instant, StatMessage>) {
                     "text-gray-900",
                     "dark:text-white"
                 )
-                +actionItem.first.toString().drop(11).take(12)
+                + timeLeft.toGameString
             }
         }
     }

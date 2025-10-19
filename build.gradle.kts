@@ -21,6 +21,10 @@ plugins {
 
     // ./gradlew dependencyUpdates
     id("com.github.ben-manes.versions") version "0.53.0"
+
+    // ./gradlew spotlessKotlinCheck
+    id("com.diffplug.spotless") version "8.0.0"
+
 }
 
 kotlin{
@@ -36,6 +40,14 @@ version = "0.0.1"
 application {
     mainClass = "io.ktor.server.netty.EngineMain"
 }
+
+// Static code analysis tools, for later
+//spotless {
+//    kotlin {
+//        target("src/**/*.kt")
+//        ktfmt("0.47").googleStyle()
+//    }
+//}
 
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")

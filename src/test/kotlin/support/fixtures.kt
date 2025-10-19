@@ -7,8 +7,10 @@ import nl.vanalphenict.model.JsonColor
 import nl.vanalphenict.model.JsonPlayer
 import nl.vanalphenict.model.JsonStatMessage
 import nl.vanalphenict.model.JsonTeam
+import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.parseStatMessage
+import kotlin.time.Duration.Companion.seconds
 
 fun getBot(team: JsonTeam, score:Int = 123) = JsonPlayer(
     id ="Unknown|0|0",
@@ -91,6 +93,11 @@ fun getEvent(event: StatEvents) = parseStatMessage(JsonStatMessage(
     event = event.eventName,
     player = getPlayerEpic(team = getOrangeTeam())))!!
 
+fun getMetaData() = RLAMetaData(
+    matchGUID = "123abc",
+    overtime = false,
+    remaining = 300.seconds
+)
 
 fun getVoiceChannel(guildId:Long = 1, voiceChannelId:Long = 2) = VoiceChannel
     .builder()
