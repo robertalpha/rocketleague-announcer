@@ -12,15 +12,23 @@ import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.GameTimeTrackerService
 import nl.vanalphenict.web.view.actionListItem
 
-fun Application.actionRoutes(statRepository: StatRepository, gameTimeTrackerService: GameTimeTrackerService) {
+fun Application.actionRoutes(
+    statRepository: StatRepository,
+    gameTimeTrackerService: GameTimeTrackerService,
+) {
     routing {
         get("/actions") {
             val actions = statRepository.getLatestMatch()
 
             call.respondHtml {
                 body {
-                    for (actionItem in actions.sortedByDescending { (timestamp,_ ) -> timestamp }) {
-                        actionListItem(actionItem, gameTimeTrackerService.getGameTime(actionItem.second.matchGUID).remaining)
+                    for (actionItem in actions.sortedByDescending { (timestamp, _) -> timestamp }) {
+                        actionListItem(
+                            actionItem,
+                            gameTimeTrackerService
+                                .getGameTime(actionItem.second.matchGUID)
+                                .remaining,
+                        )
                     }
                 }
             }
@@ -28,7 +36,8 @@ fun Application.actionRoutes(statRepository: StatRepository, gameTimeTrackerServ
 
         // Read actionListItem
         get("/actions/{id}") {
-            val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Invalid ID")
+            val id =
+                call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Invalid ID")
 
             try {
                 val action = statRepository.findByHash(id)!!

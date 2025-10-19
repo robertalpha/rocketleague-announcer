@@ -1,7 +1,7 @@
 package nl.vanalphenict.repository
 
-import nl.vanalphenict.model.GameEventMessage
 import kotlin.time.Instant
+import nl.vanalphenict.model.GameEventMessage
 
 class GameEventRepository {
 

@@ -20,25 +20,28 @@ class AnnouncementHandler(
     gameEventInterpreters: Collection<GameEventToAnnouncement>,
 ) : EventHandler {
 
-    private val statInterpreterMap : MutableMap<StatEvents, Set<StatToAnnouncment>> = HashMap()
-    private val gameEventInterpreterMap : MutableMap<GameEvents, MutableSet<GameEventToAnnouncement>> = HashMap()
+    private val statInterpreterMap: MutableMap<StatEvents, Set<StatToAnnouncment>> = HashMap()
+    private val gameEventInterpreterMap:
+        MutableMap<GameEvents, MutableSet<GameEventToAnnouncement>> =
+        HashMap()
 
-    private val dejitter : DeJitter<Announcement> = DeJitter(
-        timeToCombine = 100.milliseconds,
-        comparator = { a, b -> sampleMapper.selector(a) - sampleMapper.selector(b)},
-        action = { announcement -> triggerSound(sampleMapper.getSample(announcement)) }
-    )
+    private val dejitter: DeJitter<Announcement> =
+        DeJitter(
+            timeToCombine = 100.milliseconds,
+            comparator = { a, b -> sampleMapper.selector(a) - sampleMapper.selector(b) },
+            action = { announcement -> triggerSound(sampleMapper.getSample(announcement)) },
+        )
 
     init {
         statInterpreters.forEach { interpreter ->
             interpreter.listenTo().forEach { event ->
-                    statInterpreterMap[event] =
-                        (statInterpreterMap[event] ?: HashSet()).plus(interpreter)
+                statInterpreterMap[event] =
+                    (statInterpreterMap[event] ?: HashSet()).plus(interpreter)
             }
         }
         gameEventInterpreters.forEach { interpreter ->
             interpreter.listenTo().forEach { event ->
-                    gameEventInterpreterMap.getOrPut(event) { HashSet() }.add(interpreter)
+                gameEventInterpreterMap.getOrPut(event) { HashSet() }.add(interpreter)
             }
         }
     }
@@ -81,7 +84,7 @@ class AnnouncementHandler(
         discordService.play(sample, voiceChannel)
     }
 
-    fun replaceMapping(newMap : SampleMapper) {
+    fun replaceMapping(newMap: SampleMapper) {
         sampleMapper = newMap
     }
 }

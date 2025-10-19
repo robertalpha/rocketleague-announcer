@@ -7,7 +7,7 @@ data class RLAMetaData(
     var prevailingAnnouncement: Announcement? = null,
     val announcements: MutableSet<Announcement> = HashSet(),
     val overtime: Boolean,
-    val remaining: Duration
+    val remaining: Duration,
 )
 
 enum class StatEvents(val eventName: String, val showInUI: Boolean = true) {
@@ -54,10 +54,9 @@ enum class StatEvents(val eventName: String, val showInUI: Boolean = true) {
     DISTANCE_DRIVEN_METERS("DistanceDrivenMeters", showInUI = false),
     DISTANCE_FLOWN("DistanceFlown", showInUI = false),
     DOUBLE_GRAPPLE("DoubleGrapple", showInUI = false),
-    MAX_DODGE_STREAK("MaxDodgeStreak", showInUI = false),
-    ;
+    MAX_DODGE_STREAK("MaxDodgeStreak", showInUI = false);
 
-    fun eq(other: String) : Boolean {
+    fun eq(other: String): Boolean {
         return eventName == other
     }
 }
@@ -69,7 +68,7 @@ enum class GameEvents(val eventName: String) {
     PLAYER_REMOVED("Function TAGame.GameEvent_TA.EventPlayerRemoved"),
     MATCH_ENDED("Function TAGame.GameEvent_Soccar_TA.EventMatchEnded");
 
-    fun eq(other: String) : Boolean {
+    fun eq(other: String): Boolean {
         return eventName == other
     }
 }

@@ -1,20 +1,17 @@
 package nl.vanalphenict.model
 
-import kotlinx.serialization.Serializable
 import java.util.Collections
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class JsonGameEventMessage(
     val matchGUID: String,
     val gameEvent: String,
-    val teams: List<JsonTeam>? = emptyList()
+    val teams: List<JsonTeam>? = emptyList(),
 )
 
 @Serializable
-data class JsonGameTimeMessage(
-    val matchGUID: String,
-    val remaining: Int,
-    val overtime: Boolean)
+data class JsonGameTimeMessage(val matchGUID: String, val remaining: Int, val overtime: Boolean)
 
 @Serializable
 data class JsonStatMessage(
@@ -47,12 +44,7 @@ data class JsonStatMessage(
     }
 }
 
-@Serializable
-data class JsonLogMessage(
-    val log: String,
-    val user: String,
-    val userId: String
-)
+@Serializable data class JsonLogMessage(val log: String, val user: String, val userId: String)
 
 @Serializable
 data class JsonPlayer(
@@ -60,7 +52,8 @@ data class JsonPlayer(
     val name: String,
     val score: Int? = null,
     val team: JsonTeam? = null,
-    val club: JsonClub? = null) {
+    val club: JsonClub? = null,
+) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -85,25 +78,22 @@ data class JsonPlayer(
     }
 
     fun botSaveId(): String {
-        return if (isBot())
-            "bot|$name|0"
-        else
-            id
+        return if (isBot()) "bot|$name|0" else id
     }
 }
-
 
 @Serializable
 data class JsonTeam(
     val clubId: Int? = null,
     val homeTeam: Boolean? = null,
-    val index:Int? = null,
-    val name:String? = null,
-    val num:Int? = null,
+    val index: Int? = null,
+    val name: String? = null,
+    val num: Int? = null,
     val score: Int? = null,
     val primaryColor: JsonColor? = null,
     val secondaryColor: JsonColor? = null,
-    val players: List<JsonPlayer>? = Collections.emptyList()) {
+    val players: List<JsonPlayer>? = Collections.emptyList(),
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -119,8 +109,8 @@ data class JsonTeam(
     }
 
     override fun hashCode(): Int {
-        var result = clubId?:0
-        result = 31 * result + (index?:0)
+        var result = clubId ?: 0
+        result = 31 * result + (index ?: 0)
         result = 31 * result + (players?.hashCode() ?: 0)
         return result
     }
@@ -132,7 +122,7 @@ data class JsonClub(
     val name: String,
     val tag: String,
     val accentColor: JsonColor,
-    val primaryColor: JsonColor
+    val primaryColor: JsonColor,
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -149,9 +139,4 @@ data class JsonClub(
     }
 }
 
-@Serializable
-data class JsonColor(
-    val R: Int,
-    val G: Int,
-    val B: Int
-)
+@Serializable data class JsonColor(val R: Int, val G: Int, val B: Int)

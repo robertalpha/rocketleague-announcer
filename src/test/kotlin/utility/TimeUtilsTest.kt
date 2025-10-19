@@ -15,10 +15,8 @@ class TimeUtilsTest {
         val t1 = Instant.parse("2020-01-01T12:00:00Z")
         val t2 = Instant.parse("2020-01-01T12:00:02Z")
 
-       t2.bothHappenWithin(t1, 1.seconds) shouldBe false
-       t2.bothHappenWithin(t1, 3.seconds) shouldBe true
-
-
+        t2.bothHappenWithin(t1, 1.seconds) shouldBe false
+        t2.bothHappenWithin(t1, 3.seconds) shouldBe true
     }
 
     @Test

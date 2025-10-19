@@ -36,11 +36,10 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Testcontainers
 class MessagingTest : AbstractMessagingTest() {
 
-    private val log = KotlinLogging.logger { }
+    private val log = KotlinLogging.logger {}
 
     @Test
     fun testLines() = testApplication {
-
         val testFile = "RL_log_20250903.txt"
 
         val timeServiceMock = TimeServiceMock()
@@ -52,20 +51,17 @@ class MessagingTest : AbstractMessagingTest() {
             val voiceContext = VoiceFactory.createVoiceContextMock()
             val discordService = voiceContext.discordService
             val configsList = mutableListOf(SampleMapper("123", "123", emptyMap()))
-            val voiceChannel = VoiceChannel.builder().guild(Guild.builder().id(1L).build()).id(2L).build()
+            val voiceChannel =
+                VoiceChannel.builder().guild(Guild.builder().id(1L).build()).id(2L).build()
             moduleWithDependencies(
                 discordService = discordService,
                 voiceChannel = voiceChannel,
                 configs = configsList,
                 brokerAddress = "tcp://localhost:$mappedPort",
-                timeServiceMock
+                timeServiceMock,
             )
         }
-        client = createClient {
-            install(ContentNegotiation) {
-                json()
-            }
-        }
+        client = createClient { install(ContentNegotiation) { json() } }
 
         val sseClient = createClient {
             install(SSE) {
@@ -77,25 +73,28 @@ class MessagingTest : AbstractMessagingTest() {
         GlobalScope.async {
             withContext(Dispatchers.IO) {
                 sseClient.sse(path = "/sse") {
-                        incoming.collect { event ->
-                            log.trace { """
+                    incoming.collect { event ->
+                        log.trace {
+                            """
                                 Event from server:
                                 $event
-                            """.trimIndent()}
-                            sseData.add(event)
+                            """
+                                .trimIndent()
                         }
+                        sseData.add(event)
+                    }
                 }
             }
         }
 
-       messages.forEach {
-           val mockTime = kotlin.time.Instant.parse(it.timestamp)
-           timeServiceMock.setTime(mockTime)
-           client.post("/") {
-               contentType(ContentType.Application.Json)
-               setBody(TestMessage(topic =  it.topic, message= it.message))
-           }
-       }
+        messages.forEach {
+            val mockTime = kotlin.time.Instant.parse(it.timestamp)
+            timeServiceMock.setTime(mockTime)
+            client.post("/") {
+                contentType(ContentType.Application.Json)
+                setBody(TestMessage(topic = it.topic, message = it.message))
+            }
+        }
         eventually(10.seconds) {
             sseData.size shouldBe 38
             sseData.count { it.data?.contains("Goal.webp") ?: false } shouldBe 6
@@ -103,26 +102,27 @@ class MessagingTest : AbstractMessagingTest() {
         }
     }
 
-    @Serializable
-    data class TestMessage(val topic: String, val message: String)
+    @Serializable data class TestMessage(val topic: String, val message: String)
 
     private fun parseMessagesFromResource(testFile: String): List<MessageLine> {
         val stream = javaClass.getClassLoader().getResourceAsStream(testFile)!!
 
         val lines = String(stream.readAllBytes()).lines()
-        return  lines.filter { it.isNotBlank() }.map {
-            try {
-                Json.decodeFromString(MessageLine.serializer(), it)
-            } catch (e: Exception) {
-                log.error { "could nor parse MessageLine: ${it}$" }
-                throw e
+        return lines
+            .filter { it.isNotBlank() }
+            .map {
+                try {
+                    Json.decodeFromString(MessageLine.serializer(), it)
+                } catch (e: Exception) {
+                    log.error { "could nor parse MessageLine: ${it}$" }
+                    throw e
+                }
             }
-        }.sortedBy { it.timestamp }
+            .sortedBy { it.timestamp }
     }
 
     @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     @JsonIgnoreUnknownKeys
     data class MessageLine(val topic: String, val timestamp: String, val message: String)
-
 }

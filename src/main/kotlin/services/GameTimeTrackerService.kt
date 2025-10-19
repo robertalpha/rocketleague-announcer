@@ -8,9 +8,7 @@ class GameTimeTrackerService {
     private val gameTimes = HashMap<String, GameTimeMessage>()
 
     fun storeGameTime(message: GameTimeMessage) {
-        synchronized(this) {
-            gameTimes[message.matchGUID] = message
-        }
+        synchronized(this) { gameTimes[message.matchGUID] = message }
     }
 
     fun getGameTime(matchGUID: String): GameTimeMessage {

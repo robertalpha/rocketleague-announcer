@@ -8,13 +8,12 @@ import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.impl.EventDistributor
 
 interface EventHandler {
-    fun handleStatMessage(
-        msg: StatMessage,
-        metaData: RLAMetaData) {}
-    fun handleGameEvent(
-        msg: GameEventMessage,
-        metaData: RLAMetaData) {}
+    fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {}
+
+    fun handleGameEvent(msg: GameEventMessage, metaData: RLAMetaData) {}
+
     fun handleGameTime(msg: GameTimeMessage) {}
+
     fun handleLog(msg: JsonLogMessage) {}
 
     class Builder(private var handler: EventHandler) {

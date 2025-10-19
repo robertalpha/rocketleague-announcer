@@ -7,8 +7,11 @@ import nl.vanalphenict.model.StatMessage
 class StatRepository {
 
     companion object {
-        fun List<Pair<Instant, StatMessage>>.filterType(messageType: StatEvents) = this.filter { messageType== it.second.event }
-        fun List<Pair<Instant, StatMessage>>.sortedDescending() = this.sortedByDescending { it.first }
+        fun List<Pair<Instant, StatMessage>>.filterType(messageType: StatEvents) =
+            this.filter { messageType == it.second.event }
+
+        fun List<Pair<Instant, StatMessage>>.sortedDescending() =
+            this.sortedByDescending { it.first }
     }
 
     private val statHistory = mutableListOf<Pair<Instant, StatMessage>>()
@@ -22,11 +25,18 @@ class StatRepository {
     }
 
     fun getLatestMatch(): List<Pair<Instant, StatMessage>> {
-        return statHistory.maxByOrNull { it.first }?.second?.matchGUID?.let { getStatHistory(it) }.orEmpty()
+        return statHistory
+            .maxByOrNull { it.first }
+            ?.second
+            ?.matchGUID
+            ?.let { getStatHistory(it) }
+            .orEmpty()
     }
 
     fun findByHash(hashCode: Long): StatMessage? {
-        return statHistory.firstOrNull { hashCode == it.first.toEpochMilliseconds() + it.second.hashCode() }?.second
+        return statHistory
+            .firstOrNull { hashCode == it.first.toEpochMilliseconds() + it.second.hashCode() }
+            ?.second
     }
 
     fun clear() {

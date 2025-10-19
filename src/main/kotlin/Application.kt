@@ -52,9 +52,7 @@ fun main(args: Array<String>) {
 
 val log = KotlinLogging.logger {}
 
-fun Application.module(
-    brokerAddress: String = "tcp://localhost:1883",
-) {
+fun Application.module(brokerAddress: String = "tcp://localhost:1883") {
     val voiceContext = VoiceFactory.createVoiceContext(System.getenv("TOKEN"))
     val sampleService = voiceContext.sampleService
     val discordService = voiceContext.discordService
@@ -69,21 +67,14 @@ fun Application.module(
         )
     )
 
-    System.getenv("SAMPLE_DIR")?.let { sampleDir ->
-        sampleService.readSamples(sampleDir)
-    }
+    System.getenv("SAMPLE_DIR")?.let { sampleDir -> sampleService.readSamples(sampleDir) }
 
     System.getenv("SAMPLE_MAPPING_DIR")?.let { sampleMappingDir ->
-        File(sampleMappingDir).walkTopDown()
+        File(sampleMappingDir)
+            .walkTopDown()
             .filter { it.name.endsWith("mapping.json") }
             .forEach { sampleMapping ->
-                configs.add(
-                    SampleMapper.constructSampleMapper(
-                        FileInputStream(
-                            sampleMapping
-                        )
-                    )
-                )
+                configs.add(SampleMapper.constructSampleMapper(FileInputStream(sampleMapping)))
             }
     }
 
@@ -93,54 +84,67 @@ fun Application.module(
     moduleWithDependencies(discordService, voiceChannel, configs, brokerAddress, timeService)
 }
 
-fun Application.moduleWithDependencies(discordService: DiscordService, voiceChannel: VoiceChannel, configs: MutableList<SampleMapper>, brokerAddress: String, timeService: TimeService) {
+fun Application.moduleWithDependencies(
+    discordService: DiscordService,
+    voiceChannel: VoiceChannel,
+    configs: MutableList<SampleMapper>,
+    brokerAddress: String,
+    timeService: TimeService,
+) {
 
     val statRepository = StatRepository()
     val gameEventRepository = GameEventRepository()
     val eventPersister = EventPersister(statRepository, gameEventRepository, timeService)
     val gameTimeTrackerService = GameTimeTrackerService()
-    val announcementHandler = AnnouncementHandler(
-        discordService,
-        voiceChannel,
-        configs.last(),
-        listOf(
-            AsIs(),
-            DemolitionChain(statRepository),
-            Extermination(statRepository),
-            FirstBlood(statRepository),
-            Goal(),
-            KickOffKill(gameEventRepository),
-            Kill(),
-            KilledByBot(),
-            MutualDestruction(),
-            Retaliation(),
-            Revenge(),
-            WitnessScore(statRepository),
-            WitnessSave(statRepository),
-        ),
-        listOf(MatchStart(gameEventRepository))
-    )
+    val announcementHandler =
+        AnnouncementHandler(
+            discordService,
+            voiceChannel,
+            configs.last(),
+            listOf(
+                AsIs(),
+                DemolitionChain(statRepository),
+                Extermination(statRepository),
+                FirstBlood(statRepository),
+                Goal(),
+                KickOffKill(gameEventRepository),
+                Kill(),
+                KilledByBot(),
+                MutualDestruction(),
+                Retaliation(),
+                Revenge(),
+                WitnessScore(statRepository),
+                WitnessSave(statRepository),
+            ),
+            listOf(MatchStart(gameEventRepository)),
+        )
     val eventHandler =
         EventHandler.Builder(announcementHandler)
             .add(eventPersister)
-            .add(SsePublisher(timeService)).build()
-    val client = try {
-        MessagingClient(eventHandler, System.getenv("BROKER_ADDRESS") ?: brokerAddress, timeService, gameTimeTrackerService)
-    } catch (ex: Exception) {
-        log.error { "could not connect to broker" }
-        throw ex
-    }
-
+            .add(SsePublisher(timeService))
+            .build()
+    val client =
+        try {
+            MessagingClient(
+                eventHandler,
+                System.getenv("BROKER_ADDRESS") ?: brokerAddress,
+                timeService,
+                gameTimeTrackerService,
+            )
+        } catch (ex: Exception) {
+            log.error { "could not connect to broker" }
+            throw ex
+        }
 
     install(ContentNegotiation) {
-        json(Json {
-            prettyPrint = true
-            isLenient = true
-        })
+        json(
+            Json {
+                prettyPrint = true
+                isLenient = true
+            }
+        )
     }
-    install(Webjars) {
-        path = "assets"
-    }
+    install(Webjars) { path = "assets" }
 
     install(SSE)
 
