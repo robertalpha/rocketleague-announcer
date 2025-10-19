@@ -27,6 +27,7 @@ import nl.vanalphenict.services.announcement.AsIs
 import nl.vanalphenict.services.announcement.DemolitionChain
 import nl.vanalphenict.services.announcement.Extermination
 import nl.vanalphenict.services.announcement.FirstBlood
+import nl.vanalphenict.services.announcement.Goal
 import nl.vanalphenict.services.announcement.KickOffKill
 import nl.vanalphenict.services.announcement.Kill
 import nl.vanalphenict.services.announcement.KilledByBot
@@ -107,6 +108,7 @@ fun Application.moduleWithDependencies(discordService: DiscordService, voiceChan
             DemolitionChain(statRepository),
             Extermination(statRepository),
             FirstBlood(statRepository),
+            Goal(),
             KickOffKill(gameEventRepository),
             Kill(),
             KilledByBot(),
