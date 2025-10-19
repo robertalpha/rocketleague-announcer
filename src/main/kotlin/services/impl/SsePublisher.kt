@@ -23,7 +23,7 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
         log.trace {"SSE HANDLER" }
         val actionItem = Pair(timeService.now(), msg)
         val htmlText = createHTML().body {
-            actionListItem(actionItem)
+            actionListItem(actionItem, metaData.remaining)
         }
         runBlocking {  triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
     }

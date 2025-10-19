@@ -1,8 +1,13 @@
 package nl.vanalphenict.model
 
+import kotlin.time.Duration
+
 data class RLAMetaData(
+    val matchGUID: String,
     var prevailingAnnouncement: Announcement? = null,
     val announcements: MutableSet<Announcement> = HashSet(),
+    val overtime: Boolean,
+    val remaining: Duration
 )
 
 enum class StatEvents(val eventName: String) {

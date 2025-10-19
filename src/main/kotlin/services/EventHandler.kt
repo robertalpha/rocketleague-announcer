@@ -1,7 +1,7 @@
 package nl.vanalphenict.services
 
 import nl.vanalphenict.model.GameEventMessage
-import nl.vanalphenict.model.JsonGameTimeMessage
+import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.JsonLogMessage
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
@@ -14,7 +14,7 @@ interface EventHandler {
     fun handleGameEvent(
         msg: GameEventMessage,
         metaData: RLAMetaData) {}
-    fun handleGameTime(msg: JsonGameTimeMessage) {}
+    fun handleGameTime(msg: GameTimeMessage) {}
     fun handleLog(msg: JsonLogMessage) {}
 
     class Builder(private var handler: EventHandler) {
