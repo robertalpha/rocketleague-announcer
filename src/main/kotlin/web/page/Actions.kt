@@ -7,8 +7,6 @@ import kotlinx.html.ul
 import nl.vanalphenict.web.view.li
 
 fun DIV.renderActions() {
-    attributes["hx-ext"] = "sse"
-    attributes["sse-connect"] = "/sse"
 
     classes =
         setOf(
@@ -29,12 +27,18 @@ fun DIV.renderActions() {
         )
     ul {
         classes = setOf("max-w-md", "divide-y", "divide-gray-200", "dark:divide-gray-700")
-        id = "actionListItem-list"
+        id = "actionlist"
 
-        attributes["hx-get"] = "/actions"
-        attributes["hx-trigger"] = "load,sse:new_action"
+        attributes["hx-ext"] = "sse"
+        attributes["sse-connect"] = "/sse"
+        attributes["sse-swap"] = "new_action"
+        attributes["hx-swap"] = "afterbegin"
+        attributes["hx-target"] = "#actionlist"
 
         li {
+            attributes["hx-get"] = "/actions"
+            attributes["hx-trigger"] = "load"
+
             classes = setOf("htmx-indicator", "text-gray-500")
             +"Loading..."
         }
