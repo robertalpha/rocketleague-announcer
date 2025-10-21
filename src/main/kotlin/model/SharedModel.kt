@@ -40,11 +40,10 @@ enum class StatEvents(val eventName: String) {
     SAVE("Save"),
     SHOT("Shot"),
     WIN("Win"),
+
     BOOST_USED("BoostUsed"),
     DODGES("Dodges"),
     AERIAL_HIT("AerialHit"),
-
-    // meta stat events, not used in action view
     BOOST_PICKUPS("BoostPickups"),
     SMALL_BOOSTS_COLLECTED("SmallBoostsCollected"),
     BIG_BOOSTS_COLLECTED("BigBoostsCollected"),
