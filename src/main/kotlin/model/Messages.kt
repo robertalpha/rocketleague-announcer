@@ -3,6 +3,8 @@ package nl.vanalphenict.model
 import java.util.Collections
 import kotlinx.serialization.Serializable
 
+val CLUB_MAP = HashMap<Int, JsonClub>()
+
 @Serializable
 data class JsonGameEventMessage(
     val matchGUID: String,
@@ -54,6 +56,9 @@ data class JsonPlayer(
     val team: JsonTeam? = null,
     val club: JsonClub? = null,
 ) {
+    init {
+        club?.let { CLUB_MAP[it.id] = it }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
