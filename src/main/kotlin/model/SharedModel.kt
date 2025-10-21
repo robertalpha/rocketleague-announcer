@@ -10,7 +10,7 @@ data class RLAMetaData(
     val remaining: Duration,
 )
 
-enum class StatEvents(val eventName: String, val showInUI: Boolean = true) {
+enum class StatEvents(val eventName: String) {
     AERIAL_GOAL("AerialGoal"),
     ASSIST("Assist"),
     BACKWARDS_GOAL("BackwardsGoal"),
@@ -43,18 +43,16 @@ enum class StatEvents(val eventName: String, val showInUI: Boolean = true) {
     BOOST_USED("BoostUsed"),
     DODGES("Dodges"),
     AERIAL_HIT("AerialHit"),
-
-    // meta stat events, not used in action view
-    BOOST_PICKUPS("BoostPickups", showInUI = false),
-    SMALL_BOOSTS_COLLECTED("SmallBoostsCollected", showInUI = false),
-    BIG_BOOSTS_COLLECTED("BigBoostsCollected", showInUI = false),
-    INFECTED_PLAYERS_DEFEATED("InfectedPlayersDefeated", showInUI = false),
-    TIME_PLAYED("TimePlayed", showInUI = false),
-    FASTEST_GOAL("FastestGoal", showInUI = false),
-    DISTANCE_DRIVEN_METERS("DistanceDrivenMeters", showInUI = false),
-    DISTANCE_FLOWN("DistanceFlown", showInUI = false),
-    DOUBLE_GRAPPLE("DoubleGrapple", showInUI = false),
-    MAX_DODGE_STREAK("MaxDodgeStreak", showInUI = false);
+    BOOST_PICKUPS("BoostPickups"),
+    SMALL_BOOSTS_COLLECTED("SmallBoostsCollected"),
+    BIG_BOOSTS_COLLECTED("BigBoostsCollected"),
+    INFECTED_PLAYERS_DEFEATED("InfectedPlayersDefeated"),
+    TIME_PLAYED("TimePlayed"),
+    FASTEST_GOAL("FastestGoal"),
+    DISTANCE_DRIVEN_METERS("DistanceDrivenMeters"),
+    DISTANCE_FLOWN("DistanceFlown"),
+    DOUBLE_GRAPPLE("DoubleGrapple"),
+    MAX_DODGE_STREAK("MaxDodgeStreak");
 
     fun eq(other: String): Boolean {
         return eventName == other

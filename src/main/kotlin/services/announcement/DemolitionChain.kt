@@ -22,16 +22,16 @@ class DemolitionChain(private val statRepository: StatRepository) : StatToAnnoun
                 .getStatHistory(statMessage.matchGUID)
                 .filter { (_, message) -> StatEvents.DEMOLISH == message.event }
                 .filter { (_, message) -> message.player.team.homeTeam }
-                .sortedByDescending { it.first }
+                .sortedByDescending { it.timestamp }
 
         var pivot = currentTimeStamp
         var democounter = 1
         if (demos.isEmpty()) return emptySet()
         do {
             val head = demos.first()
-            if (pivot.minus(head.first) < PIVOT_DURATION) {
+            if (pivot.minus(head.timestamp) < PIVOT_DURATION) {
                 democounter++
-                pivot = head.first
+                pivot = head.timestamp
                 demos = demos.drop(1)
             } else {
                 demos = emptyList()

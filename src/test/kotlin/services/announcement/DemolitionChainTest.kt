@@ -3,9 +3,11 @@ package services.announcement
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.JsonStatMessage
+import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.announcement.DemoChain
@@ -20,18 +22,19 @@ class DemolitionChainTest {
     fun interpret() {
         val repo = StatRepository()
         val cut = DemolitionChain(repo)
+        val metaData = RLAMetaData(matchGUID = "123", overtime = false, remaining = 100.seconds)
 
         cut.interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:00Z")) shouldHaveSize 0
-        repo.addStatMessage(Instant.parse("2020-08-30T18:43:00Z"), demoStatmessage())
+        repo.addStatMessage(Instant.parse("2020-08-30T18:43:00Z"), demoStatmessage(), metaData)
         cut.interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:02Z")) shouldContain
             Announcement.DOUBLE_KILL
-        repo.addStatMessage(Instant.parse("2020-08-30T18:43:06Z"), demoStatmessage())
+        repo.addStatMessage(Instant.parse("2020-08-30T18:43:06Z"), demoStatmessage(), metaData)
         cut.interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:08Z")) shouldContain
             Announcement.TRIPLE_KILL
-        repo.addStatMessage(Instant.parse("2020-08-30T18:43:08Z"), demoStatmessage())
+        repo.addStatMessage(Instant.parse("2020-08-30T18:43:08Z"), demoStatmessage(), metaData)
         cut.interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:09Z")) shouldContain
             Announcement.QUAD_KILL
-        repo.addStatMessage(Instant.parse("2020-08-30T18:43:18Z"), demoStatmessage())
+        repo.addStatMessage(Instant.parse("2020-08-30T18:43:18Z"), demoStatmessage(), metaData)
         cut.interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:21Z")) shouldContain
             Announcement.PENTA_KILL
 
