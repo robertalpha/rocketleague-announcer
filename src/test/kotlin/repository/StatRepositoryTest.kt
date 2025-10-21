@@ -4,9 +4,11 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import nl.vanalphenict.model.JsonStatMessage
 import nl.vanalphenict.model.JsonTeam
+import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.support.getBlueTeam
@@ -38,6 +40,7 @@ class StatRepositoryTest {
             parseStatMessage(
                 JsonStatMessage("GUID123", "Demolish", getPlayerSteam(orange), getPlayerEpic(blue))
             )!!,
+            RLAMetaData(matchGUID = "123", overtime = false, remaining = 100.seconds),
         )
         statRepository.addStatMessage(
             Instant.parse("2020-01-01T12:00:01Z"),
@@ -49,6 +52,7 @@ class StatRepositoryTest {
                     getPlayerSteam(orange),
                 )
             )!!,
+            RLAMetaData(matchGUID = "123", overtime = false, remaining = 90.seconds),
         )
 
         statRepository.addStatMessage(
@@ -56,6 +60,7 @@ class StatRepositoryTest {
             parseStatMessage(
                 JsonStatMessage("OTHER", "Demolish", getBot(blue), getPlayerPlaystation(orange))
             )!!,
+            RLAMetaData(matchGUID = "123", overtime = false, remaining = 80.seconds),
         )
 
         val result = statRepository.getStatHistory("GUID123")

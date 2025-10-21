@@ -160,6 +160,6 @@ fun Application.moduleWithDependencies(
     val themeService = ThemeService(configs, announcementHandler)
     configureRouting(client, themeService)
     themeRoutes(themeService)
-    actionRoutes(statRepository, gameTimeTrackerService)
+    actionRoutes(statRepository)
     configureSSE()
 }

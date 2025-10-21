@@ -5,11 +5,13 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameEvents
 import nl.vanalphenict.model.JsonGameEventMessage
+import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.parseGameEventMessage
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.support.getBlueTeam
@@ -57,7 +59,11 @@ class MatchStartTest {
         repository: GameEventRepository,
     ): Set<Announcement> {
         val announcements = this.interpret(event, Instant.parse(ts))
-        repository.addGameEventMessage(Instant.parse(ts), event)
+        repository.addGameEventMessage(
+            Instant.parse(ts),
+            event,
+            metadata = RLAMetaData(matchGUID = "123", overtime = false, remaining = 180.seconds),
+        )
         return announcements
     }
 }
