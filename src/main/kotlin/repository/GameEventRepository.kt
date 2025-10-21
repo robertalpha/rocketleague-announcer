@@ -6,19 +6,19 @@ import nl.vanalphenict.model.RLAMetaData
 
 class GameEventRepository {
 
-    data class StoredMetaData(
+    data class GameEventRecord(
         val timestamp: Instant,
         val gameEventMessage: GameEventMessage,
         val metadataL: RLAMetaData,
     )
 
-    private val gameEventHistory = mutableListOf<StoredMetaData>()
+    private val gameEventHistory = mutableListOf<GameEventRecord>()
 
     fun addGameEventMessage(now: Instant, msg: GameEventMessage, metadata: RLAMetaData) {
-        gameEventHistory.add(StoredMetaData(now, msg, metadata))
+        gameEventHistory.add(GameEventRecord(now, msg, metadata))
     }
 
-    fun getGameEventHistory(matchGuid: String): List<StoredMetaData> {
+    fun getGameEventHistory(matchGuid: String): List<GameEventRecord> {
         return gameEventHistory.filter { (_, message) -> matchGuid == message.matchGUID }
     }
 

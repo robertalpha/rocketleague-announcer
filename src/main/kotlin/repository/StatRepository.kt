@@ -1,5 +1,7 @@
 package nl.vanalphenict.repository
 
+import kotlin.collections.filter
+import kotlin.collections.sortedByDescending
 import kotlin.time.Instant
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatEvents
@@ -7,30 +9,30 @@ import nl.vanalphenict.model.StatMessage
 
 class StatRepository {
 
-    data class StoredStatMessage(
+    data class StatMessageRecord(
         val timestamp: Instant,
         val message: StatMessage,
         val metatada: RLAMetaData,
     )
 
     companion object {
-        fun List<StoredStatMessage>.filterType(messageType: StatEvents) =
+        fun List<StatMessageRecord>.filterType(messageType: StatEvents) =
             this.filter { messageType == it.message.event }
 
-        fun List<StoredStatMessage>.sortedDescending() = this.sortedByDescending { it.timestamp }
+        fun List<StatMessageRecord>.sortedDescending() = this.sortedByDescending { it.timestamp }
     }
 
-    private val statHistory = mutableListOf<StoredStatMessage>()
+    private val statHistory = mutableListOf<StatMessageRecord>()
 
     fun addStatMessage(timestamp: Instant, message: StatMessage, metatada: RLAMetaData) {
-        statHistory.add(StoredStatMessage(timestamp, message, metatada))
+        statHistory.add(StatMessageRecord(timestamp, message, metatada))
     }
 
-    fun getStatHistory(matchGuid: String): List<StoredStatMessage> {
+    fun getStatHistory(matchGuid: String): List<StatMessageRecord> {
         return statHistory.filter { (_, message) -> matchGuid == message.matchGUID }
     }
 
-    fun getLatestMatch(): List<StoredStatMessage> {
+    fun getLatestMatch(): List<StatMessageRecord> {
         return statHistory
             .maxByOrNull { it.timestamp }
             ?.message

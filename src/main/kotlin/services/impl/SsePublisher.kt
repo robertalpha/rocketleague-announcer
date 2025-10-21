@@ -19,7 +19,7 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
 
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         log.trace { "SSE HANDLER handeling: ${msg.event.eventName}" }
-        val actionItem = StatRepository.StoredStatMessage(timeService.now(), msg, metaData)
+        val actionItem = StatRepository.StatMessageRecord(timeService.now(), msg, metaData)
         val htmlText =
             createHTML().body { actionListItem(actionItem, metaData.remaining, metaData.overtime) }
         runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }

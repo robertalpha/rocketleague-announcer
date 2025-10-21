@@ -15,7 +15,7 @@ import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
 
 fun HtmlBlockTag.actionListItem(
-    actionItem: StatRepository.StoredStatMessage,
+    actionItem: StatRepository.StatMessageRecord,
     timeLeft: Duration,
     overtime: Boolean,
 ) {
