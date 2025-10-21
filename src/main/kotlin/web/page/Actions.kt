@@ -2,9 +2,9 @@ package nl.vanalphenict.web.page
 
 import kotlinx.html.DIV
 import kotlinx.html.classes
+import kotlinx.html.div
 import kotlinx.html.id
 import kotlinx.html.ul
-import nl.vanalphenict.web.view.li
 
 fun DIV.renderActions() {
 
@@ -35,7 +35,7 @@ fun DIV.renderActions() {
         attributes["hx-swap"] = "afterbegin"
         attributes["hx-target"] = "#actionlist"
 
-        li {
+        div {
             attributes["hx-get"] = "/actions"
             attributes["hx-trigger"] = "load"
 
