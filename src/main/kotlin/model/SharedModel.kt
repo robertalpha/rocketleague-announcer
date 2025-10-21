@@ -40,7 +40,6 @@ enum class StatEvents(val eventName: String) {
     SAVE("Save"),
     SHOT("Shot"),
     WIN("Win"),
-
     BOOST_USED("BoostUsed"),
     DODGES("Dodges"),
     AERIAL_HIT("AerialHit"),
