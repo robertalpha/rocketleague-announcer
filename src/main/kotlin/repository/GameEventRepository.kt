@@ -2,16 +2,23 @@ package nl.vanalphenict.repository
 
 import kotlin.time.Instant
 import nl.vanalphenict.model.GameEventMessage
+import nl.vanalphenict.model.RLAMetaData
 
 class GameEventRepository {
 
-    private val gameEventHistory = mutableListOf<Pair<Instant, GameEventMessage>>()
+    data class StoredMetaData(
+        val timestamp: Instant,
+        val gameEventMessage: GameEventMessage,
+        val metadataL: RLAMetaData,
+    )
 
-    fun addGameEventMessage(now: Instant, msg: GameEventMessage) {
-        gameEventHistory.add(Pair(now, msg))
+    private val gameEventHistory = mutableListOf<StoredMetaData>()
+
+    fun addGameEventMessage(now: Instant, msg: GameEventMessage, metadata: RLAMetaData) {
+        gameEventHistory.add(StoredMetaData(now, msg, metadata))
     }
 
-    fun getGameEventHistory(matchGuid: String): List<Pair<Instant, GameEventMessage>> {
+    fun getGameEventHistory(matchGuid: String): List<StoredMetaData> {
         return gameEventHistory.filter { (_, message) -> matchGuid == message.matchGUID }
     }
 

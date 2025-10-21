@@ -1,7 +1,6 @@
 package nl.vanalphenict.web.view
 
 import kotlin.time.Duration
-import kotlin.time.Instant
 import kotlinx.html.HtmlBlockTag
 import kotlinx.html.LI
 import kotlinx.html.classes
@@ -12,16 +11,35 @@ import kotlinx.html.span
 import kotlinx.html.style
 import kotlinx.html.visit
 import nl.vanalphenict.model.KillMessage
-import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
 
 fun HtmlBlockTag.actionListItem(
-    actionItem: Pair<Instant, StatMessage>,
+    actionItem: StatRepository.StoredStatMessage,
     timeLeft: Duration,
     overtime: Boolean,
 ) {
     li {
-        classes = setOf("py-3", "sm:py-4")
+        // no icons are associated with these:
+        val hidden =
+            actionItem.message.event.eventName in
+                setOf(
+                    "BoostPickups",
+                    "SmallBoostsCollected",
+                    "BoostUsed",
+                    "Dodges",
+                    "AerialHit",
+                    "BigBoostsCollected",
+                    "InfectedPlayersDefeated",
+                    "TimePlayed",
+                    "FastestGoal",
+                    "DistanceDrivenMeters",
+                    "DistanceFlown",
+                    "DoubleGrapple",
+                    "MaxDodgeStreak",
+                )
+
+        classes = if (hidden) setOf("hidden") else setOf("py-3", "sm:py-4")
 
         div {
             classes = setOf("flex", "items-center", "space-x-4", "rtl:space-x-reverse>")
@@ -29,12 +47,12 @@ fun HtmlBlockTag.actionListItem(
                 classes = setOf("shrink-0")
                 img {
                     classes = setOf("w-8", "h-8", "rounded-full")
-                    src = "web/icons/${actionItem.second.event.eventName}.webp"
+                    src = "web/icons/${actionItem.message.event.eventName}.webp"
                 }
             }
             div {
                 classes = setOf("flex-1", "min-w-0")
-                val msg = actionItem.second
+                val msg = actionItem.message
                 p {
                     classes =
                         setOf(

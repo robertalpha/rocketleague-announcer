@@ -6,6 +6,7 @@ import kotlinx.html.body
 import kotlinx.html.stream.createHTML
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.EventHandler
 import nl.vanalphenict.utility.TimeService
 import nl.vanalphenict.web.SSE_EVENT_TYPE
@@ -17,14 +18,10 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
     private val log = KotlinLogging.logger {}
 
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
-        if (msg.event.showInUI) {
-            log.trace { "SSE HANDLER" }
-            val actionItem = Pair(timeService.now(), msg)
-            val htmlText =
-                createHTML().body {
-                    actionListItem(actionItem, metaData.remaining, metaData.overtime)
-                }
-            runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
-        }
+        log.trace { "SSE HANDLER handeling: ${msg.event.eventName}" }
+        val actionItem = StatRepository.StoredStatMessage(timeService.now(), msg, metaData)
+        val htmlText =
+            createHTML().body { actionListItem(actionItem, metaData.remaining, metaData.overtime) }
+        runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
     }
 }

@@ -15,10 +15,12 @@ class EventPersister(
 ) : EventHandler {
 
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
-        synchronized(this) { statRepository.addStatMessage(timeService.now(), msg) }
+        synchronized(this) { statRepository.addStatMessage(timeService.now(), msg, metaData) }
     }
 
     override fun handleGameEvent(msg: GameEventMessage, metaData: RLAMetaData) {
-        synchronized(this) { gameEventRepository.addGameEventMessage(timeService.now(), msg) }
+        synchronized(this) {
+            gameEventRepository.addGameEventMessage(timeService.now(), msg, metaData)
+        }
     }
 }
