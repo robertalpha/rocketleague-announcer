@@ -94,17 +94,22 @@ ul {
 }
 
 .actionItem div.info {
-    padding: 10px;
+    overflow: hidden;
+    padding: 5px 5px 0;
 }
 
 .actionItem span.name {
     font-size: 20px;
-    line-height: 15px;
     font-weight: bold;
+    display: block;
+    margin-top: 0;
+    margin-bottom: -25px;
 }
 
 .actionItem span.info {
     color: lightgrey;
+    display: block;
+    margin-bottom: -20px;
 }
 
 .actionItem span.info b {
