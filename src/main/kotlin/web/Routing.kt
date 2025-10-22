@@ -30,14 +30,6 @@ fun Application.configureRouting(client: MessagingClient, themeService: ThemeSer
     routing {
         get("/") {
             call.respondHtmlTemplate(Root.LayoutTemplate(themeService)) {
-                header { +"RocketLeage Announcer" }
-                content {
-                    articleTitle { +"Hello from Ktor!" }
-                    list {
-                        item { +"One" }
-                        item { +"Two" }
-                    }
-                }
             }
         }
 

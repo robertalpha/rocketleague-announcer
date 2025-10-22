@@ -1,0 +1,140 @@
+body {
+    font-family: "Oxanium", sans-serif;
+    font-size: 15px;
+    background: #222;
+    color: white;
+    text-align: center;
+}
+
+h1 {
+    font-size: 40px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    transform: skewX(-15deg);
+    filter: drop-shadow(0 0 10px black);
+
+}
+
+div.select {
+    margin: auto;
+    width: 500px;
+}
+
+select {
+    outline: none;
+    appearance: none;
+    background-color: #333;
+    background-image: url("caret-down.png");
+    background-size: 10px;
+    background-repeat: no-repeat;
+    background-position: right 5px center;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    padding-right: 20px;
+    color: white;
+    font-family: inherit;
+    font-size: 20px;
+}
+
+ul {
+    padding: 0;
+}
+
+.actionItem {
+    margin: auto;
+    display: block;
+    text-align: left;
+    height: 64px;
+    background: linear-gradient(0deg, #444 0%, #999 100%);
+
+    width: 500px;
+    padding: 0;
+
+    border-radius: 10px;
+    margin-bottom: 5px;
+
+    clear: both;
+}
+
+.actionItem span {
+    filter: drop-shadow(0 0 2px black);
+}
+
+.actionItem img {
+    float: left;
+    padding: 4px 5px;
+}
+
+.actionItem .accent {
+    transform: skewX(-15deg);
+    float: left;
+    padding: 0 5px;
+    height: 100%;
+    margin-right: 10px;
+}
+
+.actionItem .team {
+    padding: 0 5px;
+    height: 100%;
+    text-align: center;
+    font-weight: bold;
+    overflow: hidden;
+    width: 80px;
+}
+
+.actionItem .team span {
+    padding: 20px 5px;
+    font-size: 20px;
+
+    vertical-align: center;
+    display: inline-block;
+    line-height: normal;
+}
+
+.actionItem div.info {
+    padding: 10px;
+}
+
+.actionItem span.name {
+    font-size: 20px;
+    line-height: 15px;
+    font-weight: bold;
+}
+
+.actionItem span.info {
+    color: lightgrey;
+}
+
+.actionItem span.info b {
+    color: white;
+    font-weight: normal;
+}
+
+.actionItem span.announcements {
+    font-size: 8px;
+    line-height: 15px;
+    color: lightgray;
+    padding:0;
+}
+
+.actionItem span.announcements b {
+    color: white;
+    font-weight: normal;
+}
+
+.actionItem span.time {
+    float: right;
+    padding-right: 15px;
+    padding-top: 15px;
+    padding-bottom: 10px;
+}
+
+.actionItem span.time span{
+    color: red;
+}
+
+.hidden {
+    display: none;
+}
