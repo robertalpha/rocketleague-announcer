@@ -86,6 +86,12 @@ class Team(src: JsonTeam, srcPlayer: JsonPlayer?) {
             ORANGE -> "TEAM ORANGE"
             else -> "Unknown"
         }
+    val tag: String =
+        CLUB_MAP[src.clubId]?.tag ?: when (primaryColor) {
+            BLUE -> "BLUE"
+            ORANGE -> "ORNG"
+            else -> "???"
+        }
     val players: List<Player> =
         (sequenceOf(srcPlayer) + (src.players?.asSequence() ?: emptySequence()))
             .filterNotNull()
