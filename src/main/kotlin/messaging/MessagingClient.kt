@@ -16,6 +16,8 @@ import org.eclipse.paho.client.mqttv3.MqttClient
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+import kotlin.io.encoding.Base64
+import kotlin.random.Random
 
 class MessagingClient(
     eventHandler: EventHandler,
@@ -40,7 +42,7 @@ class MessagingClient(
     private val log = KotlinLogging.logger {}
 
     init {
-        val clientId = "rouncerdouncer"
+        val clientId = "rla_announcer_" + Base64.encode(Random.nextBytes(3))
 
         client = MqttClient(serverAddress, clientId, MemoryPersistence())
         val options = MqttConnectOptions()
@@ -72,7 +74,6 @@ class MessagingClient(
             object : MqttCallback {
                 @Throws(Exception::class)
                 override fun messageArrived(topic: String, message: MqttMessage) {
-
                     try {
                         when (topic) {
                             TOPIC_STAT -> {
