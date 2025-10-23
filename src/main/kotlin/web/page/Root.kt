@@ -14,7 +14,11 @@ import kotlinx.html.script
 import kotlinx.html.select
 import kotlinx.html.styleLink
 import kotlinx.html.ul
+import nl.vanalphenict.model.JsonTeam
+import nl.vanalphenict.model.Team
 import nl.vanalphenict.services.ThemeService
+import nl.vanalphenict.web.view.scoreBoard
+import kotlin.time.Duration.Companion.minutes
 
 class Root {
 
@@ -79,6 +83,11 @@ class Root {
                     attributes["hx-target"] = "#actionlist"
                 }
 
+                div { id = "fader" }
+
+                scoreBoard(getEmptyTeam(),getEmptyTeam(),5.minutes,false)
+
+
                 val htmx = { e: String -> "assets/htmx.org/dist/$e" }
                 script(src = htmx("htmx.js")) {}
                 script(src = htmx("ext/json-enc.js")) {}
@@ -87,3 +96,9 @@ class Root {
         }
     }
 }
+
+fun getEmptyTeam() = Team (
+    JsonTeam(
+        clubId = -1,
+        score = 0),null)
+
