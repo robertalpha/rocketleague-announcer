@@ -81,11 +81,12 @@ class Team(src: JsonTeam, srcPlayer: JsonPlayer?) {
     val primaryColor: Color = src.primaryColor?.let { toColor(it) } ?: Color.BLACK
     val secondaryColor: Color = src.secondaryColor?.let { toColor(it) } ?: Color.WHITE
     val name: String =
-        CLUB_MAP[src.clubId]?.name ?: when (primaryColor) {
-            BLUE -> "TEAM BLUE"
-            ORANGE -> "TEAM ORANGE"
-            else -> "Unknown"
-        }
+        CLUB_MAP[src.clubId]?.name
+            ?: when (primaryColor) {
+                BLUE -> "TEAM BLUE"
+                ORANGE -> "TEAM ORANGE"
+                else -> "Unknown"
+            }
     val players: List<Player> =
         (sequenceOf(srcPlayer) + (src.players?.asSequence() ?: emptySequence()))
             .filterNotNull()
