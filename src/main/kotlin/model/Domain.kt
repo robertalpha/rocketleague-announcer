@@ -78,8 +78,8 @@ class Player(src: JsonPlayer, val team: Team) {
 class Team(src: JsonTeam, srcPlayer: JsonPlayer?) {
     val homeTeam: Boolean = src.homeTeam ?: false
     val score: Int = src.score ?: 0
-    val primaryColor: Color = src.primaryColor?.let { toColor(it) } ?: Color.BLACK
-    val secondaryColor: Color = src.secondaryColor?.let { toColor(it) } ?: Color.WHITE
+    val primaryColor: Color = src.primaryColor?.let { toColor(it) } ?: GREY
+    val secondaryColor: Color = src.secondaryColor?.let { toColor(it) } ?: DARK_GREY
     val name: String =
         CLUB_MAP[src.clubId]?.name ?: when (primaryColor) {
             BLUE -> "TEAM BLUE"
@@ -103,3 +103,5 @@ fun toColor(src: JsonColor): Color = Color(src.R, src.G, src.B)
 
 val ORANGE = Color(194, 100, 24)
 val BLUE = Color(24, 115, 255)
+val GREY = Color(128, 128, 128)
+val DARK_GREY = Color(229, 229, 229)
