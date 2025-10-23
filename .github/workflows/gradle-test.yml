@@ -22,3 +22,9 @@ jobs:
       run: ./gradlew test
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - uses: gradle/actions/setup-gradle@v3
+    - name: Run spotless check with Gradle
+      run: ./gradlew spotlessKotlinCheck
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
