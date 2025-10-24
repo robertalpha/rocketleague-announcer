@@ -2,7 +2,9 @@ package nl.vanalphenict.model
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.Color
+import kotlin.Boolean
 import kotlin.String
+import kotlin.collections.get
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 

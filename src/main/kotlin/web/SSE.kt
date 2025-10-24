@@ -17,12 +17,9 @@ data class SseEvent(val data: String, val event: String? = null, val id: String?
 enum class SSE_EVENT_TYPE {
     NEW_ACTION,
     SWITCH_THEME,
-    HOME_SCORE,
-    HOME_NAME,
-    AWAY_SCORE,
-    AWAY_NAME,
-    GAME_TIME,
-    TEAM_COLORS;
+    HOME_TEAM,
+    AWAY_TEAM,
+    GAME_TIME;
 
     fun asString() = this.name.lowercase()
 }

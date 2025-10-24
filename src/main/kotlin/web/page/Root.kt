@@ -21,7 +21,6 @@ import nl.vanalphenict.services.Theme
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import nl.vanalphenict.web.view.scoreBoard
-import nl.vanalphenict.web.view.teamColorStyle
 
 class Root {
 
@@ -35,7 +34,6 @@ class Root {
                     href = "https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap",
                     rel = "stylesheet"
                 )
-                teamColorStyle()
             }
             body {
                 attributes["hx-ext"] = "sse"
