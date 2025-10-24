@@ -108,13 +108,13 @@ ul {
     font-weight: bold;
     display: block;
     margin-top: 0;
-    margin-bottom: -25px;
+    margin-bottom: -20px;
 }
 
 .actionItem span.info {
     color: lightgrey;
     display: block;
-    margin-bottom: -20px;
+    margin-bottom: -25px;
 }
 
 .actionItem span.info b {
