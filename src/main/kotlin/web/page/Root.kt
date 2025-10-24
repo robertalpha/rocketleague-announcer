@@ -4,6 +4,7 @@ import io.ktor.server.html.Template
 import kotlinx.html.HTML
 import kotlinx.html.HtmlBlockTag
 import kotlinx.html.body
+import kotlinx.html.button
 import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.h1
@@ -12,6 +13,7 @@ import kotlinx.html.id
 import kotlinx.html.option
 import kotlinx.html.script
 import kotlinx.html.select
+import kotlinx.html.span
 import kotlinx.html.stream.createHTML
 import kotlinx.html.styleLink
 import kotlinx.html.ul
@@ -45,7 +47,7 @@ class Root {
                 div {
                     classes = setOf("select")
                         +"Announcer theme: "
-                    themeSelect(themeService.themes, themeService.selectedTheme)
+                    themeElement(themeService.themes, themeService.selectedTheme)
                 }
 
                 ul {
@@ -69,8 +71,35 @@ class Root {
     }
 }
 
-fun themeSelectHtml(themes: List<Theme>, selectedTheme: Theme) =
-    createHTML().body { themeSelect(themes, selectedTheme) }
+fun themeHtml(themes: List<Theme>, selectedTheme: Theme) =
+    createHTML().body { themeElement(themes, selectedTheme) }
+
+fun HtmlBlockTag.themeElement(themes: List<Theme>, selectedTheme: Theme) {
+    if (themes.size < 4)
+        themeButtons(themes, selectedTheme)
+    else
+        themeSelect(themes, selectedTheme)
+}
+
+fun HtmlBlockTag.themeButtons(themes: List<Theme>, selectedTheme: Theme) {
+    div {
+        attributes["hx-swap"] = "outerHTML"
+        attributes["sse-swap"] = SSE_EVENT_TYPE.SWITCH_THEME.asString()
+        id = "announcerButtons"
+        themes.forEach { theme ->
+            button {
+                classes = if (selectedTheme == theme) setOf("selected") else emptySet()
+                attributes["hx-post"] = "/themes"
+                attributes["hx-vals"] = "{\"announcerSelect\":\"${theme.id}\"}"
+                attributes["hx-swap"] = "none"
+
+                span {
+                    +theme.title
+                }
+            }
+        }
+    }
+}
 
 fun HtmlBlockTag.themeSelect(themes: List<Theme>, selectedTheme: Theme) {
     select {

@@ -16,7 +16,6 @@ import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.id
 import kotlinx.html.role
-import kotlinx.html.stream.createHTML
 import kotlinx.html.style
 import nl.vanalphenict.services.Theme
 import nl.vanalphenict.services.ThemeService
@@ -27,13 +26,12 @@ fun Application.themeRoutes(themeService: ThemeService) {
     routing {
         // select a theme
         post("/themes") {
-            val themeId =
-                call.receive<String>().also {
-                    val id = it.substringAfter("=")
-                    themeService.selectTheme(id.toInt())
-                }
+            call.receive<String>().also {
+                val id = it.substringAfter("=")
+                themeService.selectTheme(id.toInt())
+            }
 
-            val htmlText = themeSelectHtml(themeService.themes, themeService.selectedTheme)
+            val htmlText = themeHtml(themeService.themes, themeService.selectedTheme)
             triggerUpdateSSE(SSE_EVENT_TYPE.SWITCH_THEME, htmlText)
             call.respond(HttpStatusCode.OK, message = htmlText)
         }

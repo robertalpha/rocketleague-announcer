@@ -26,7 +26,7 @@ div.select {
     width: 500px;
 }
 
-select {
+div.select select {
     outline: none;
     appearance: none;
     background-color: #333;
@@ -36,11 +36,38 @@ select {
     background-position: right 5px center;
     border: none;
     border-radius: 5px;
-    padding: 5px;
-    padding-right: 20px;
+    padding: 5px 20px 5px 5px;
     color: white;
     font-family: inherit;
     font-size: 20px;
+}
+
+div.select button {
+    font-family: "Oxanium", sans-serif;
+    background: linear-gradient(0deg, #444 0%, #999 100%);
+    color:white;
+    border: 0;
+    font-size: 20px;
+    padding:5px 10px;
+    margin: 5px 2px;
+    border-radius: 5px;
+}
+
+div.select button.selected {
+    background: linear-gradient(0deg,#00184D 0%, #5298DD 100%);
+    color:white;
+}
+
+div.select button span {
+    filter: drop-shadow(0 0 2px black);
+}
+
+div.select button:hover {
+    filter: drop-shadow(0 0 2px white);
+}
+
+div.select button:active {
+    background: linear-gradient(0deg, #222 0%, #777 100%);
 }
 
 ul {

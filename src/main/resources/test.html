@@ -28,16 +28,28 @@ div.scoreboard div.right div.team {
 </style>
 <body>
 <h1>Rocket League Announcer</h1>
+
 <div class="select">
     <label for="announcerSelect">Announcer theme:</label>
     <select id="announcerSelect">
-        <option value="fps">FPD</option>
-        <option value="JdeP">JdeP</option>
+        <option value="fps">Old-school arena FPS announcer</option>
+        <option value="duke">Duke Nukem</option>
         <option selected value="u">Unreal</option>
         <option value="q">Quake</option>
         <option value="u+q">Quake &amp; Unreal</option>
     </select>
 </div>
+
+
+
+<div class="select">
+    <label for="announcerSelect">Announcer theme:</label>
+    <div>
+        <button value="fps"><span>Old-school arena FPS announcer</span></button>
+        <button class="selected" value="u"><span>Unreal</span></button>
+    </div>
+</div>
+
 
 
 <ul>
