@@ -5,6 +5,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.html.body
 import kotlinx.html.stream.createHTML
 import nl.vanalphenict.model.GameEventMessage
+import nl.vanalphenict.model.GameEvents
 import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.RLAMetaData
@@ -17,6 +18,7 @@ import nl.vanalphenict.web.SSE_EVENT_TYPE
 import nl.vanalphenict.web.triggerUpdateSSE
 import nl.vanalphenict.web.view.actionListItem
 import nl.vanalphenict.web.view.emptyTeam
+import nl.vanalphenict.web.view.scoreBoardHtml
 import nl.vanalphenict.web.view.teamInfoHtml
 import nl.vanalphenict.web.view.timeRemainingHtml
 
@@ -46,6 +48,12 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
     }
 
     override fun handleGameEvent(msg: GameEventMessage, metaData: RLAMetaData) {
+        if (msg.gameEvent == GameEvents.TEAMS_CREATED) {
+            runBlocking {
+                triggerUpdateSSE(SSE_EVENT_TYPE.SCORE_BOARD, scoreBoardHtml())
+            }
+
+        }
         if (msg.teams.size != 2) return
         if (msg.teams[0].homeTeam)
             updateTeams(msg.matchGUID, Game(msg.teams[0], msg.teams[1]))

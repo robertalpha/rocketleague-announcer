@@ -26,19 +26,20 @@ fun HtmlBlockTag.timeRemaining(remaining: Duration?, overtime: Boolean = false) 
     }
 }
 
-
+fun scoreBoardHtml(homeTeam: Team = emptyTeam(true), awayTeam: Team = emptyTeam(false)) =
+    createHTML().body { scoreBoard(homeTeam, awayTeam) }
 
 fun HtmlBlockTag.scoreBoard(homeTeam: Team = emptyTeam(true), awayTeam: Team = emptyTeam(false)) = div {
+    attributes["hx-swap"] = "outerHTML"
+    attributes["sse-swap"] = SSE_EVENT_TYPE.SCORE_BOARD.asString()
+    classes = setOf("scoreboard")
     div {
-        classes = setOf("scoreboard")
-        div {
-            classes = setOf("center")
-            +"VS"
-            timeRemaining(null)
-        }
-        renderTeamInfo(homeTeam)
-        renderTeamInfo(awayTeam)
+        classes = setOf("center")
+        +"VS"
+        timeRemaining(null)
     }
+    renderTeamInfo(homeTeam)
+    renderTeamInfo(awayTeam)
 }
 
 fun teamInfoHtml(team: Team) =
