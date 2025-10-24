@@ -17,12 +17,20 @@ data class SseEvent(val data: String, val event: String? = null, val id: String?
 enum class SSE_EVENT_TYPE {
     NEW_ACTION,
     SWITCH_THEME,
+    HOME_SCORE,
+    HOME_NAME,
+    AWAY_SCORE,
+    AWAY_NAME,
+    GAME_TIME,
+    TEAM_COLORS;
+
+    fun asString() = this.name.lowercase()
 }
 
 val sseFlow = MutableSharedFlow<SseEvent>()
 
 suspend fun triggerUpdateSSE(event: SSE_EVENT_TYPE, html: String) {
-    sseFlow.emit(SseEvent(event = event.name.lowercase(), data = html))
+    sseFlow.emit(SseEvent(event = event.asString(), data = html))
 }
 
 fun Application.configureSSE() {

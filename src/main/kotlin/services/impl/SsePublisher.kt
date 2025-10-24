@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.runBlocking
 import kotlinx.html.body
 import kotlinx.html.stream.createHTML
+import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.StatRepository
@@ -12,6 +13,7 @@ import nl.vanalphenict.utility.TimeService
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import nl.vanalphenict.web.triggerUpdateSSE
 import nl.vanalphenict.web.view.actionListItem
+import nl.vanalphenict.web.view.timeRemaining
 
 class SsePublisher(val timeService: TimeService) : EventHandler {
 
@@ -23,5 +25,12 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
         val htmlText =
             createHTML().body { actionListItem(actionItem, metaData.remaining, metaData.overtime) }
         runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
+    }
+
+    override fun handleGameTime(msg: GameTimeMessage) {
+        val htmlText = createHTML().body { timeRemaining(msg.remaining, msg.overtime)}
+        runBlocking {
+            triggerUpdateSSE(SSE_EVENT_TYPE.GAME_TIME, htmlText)
+        }
     }
 }

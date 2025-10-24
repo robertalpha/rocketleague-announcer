@@ -33,10 +33,9 @@ fun Application.themeRoutes(themeService: ThemeService) {
                     themeService.selectTheme(id.toInt())
                 }
 
-            val htmlText =
-                createHTML().div { renderThemes(themeService.themes, themeService.selectedTheme) }
+            val htmlText = themeSelectHtml(themeService.themes, themeService.selectedTheme)
             triggerUpdateSSE(SSE_EVENT_TYPE.SWITCH_THEME, htmlText)
-            call.respond(HttpStatusCode.OK)
+            call.respond(HttpStatusCode.OK, message = htmlText)
         }
 
         // read themes
