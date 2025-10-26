@@ -51,13 +51,37 @@ class Root {
                     themeElement(themeService.themes, themeService.selectedTheme)
                 }
 
-                ul {
-                    id = "actionlist"
-                    attributes["sse-swap"] = "new_action"
-                    attributes["hx-swap"] = "afterbegin"
-                    attributes["hx-target"] = "#actionlist"
+                div {
+                    classes = setOf("content")
+                    div {
+                        classes = setOf("optional")
+                        button {
+                            span {
+                                +"Aap"
+                            }
+                        }
+                        button {
+                            span {
+                                +"Noot"
+                            }
+                        }
+                        button {
+                            span {
+                                +"Mies"
+                            }
+                        }
+                    }
+                    ul {
+                        id = "actionlist"
+                        attributes["sse-swap"] = "new_action"
+                        attributes["hx-swap"] = "afterbegin"
+                        attributes["hx-target"] = "#actionlist"
+                    }
+                    div {
+                        classes = setOf("veryOptional")
+                        + "WHAT A WIDE SCREEN!!!!"
+                    }
                 }
-
                 div { id = "fader" }
 
                 scoreBoard()
