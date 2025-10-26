@@ -9,6 +9,7 @@ import kotlinx.html.stream.createHTML
 import kotlinx.html.style
 import nl.vanalphenict.model.JsonTeam
 import nl.vanalphenict.model.Team
+import nl.vanalphenict.model.parseTeam
 import nl.vanalphenict.utility.ColorUtils.Companion.toHexString
 import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
 import nl.vanalphenict.web.SSE_EVENT_TYPE
@@ -84,10 +85,6 @@ fun HtmlBlockTag.renderTeamInfo(team: Team) = div {
     }
 }
 
-
-fun emptyTeam(homeTeam: Boolean) = Team (
-    JsonTeam(
-        homeTeam = homeTeam,
-        clubId = -1,
-        score = -1),null)
-
+// FIXME replace since Team is now data class
+fun emptyTeam(homeTeam: Boolean) =
+    parseTeam(JsonTeam(homeTeam = homeTeam, clubId = -1, score = -1), null)

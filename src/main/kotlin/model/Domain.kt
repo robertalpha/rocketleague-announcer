@@ -4,16 +4,17 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.Color
 import kotlin.Boolean
 import kotlin.String
+import kotlin.collections.List
 import kotlin.collections.get
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 private val log = KotlinLogging.logger {}
 
-fun parseTeam(src: JsonTeam): Team = Team(src, null)
+fun parseTeam(src: JsonTeam): Team = parseTeam(src, null)
 
 fun parsePlayer(src: JsonPlayer): Player {
-    val team = src.team?.let { Team(it, src) }
+    val team = src.team?.let { parseTeam(it, src) }
     return team?.players?.first() ?: throw RuntimeException("Unable to parse player")
 }
 
@@ -50,6 +51,42 @@ fun parseStatMessage(src: JsonStatMessage): StatMessage? {
     else StatMessage(matchGUID = src.matchGUID, event = event, player = parsePlayer(src.player))
 }
 
+fun parsePlayer(src: JsonPlayer, team: Team) =
+    Player(id = src.botSaveId(), name = src.name, bot = src.isBot(), team = team)
+
+fun parseTeam(src: JsonTeam, srcPlayer: JsonPlayer?): Team {
+    val primaryColor = src.primaryColor?.let { toColor(it) } ?: GREY
+    val secondaryColor: Color = src.secondaryColor?.let { toColor(it) } ?: DARK_GREY
+    val players: MutableList<Player> = ArrayList()
+    val result =
+        Team(
+            homeTeam = src.homeTeam ?: false,
+            score = src.score ?: 0,
+            primaryColor = primaryColor,
+            secondaryColor = secondaryColor,
+            name =
+                CLUB_MAP[src.clubId]?.name
+                    ?: when (primaryColor) {
+                        BLUE -> "TEAM BLUE"
+                        ORANGE -> "TEAM ORANGE"
+                        else -> "Opponent"
+                    },
+            tag =
+                CLUB_MAP[src.clubId]?.tag
+                    ?: when (primaryColor) {
+                        BLUE -> "BLUE"
+                        ORANGE -> "ORNG"
+                        else -> "TAG"
+                    },
+            players = players,
+        )
+    (sequenceOf(srcPlayer) + (src.players?.asSequence() ?: emptySequence()))
+        .filterNotNull()
+        .map { parsePlayer(it, result) }
+        .forEach { players.add(it) }
+    return result
+}
+
 data class GameTimeMessage(val matchGUID: String, val remaining: Duration, val overtime: Boolean)
 
 data class GameEventMessage(
@@ -71,35 +108,17 @@ data class KillMessage(
     val victim: Player,
 ) : StatMessage(matchGUID, event, player)
 
-class Player(src: JsonPlayer, val team: Team) {
-    val id: String = src.botSaveId()
-    val name: String = src.name
-    val bot: Boolean = src.isBot()
-}
+data class Player(val id: String, val name: String, val bot: Boolean, val team: Team)
 
-class Team(src: JsonTeam, srcPlayer: JsonPlayer?) {
-    val homeTeam: Boolean = src.homeTeam ?: false
-    val score: Int = src.score ?: 0
-    val primaryColor: Color = src.primaryColor?.let { toColor(it) } ?: GREY
-    val secondaryColor: Color = src.secondaryColor?.let { toColor(it) } ?: DARK_GREY
-    val name: String =
-        CLUB_MAP[src.clubId]?.name ?: when (primaryColor) {
-            BLUE -> "TEAM BLUE"
-            ORANGE -> "TEAM ORANGE"
-            else -> "Unknown"
-        }
-    val tag: String =
-        CLUB_MAP[src.clubId]?.tag ?: when (primaryColor) {
-            BLUE -> "BLUE"
-            ORANGE -> "ORNG"
-            else -> "???"
-        }
-    val players: List<Player> =
-        (sequenceOf(srcPlayer) + (src.players?.asSequence() ?: emptySequence()))
-            .filterNotNull()
-            .map { Player(it, this) }
-            .toList()
-}
+data class Team(
+    val homeTeam: Boolean,
+    val score: Int,
+    val primaryColor: Color,
+    val secondaryColor: Color,
+    val name: String,
+    val tag: String,
+    val players: List<Player>,
+)
 
 fun toColor(src: JsonColor): Color = Color(src.R, src.G, src.B)
 
