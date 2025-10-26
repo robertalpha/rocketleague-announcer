@@ -1,9 +1,17 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
 body {
     font-family: "Oxanium", sans-serif;
     font-size: 15px;
     background: #222;
     color: white;
     text-align: center;
+    display: flex; flex-direction: column;
 }
 
 h1 {
@@ -42,7 +50,7 @@ div.select select {
     font-size: 20px;
 }
 
-div.select button {
+button {
     font-family: "Oxanium", sans-serif;
     background: linear-gradient(0deg, #444 0%, #999 100%);
     color:white;
@@ -53,29 +61,62 @@ div.select button {
     border-radius: 5px;
 }
 
-div.select button.selected {
+button.selected {
     background: linear-gradient(0deg,#00184D 0%, #5298DD 100%);
     color:white;
 }
 
-div.select button span {
+button span {
     filter: drop-shadow(0 0 2px black);
 }
 
-div.select button:hover {
+button:hover {
     filter: drop-shadow(0 0 2px white);
 }
 
-div.select button:active {
+button:active {
     background: linear-gradient(0deg, #222 0%, #777 100%);
 }
 
-ul {
+button.big {
+    float: left;
+    display: block;
+    margin-right: 5px;
+}
+
+button.big span {
+    font-size: 55px;
+    filter: drop-shadow(0 0 5px black);
+}
+
+div.content {
+    width: 1000px;
     padding: 0;
+    margin: auto;
+    text-align: justify;
+    height: 100%;
+    overflow: hidden;
+}
+
+div.content ul, div.content div.optional, div.content div.veryOptional {
+    display: inline;
+    margin: 0;
+    width: 500px;
+    padding: 0;
+    float: right;
+    height: 100%;
+    overflow: scroll;
+}
+
+div.content div.optional {
+    width: 490px;
+    margin: 0 5px;
+}
+
+ul {
 }
 
 .actionItem {
-    margin: auto;
     display: block;
     text-align: left;
     height: 64px;
@@ -85,9 +126,8 @@ ul {
     padding: 0;
 
     border-radius: 10px;
-    margin-bottom: 5px;
+    margin: 5px 0 0;
 
-    clear: both;
 }
 
 .actionItem span {
@@ -288,8 +328,7 @@ div.center div {
     font-size: 15px;
     background-color: #222;
     border-radius: 5px;
-    margin: auto;
-    margin-top: 20px;
+    margin: 20px auto auto;
 }
 
 div.center div.overtime {
@@ -303,12 +342,34 @@ div.center div.overtime:before {
 div#fader {
     height: 300px;
     width: 100%;
-    position: fixed;
+    position: absolute;
     bottom: 0;
     background: linear-gradient(0deg,#222f 33%, #2220 100%);
+    pointer-events: none;
 }
 
+div.spacer {
+    clear: both;
+    height: 150px;
+}
+
+@media (min-width: 1500px) {
+    div.content {
+        width: 1500px;
+    }
+
+}
+
+
 @media (max-width: 1000px) {
+
+    div.content {
+        width: 500px;
+    }
+
+    div.content div.optional {
+        display: none;
+    }
 
     div.scoreboard {
         width:500px;
