@@ -40,50 +40,35 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
         val oldGame = getGame(msg.matchGUID)
         val team = msg.player.team
 
-        val newGame = if (msg is KillMessage) {
-            if (team.homeTeam) Game(home = team, away = msg.victim.team) else Game(away = team, home = msg.victim.team)
-        } else if (team.homeTeam) oldGame.copy(home = team) else oldGame.copy(away = team)
+        val newGame =
+            if (msg is KillMessage) {
+                if (team.homeTeam) Game(home = team, away = msg.victim.team)
+                else Game(away = team, home = msg.victim.team)
+            } else if (team.homeTeam) oldGame.copy(home = team) else oldGame.copy(away = team)
         updateTeams(msg.matchGUID, newGame)
-
     }
 
     override fun handleGameEvent(msg: GameEventMessage, metaData: RLAMetaData) {
         if (msg.gameEvent == GameEvents.TEAMS_CREATED) {
-            runBlocking {
-                triggerUpdateSSE(SSE_EVENT_TYPE.SCORE_BOARD, scoreBoardHtml())
-            }
-
+            runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.SCORE_BOARD, scoreBoardHtml()) }
         }
         if (msg.teams.size != 2) return
-        if (msg.teams[0].homeTeam)
-            updateTeams(msg.matchGUID, Game(msg.teams[0], msg.teams[1]))
-        else
-            updateTeams(msg.matchGUID, Game(msg.teams[1], msg.teams[0]))
+        if (msg.teams[0].homeTeam) updateTeams(msg.matchGUID, Game(msg.teams[0], msg.teams[1]))
+        else updateTeams(msg.matchGUID, Game(msg.teams[1], msg.teams[0]))
     }
 
     override fun handleGameTime(msg: GameTimeMessage) {
         val htmlText = timeRemainingHtml(msg.remaining, msg.overtime)
-        runBlocking {
-            triggerUpdateSSE(SSE_EVENT_TYPE.GAME_TIME, htmlText)
-        }
+        runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.GAME_TIME, htmlText) }
     }
 
-
-    private fun updateTeams(matchGUID: String, game : Game) {
+    private fun updateTeams(matchGUID: String, game: Game) {
         runBlocking {
-            triggerUpdateSSE(
-                SSE_EVENT_TYPE.HOME_TEAM,
-                teamInfoHtml(game.home)
-            )
-            triggerUpdateSSE(
-                SSE_EVENT_TYPE.AWAY_TEAM,
-                teamInfoHtml(game.away)
-            )
+            triggerUpdateSSE(SSE_EVENT_TYPE.HOME_TEAM, teamInfoHtml(game.home))
+            triggerUpdateSSE(SSE_EVENT_TYPE.AWAY_TEAM, teamInfoHtml(game.away))
         }
         games[matchGUID] = game
     }
 
-    data class Game(
-        val home: Team = emptyTeam(true),
-        val away: Team = emptyTeam(false))
+    data class Game(val home: Team = emptyTeam(true), val away: Team = emptyTeam(false))
 }

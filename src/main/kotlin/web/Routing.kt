@@ -28,10 +28,7 @@ data class MessageLine(val topic: String, val message: String)
 
 fun Application.configureRouting(client: MessagingClient, themeService: ThemeService) {
     routing {
-        get("/") {
-            call.respondHtmlTemplate(Root.LayoutTemplate(themeService)) {
-            }
-        }
+        get("/") { call.respondHtmlTemplate(Root.LayoutTemplate(themeService)) {} }
 
         sse("/heartbeat") {
             heartbeat {

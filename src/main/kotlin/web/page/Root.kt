@@ -29,22 +29,25 @@ class Root {
         override fun HTML.apply() {
             head {
                 styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
-                styleLink(href = "https://fonts.googleapis.com", type = "text/css", rel = "preconnect")
                 styleLink(
-                    href = "https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap",
-                    rel = "stylesheet"
+                    href = "https://fonts.googleapis.com",
+                    type = "text/css",
+                    rel = "preconnect",
+                )
+                styleLink(
+                    href =
+                        "https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap",
+                    rel = "stylesheet",
                 )
             }
             body {
                 attributes["hx-ext"] = "sse"
                 attributes["sse-connect"] = "/sse"
-                h1 {
-                    +"Rocket League Announcer"
-                }
+                h1 { +"Rocket League Announcer" }
 
                 div {
                     classes = setOf("select")
-                        +"Announcer theme: "
+                    +"Announcer theme: "
                     themeElement(themeService.themes, themeService.selectedTheme)
                 }
 
@@ -59,7 +62,6 @@ class Root {
 
                 scoreBoard()
 
-
                 val htmx = { e: String -> "assets/htmx.org/dist/$e" }
                 script(src = htmx("htmx.js")) {}
                 script(src = htmx("ext/json-enc.js")) {}
@@ -73,10 +75,7 @@ fun themeHtml(themes: List<Theme>, selectedTheme: Theme) =
     createHTML().body { themeElement(themes, selectedTheme) }
 
 fun HtmlBlockTag.themeElement(themes: List<Theme>, selectedTheme: Theme) {
-    if (themes.size < 4)
-        themeButtons(themes, selectedTheme)
-    else
-        themeSelect(themes, selectedTheme)
+    if (themes.size < 4) themeButtons(themes, selectedTheme) else themeSelect(themes, selectedTheme)
 }
 
 fun HtmlBlockTag.themeButtons(themes: List<Theme>, selectedTheme: Theme) {
@@ -91,9 +90,7 @@ fun HtmlBlockTag.themeButtons(themes: List<Theme>, selectedTheme: Theme) {
                 attributes["hx-vals"] = "{\"announcerSelect\":\"${theme.id}\"}"
                 attributes["hx-swap"] = "none"
 
-                span {
-                    +theme.title
-                }
+                span { +theme.title }
             }
         }
     }
@@ -117,4 +114,3 @@ fun HtmlBlockTag.themeSelect(themes: List<Theme>, selectedTheme: Theme) {
         }
     }
 }
-

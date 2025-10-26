@@ -8,7 +8,6 @@ import kotlinx.html.br
 import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.img
-import kotlinx.html.p
 import kotlinx.html.span
 import kotlinx.html.style
 import kotlinx.html.visit
@@ -46,19 +45,19 @@ fun HtmlBlockTag.actionListItem(
 
         img {
             src = "web/icons/${actionItem.message.event.eventName}.webp"
-            height="50px"
-            width="50px"
+            height = "50px"
+            width = "50px"
         }
 
-        div{
+        div {
             classes = setOf("accent")
-            style = "background: linear-gradient(0deg, ${actionItem.message.player.team.secondaryColor.darker().toHexString()} 0%, ${actionItem.message.player.team.secondaryColor.brighter().toHexString()} 100%);"
-            div{
+            style =
+                "background: linear-gradient(0deg, ${actionItem.message.player.team.secondaryColor.darker().toHexString()} 0%, ${actionItem.message.player.team.secondaryColor.brighter().toHexString()} 100%);"
+            div {
                 classes = setOf("team")
-                style = "background: linear-gradient(0deg, ${actionItem.message.player.team.primaryColor.darker().toHexString()} 0%, ${actionItem.message.player.team.primaryColor.brighter().toHexString()} 100%);"
-                span{
-                    +actionItem.message.player.team.tag
-                }
+                style =
+                    "background: linear-gradient(0deg, ${actionItem.message.player.team.primaryColor.darker().toHexString()} 0%, ${actionItem.message.player.team.primaryColor.brighter().toHexString()} 100%);"
+                span { +actionItem.message.player.team.tag }
             }
         }
         div {
@@ -66,9 +65,7 @@ fun HtmlBlockTag.actionListItem(
             span {
                 classes = setOf("time")
                 if (overtime) {
-                    span {
-                        + "+"
-                    }
+                    span { +"+" }
                 }
                 +timeLeft.toGameString
             }
@@ -80,19 +77,19 @@ fun HtmlBlockTag.actionListItem(
             span {
                 classes = setOf("info")
                 if (actionItem.message is KillMessage) {
-                    + "Demolished "
+                    +"Demolished "
                     b { +actionItem.message.victim.name }
                 } else {
-                    + actionItem.message.event.eventName
+                    +actionItem.message.event.eventName
                 }
             }
             br
             span {
                 classes = setOf("announcements")
-                b {
-                    actionItem.metatada.prevailingAnnouncement?.name
-                }
-                + actionItem.metatada.announcements.filter { it != actionItem.metatada.prevailingAnnouncement }.joinToString(" ") { it.name }
+                b { actionItem.metatada.prevailingAnnouncement?.name }
+                +actionItem.metatada.announcements
+                    .filter { it != actionItem.metatada.prevailingAnnouncement }
+                    .joinToString(" ") { it.name }
             }
         }
     }

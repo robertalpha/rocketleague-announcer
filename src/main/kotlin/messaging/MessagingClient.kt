@@ -1,6 +1,8 @@
 package nl.vanalphenict.messaging
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlin.io.encoding.Base64
+import kotlin.random.Random
 import kotlin.time.Clock
 import kotlinx.serialization.json.Json
 import nl.vanalphenict.model.JsonGameEventMessage
@@ -16,8 +18,6 @@ import org.eclipse.paho.client.mqttv3.MqttClient
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
-import kotlin.io.encoding.Base64
-import kotlin.random.Random
 
 class MessagingClient(
     eventHandler: EventHandler,

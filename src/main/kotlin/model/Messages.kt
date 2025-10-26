@@ -3,7 +3,12 @@ package nl.vanalphenict.model
 import java.util.Collections
 import kotlinx.serialization.Serializable
 
-val CLUB_MAP = HashMap<Int, JsonClub>(mapOf<Int, JsonClub>(-1 to JsonClub(-1, "", "", JsonColor(229, 229, 229), JsonColor(128, 128, 128))))
+val CLUB_MAP =
+    HashMap<Int, JsonClub>(
+        mapOf<Int, JsonClub>(
+            -1 to JsonClub(-1, "", "", JsonColor(229, 229, 229), JsonColor(128, 128, 128))
+        )
+    )
 
 @Serializable
 data class JsonGameEventMessage(

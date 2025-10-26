@@ -1,5 +1,6 @@
 package nl.vanalphenict.web.view
 
+import kotlin.time.Duration
 import kotlinx.html.HtmlBlockTag
 import kotlinx.html.body
 import kotlinx.html.classes
@@ -13,7 +14,6 @@ import nl.vanalphenict.model.parseTeam
 import nl.vanalphenict.utility.ColorUtils.Companion.toHexString
 import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
 import nl.vanalphenict.web.SSE_EVENT_TYPE
-import kotlin.time.Duration
 
 fun timeRemainingHtml(remaining: Duration?, overtime: Boolean = false) =
     createHTML().body { timeRemaining(remaining, overtime) }
@@ -23,47 +23,52 @@ fun HtmlBlockTag.timeRemaining(remaining: Duration?, overtime: Boolean = false) 
         attributes["hx-swap"] = "outerHTML"
         attributes["sse-swap"] = SSE_EVENT_TYPE.GAME_TIME.asString()
         classes = if (overtime) setOf("overtime") else emptySet()
-        + (remaining?.toGameString ?: "--:--")
+        +(remaining?.toGameString ?: "--:--")
     }
 }
 
 fun scoreBoardHtml(homeTeam: Team = emptyTeam(true), awayTeam: Team = emptyTeam(false)) =
     createHTML().body { scoreBoard(homeTeam, awayTeam) }
 
-fun HtmlBlockTag.scoreBoard(homeTeam: Team = emptyTeam(true), awayTeam: Team = emptyTeam(false)) = div {
-    attributes["hx-swap"] = "outerHTML"
-    attributes["sse-swap"] = SSE_EVENT_TYPE.SCORE_BOARD.asString()
-    classes = setOf("scoreboard")
+fun HtmlBlockTag.scoreBoard(homeTeam: Team = emptyTeam(true), awayTeam: Team = emptyTeam(false)) =
     div {
-        classes = setOf("center")
-        +"VS"
-        timeRemaining(null)
+        attributes["hx-swap"] = "outerHTML"
+        attributes["sse-swap"] = SSE_EVENT_TYPE.SCORE_BOARD.asString()
+        classes = setOf("scoreboard")
+        div {
+            classes = setOf("center")
+            +"VS"
+            timeRemaining(null)
+        }
+        renderTeamInfo(homeTeam)
+        renderTeamInfo(awayTeam)
     }
-    renderTeamInfo(homeTeam)
-    renderTeamInfo(awayTeam)
-}
 
-fun teamInfoHtml(team: Team) =
-    createHTML().body { renderTeamInfo(team) }
+fun teamInfoHtml(team: Team) = createHTML().body { renderTeamInfo(team) }
 
 fun HtmlBlockTag.renderTeamInfo(team: Team) = div {
     attributes["hx-swap"] = "outerHTML"
-    attributes["sse-swap"] = (if (team.homeTeam) SSE_EVENT_TYPE.HOME_TEAM else SSE_EVENT_TYPE.AWAY_TEAM).asString()
-    style = """
+    attributes["sse-swap"] =
+        (if (team.homeTeam) SSE_EVENT_TYPE.HOME_TEAM else SSE_EVENT_TYPE.AWAY_TEAM).asString()
+    style =
+        """
                 background: linear-gradient(0deg, 
         ${team.secondaryColor.darker().toHexString()} 0%, 
         ${team.secondaryColor.brighter().toHexString()} 100%);
 
-    """.trimIndent()
+    """
+            .trimIndent()
 
     classes = if (team.homeTeam) setOf("left") else setOf("right")
     div {
         classes = setOf("team")
-        style = """
+        style =
+            """
                     background: linear-gradient(0deg, 
         ${team.primaryColor.darker().toHexString()} 0%, 
         ${team.primaryColor.brighter().toHexString()} 100%);
-        """.trimIndent()
+        """
+                .trimIndent()
 
         span {
             classes = setOf("name")
@@ -77,11 +82,7 @@ fun HtmlBlockTag.renderTeamInfo(team: Team) = div {
 
     div {
         classes = setOf("score")
-        div {
-            span {
-                + if (team.score == -1) "-" else team.score.toString()
-            }
-        }
+        div { span { +if (team.score == -1) "-" else team.score.toString() } }
     }
 }
 

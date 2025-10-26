@@ -97,7 +97,8 @@ class MessagingTest : AbstractMessagingTest() {
             }
         }
         eventually(10.seconds) {
-            val actionEvents = sseData.filter { it.event.equals(SSE_EVENT_TYPE.NEW_ACTION.asString()) }
+            val actionEvents =
+                sseData.filter { it.event.equals(SSE_EVENT_TYPE.NEW_ACTION.asString()) }
             actionEvents.size shouldBe 48
             actionEvents.count { it.data?.contains("icons/Demolish.webp") ?: false } shouldBe 4
             actionEvents.count { it.data?.contains("icons/Goal.webp") ?: false } shouldBe 5
