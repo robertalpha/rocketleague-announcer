@@ -1,6 +1,7 @@
 package nl.vanalphenict.services.impl
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlin.math.max
 import kotlinx.coroutines.runBlocking
 import kotlinx.html.body
 import kotlinx.html.stream.createHTML
@@ -22,7 +23,6 @@ import nl.vanalphenict.web.view.emptyTeam
 import nl.vanalphenict.web.view.scoreBoardHtml
 import nl.vanalphenict.web.view.teamInfoHtml
 import nl.vanalphenict.web.view.timeRemainingHtml
-import kotlin.math.max
 
 class SsePublisher(val timeService: TimeService) : EventHandler {
 
@@ -42,7 +42,8 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
         synchronized(this) {
             val oldGame = getGame(msg.matchGUID)
             val team =
-                if (msg.event == StatEvents.GOAL) msg.player.team.copy(score = msg.player.team.score + 1)
+                if (msg.event == StatEvents.GOAL)
+                    msg.player.team.copy(score = msg.player.team.score + 1)
                 else msg.player.team
 
             val newGame =
@@ -62,8 +63,9 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
         }
         if (msg.teams.size != 2) return
         synchronized(this) {
-            val game = if (msg.teams[0].homeTeam) Game(msg.teams[0], msg.teams[1])
-            else Game(msg.teams[1], msg.teams[0])
+            val game =
+                if (msg.teams[0].homeTeam) Game(msg.teams[0], msg.teams[1])
+                else Game(msg.teams[1], msg.teams[0])
             game.homeScore = game.home.score
             game.awayScore = game.away.score
             updateTeams(msg.matchGUID, game)
@@ -87,6 +89,6 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
         val home: Team = emptyTeam(true),
         val away: Team = emptyTeam(false),
         var homeScore: Int = 0,
-        var awayScore: Int = 0
+        var awayScore: Int = 0,
     )
 }

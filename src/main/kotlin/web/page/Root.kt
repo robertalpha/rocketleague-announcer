@@ -55,21 +55,9 @@ class Root {
                     classes = setOf("content")
                     div {
                         classes = setOf("optional")
-                        button {
-                            span {
-                                +"Aap"
-                            }
-                        }
-                        button {
-                            span {
-                                +"Noot"
-                            }
-                        }
-                        button {
-                            span {
-                                +"Mies"
-                            }
-                        }
+                        button { span { +"Aap" } }
+                        button { span { +"Noot" } }
+                        button { span { +"Mies" } }
                     }
                     ul {
                         id = "actionlist"
@@ -79,7 +67,7 @@ class Root {
                     }
                     div {
                         classes = setOf("veryOptional")
-                        + "WHAT A WIDE SCREEN!!!!"
+                        +"WHAT A WIDE SCREEN!!!!"
                     }
                 }
                 div { id = "fader" }
