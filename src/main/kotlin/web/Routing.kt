@@ -1,5 +1,6 @@
 package nl.vanalphenict.web
 
+import com.janoz.discord.SampleService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.html.respondHtmlTemplate
@@ -26,9 +27,9 @@ import nl.vanalphenict.web.page.Root
 @JsonIgnoreUnknownKeys
 data class MessageLine(val topic: String, val message: String)
 
-fun Application.configureRouting(client: MessagingClient, themeService: ThemeService) {
+fun Application.configureRouting(client: MessagingClient, themeService: ThemeService, sampleService: SampleService) {
     routing {
-        get("/") { call.respondHtmlTemplate(Root.LayoutTemplate(themeService)) {} }
+        get("/") { call.respondHtmlTemplate(Root.LayoutTemplate(themeService, sampleService)) {} }
 
         sse("/heartbeat") {
             heartbeat {
