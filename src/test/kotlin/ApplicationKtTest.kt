@@ -28,7 +28,7 @@ class ApplicationTest : AbstractMessagingTest() {
                 configs = configsList,
                 brokerAddress = "tcp://localhost:$mappedPort",
                 TimeServiceMock(),
-                voiceContext.sampleService
+                voiceContext.sampleService,
             )
         }
         val response = client.get("/")

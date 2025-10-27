@@ -1,9 +1,7 @@
 package nl.vanalphenict
 
-import com.janoz.discord.DiscordService
 import com.janoz.discord.SampleService
 import com.janoz.discord.VoiceFactory
-import com.janoz.discord.domain.VoiceChannel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -93,7 +91,7 @@ fun Application.moduleWithDependencies(
     configs: MutableList<SampleMapper>,
     brokerAddress: String,
     timeService: TimeService,
-    sampleService: SampleService
+    sampleService: SampleService,
 ) {
 
     val statRepository = StatRepository()

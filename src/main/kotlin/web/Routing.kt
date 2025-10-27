@@ -27,7 +27,11 @@ import nl.vanalphenict.web.page.Root
 @JsonIgnoreUnknownKeys
 data class MessageLine(val topic: String, val message: String)
 
-fun Application.configureRouting(client: MessagingClient, themeService: ThemeService, sampleService: SampleService) {
+fun Application.configureRouting(
+    client: MessagingClient,
+    themeService: ThemeService,
+    sampleService: SampleService,
+) {
     routing {
         get("/") { call.respondHtmlTemplate(Root.LayoutTemplate(themeService, sampleService)) {} }
 

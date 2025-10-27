@@ -59,7 +59,7 @@ class MessagingTest : AbstractMessagingTest() {
                 configs = configsList,
                 brokerAddress = "tcp://localhost:$mappedPort",
                 timeServiceMock,
-                sampleService = voiceContext.sampleService
+                sampleService = voiceContext.sampleService,
             )
         }
         client = createClient { install(ContentNegotiation) { json() } }

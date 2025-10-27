@@ -25,7 +25,8 @@ import nl.vanalphenict.web.view.scoreBoard
 
 class Root {
 
-    class LayoutTemplate(val themeService: ThemeService, val sampleService: SampleService) : Template<HTML> {
+    class LayoutTemplate(val themeService: ThemeService, val sampleService: SampleService) :
+        Template<HTML> {
 
         override fun HTML.apply() {
             head {
@@ -62,14 +63,10 @@ class Root {
                                 attributes["hx-vals"] = "{\"sample\":\"${sample.id}\"}"
                                 attributes["hx-swap"] = "none"
 
-                                span {
-                                    + sample.name
-                                }
+                                span { +sample.name }
                             }
                         }
-                        div {
-                            classes = setOf("spacer")
-                        }
+                        div { classes = setOf("spacer") }
                     }
                     ul {
                         id = "actionlist"
@@ -79,7 +76,7 @@ class Root {
                     }
                     div {
                         classes = setOf("veryOptional")
-                        + "WHAT A WIDE SCREEN!!!!"
+                        +"WHAT A WIDE SCREEN!!!!"
                     }
                 }
                 div { id = "fader" }

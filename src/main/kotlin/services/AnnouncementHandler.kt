@@ -1,7 +1,5 @@
 package nl.vanalphenict.services
 
-import com.janoz.discord.DiscordService
-import com.janoz.discord.domain.VoiceChannel
 import kotlin.time.Duration.Companion.milliseconds
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.GameEventMessage
