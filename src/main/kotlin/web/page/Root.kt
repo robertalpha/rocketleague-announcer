@@ -79,7 +79,7 @@ class Root {
                     }
                     div {
                         classes = setOf("veryOptional")
-                        +"WHAT A WIDE SCREEN!!!!"
+                        + "WHAT A WIDE SCREEN!!!!"
                     }
                 }
                 div { id = "fader" }
