@@ -39,19 +39,21 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
             createHTML().body { actionListItem(actionItem, metaData.remaining, metaData.overtime) }
         runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
 
-        val oldGame = getGame(msg.matchGUID)
-        val team =
-            if (msg.event == StatEvents.GOAL) msg.player.team.copy(score = msg.player.team.score + 1)
-            else msg.player.team
+        synchronized(this) {
+            val oldGame = getGame(msg.matchGUID)
+            val team =
+                if (msg.event == StatEvents.GOAL) msg.player.team.copy(score = msg.player.team.score + 1)
+                else msg.player.team
 
-        val newGame =
-            if (msg is KillMessage) {
-                if (team.homeTeam) Game(home = team, away = msg.victim.team)
-                else Game(away = team, home = msg.victim.team)
-            } else if (team.homeTeam) oldGame.copy(home = team) else oldGame.copy(away = team)
-        newGame.homeScore = max(newGame.home.score, oldGame.homeScore)
-        newGame.awayScore = max(newGame.away.score, oldGame.awayScore)
-        updateTeams(msg.matchGUID, newGame)
+            val newGame =
+                if (msg is KillMessage) {
+                    if (team.homeTeam) Game(home = team, away = msg.victim.team)
+                    else Game(away = team, home = msg.victim.team)
+                } else if (team.homeTeam) oldGame.copy(home = team) else oldGame.copy(away = team)
+            newGame.homeScore = max(newGame.home.score, oldGame.homeScore)
+            newGame.awayScore = max(newGame.away.score, oldGame.awayScore)
+            updateTeams(msg.matchGUID, newGame)
+        }
     }
 
     override fun handleGameEvent(msg: GameEventMessage, metaData: RLAMetaData) {
@@ -59,11 +61,13 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
             runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.SCORE_BOARD, scoreBoardHtml()) }
         }
         if (msg.teams.size != 2) return
-        val game = if (msg.teams[0].homeTeam) Game(msg.teams[0], msg.teams[1])
-        else Game(msg.teams[1], msg.teams[0])
-        game.homeScore = game.home.score
-        game.awayScore = game.away.score
-        updateTeams(msg.matchGUID, game)
+        synchronized(this) {
+            val game = if (msg.teams[0].homeTeam) Game(msg.teams[0], msg.teams[1])
+            else Game(msg.teams[1], msg.teams[0])
+            game.homeScore = game.home.score
+            game.awayScore = game.away.score
+            updateTeams(msg.matchGUID, game)
+        }
     }
 
     override fun handleGameTime(msg: GameTimeMessage) {
@@ -72,13 +76,11 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
     }
 
     private fun updateTeams(matchGUID: String, game: Game) {
-        synchronized(this) {
-            runBlocking {
-                triggerUpdateSSE(SSE_EVENT_TYPE.HOME_TEAM, teamInfoHtml(game.home))
-                triggerUpdateSSE(SSE_EVENT_TYPE.AWAY_TEAM, teamInfoHtml(game.away))
-            }
-            games[matchGUID] = game
+        runBlocking {
+            triggerUpdateSSE(SSE_EVENT_TYPE.HOME_TEAM, teamInfoHtml(game.home))
+            triggerUpdateSSE(SSE_EVENT_TYPE.AWAY_TEAM, teamInfoHtml(game.away))
         }
+        games[matchGUID] = game
     }
 
     data class Game(
