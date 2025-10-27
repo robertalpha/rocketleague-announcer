@@ -1,5 +1,6 @@
 package nl.vanalphenict.web.page
 
+import com.janoz.discord.SampleService
 import io.ktor.server.html.Template
 import kotlinx.html.HTML
 import kotlinx.html.HtmlBlockTag
@@ -24,7 +25,7 @@ import nl.vanalphenict.web.view.scoreBoard
 
 class Root {
 
-    class LayoutTemplate(val themeService: ThemeService) : Template<HTML> {
+    class LayoutTemplate(val themeService: ThemeService, val sampleService: SampleService) : Template<HTML> {
 
         override fun HTML.apply() {
             head {
@@ -55,9 +56,16 @@ class Root {
                     classes = setOf("content")
                     div {
                         classes = setOf("optional")
-                        button { span { +"Aap" } }
-                        button { span { +"Noot" } }
-                        button { span { +"Mies" } }
+                        sampleService.getSamples().forEach { sample ->
+                            button {
+                                span {
+                                    + sample.name
+                                }
+                            }
+                        }
+                        div {
+                            classes = setOf("spacer")
+                        }
                     }
                     ul {
                         id = "actionlist"

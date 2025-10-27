@@ -1,6 +1,7 @@
 package nl.vanalphenict
 
 import com.janoz.discord.DiscordService
+import com.janoz.discord.SampleService
 import com.janoz.discord.VoiceFactory
 import com.janoz.discord.domain.VoiceChannel
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -81,7 +82,7 @@ fun Application.module(brokerAddress: String = "tcp://localhost:1883") {
     val voiceChannel = discordService.getVoiceChannel(System.getenv("VOICE_CHANNEL_ID")!!.toLong())
     val timeService = TimeServiceImpl()
 
-    moduleWithDependencies(discordService, voiceChannel, configs, brokerAddress, timeService)
+    moduleWithDependencies(discordService, voiceChannel, configs, brokerAddress, timeService, sampleService)
 }
 
 fun Application.moduleWithDependencies(
@@ -90,6 +91,7 @@ fun Application.moduleWithDependencies(
     configs: MutableList<SampleMapper>,
     brokerAddress: String,
     timeService: TimeService,
+    sampleService: SampleService
 ) {
 
     val statRepository = StatRepository()
@@ -158,7 +160,7 @@ fun Application.moduleWithDependencies(
     }
 
     val themeService = ThemeService(configs, announcementHandler)
-    configureRouting(client, themeService)
+    configureRouting(client, themeService, sampleService)
     themeRoutes(themeService)
     actionRoutes(statRepository)
     configureSSE()
