@@ -1,5 +1,7 @@
 package nl.vanalphenict.web.page
 
+import com.janoz.discord.DiscordService
+import com.janoz.discord.SampleService
 import io.github.allangomes.kotlinwind.css.kw
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -8,6 +10,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.routing.put
 import io.ktor.server.routing.routing
 import kotlinx.html.DIV
 import kotlinx.html.body
@@ -17,12 +20,15 @@ import kotlinx.html.div
 import kotlinx.html.id
 import kotlinx.html.role
 import kotlinx.html.style
+import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.services.Theme
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import nl.vanalphenict.web.triggerUpdateSSE
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
-fun Application.themeRoutes(themeService: ThemeService) {
+fun Application.themeRoutes(themeService: ThemeService, samplePlayer: SamplePlayer) {
     routing {
         // select a theme
         post("/themes") {
@@ -41,6 +47,14 @@ fun Application.themeRoutes(themeService: ThemeService) {
             call.respondHtml {
                 body { div { renderThemes(themeService.themes, themeService.selectedTheme) } }
             }
+        }
+
+        put(path = "/play") {
+            call.receive<String>().also {
+                val id = it.substringAfter("=")
+                samplePlayer.play(URLDecoder.decode(id, StandardCharsets.UTF_8));
+            }
+            call.respond(HttpStatusCode.Accepted)
         }
     }
 }

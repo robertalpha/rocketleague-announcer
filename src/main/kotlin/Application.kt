@@ -23,6 +23,7 @@ import nl.vanalphenict.services.AnnouncementHandler
 import nl.vanalphenict.services.EventHandler
 import nl.vanalphenict.services.GameTimeTrackerService
 import nl.vanalphenict.services.SampleMapper
+import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.services.announcement.AsIs
 import nl.vanalphenict.services.announcement.DemolitionChain
@@ -82,12 +83,13 @@ fun Application.module(brokerAddress: String = "tcp://localhost:1883") {
     val voiceChannel = discordService.getVoiceChannel(System.getenv("VOICE_CHANNEL_ID")!!.toLong())
     val timeService = TimeServiceImpl()
 
-    moduleWithDependencies(discordService, voiceChannel, configs, brokerAddress, timeService, sampleService)
+    val samplePlayer = SamplePlayer(discordService, voiceChannel)
+
+    moduleWithDependencies(samplePlayer, configs, brokerAddress, timeService, sampleService)
 }
 
 fun Application.moduleWithDependencies(
-    discordService: DiscordService,
-    voiceChannel: VoiceChannel,
+    samplePlayer: SamplePlayer,
     configs: MutableList<SampleMapper>,
     brokerAddress: String,
     timeService: TimeService,
@@ -100,8 +102,7 @@ fun Application.moduleWithDependencies(
     val gameTimeTrackerService = GameTimeTrackerService()
     val announcementHandler =
         AnnouncementHandler(
-            discordService,
-            voiceChannel,
+            samplePlayer,
             configs.last(),
             listOf(
                 AsIs(),
@@ -161,7 +162,7 @@ fun Application.moduleWithDependencies(
 
     val themeService = ThemeService(configs, announcementHandler)
     configureRouting(client, themeService, sampleService)
-    themeRoutes(themeService)
+    themeRoutes(themeService, samplePlayer)
     actionRoutes(statRepository)
     configureSSE()
 }

@@ -29,6 +29,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import nl.vanalphenict.moduleWithDependencies
 import nl.vanalphenict.services.SampleMapper
+import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.utility.TimeServiceMock
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -50,16 +51,15 @@ class MessagingTest : AbstractMessagingTest() {
         application {
             val mappedPort = mosquitto.getMappedPort(1883)
             val voiceContext = VoiceFactory.createVoiceContextMock()
-            val discordService = voiceContext.discordService
             val configsList = mutableListOf(SampleMapper("123", "123", emptyMap()))
             val voiceChannel =
                 VoiceChannel.builder().guild(Guild.builder().id(1L).build()).id(2L).build()
             moduleWithDependencies(
-                discordService = discordService,
-                voiceChannel = voiceChannel,
+                samplePlayer = SamplePlayer(voiceContext.discordService, voiceChannel),
                 configs = configsList,
                 brokerAddress = "tcp://localhost:$mappedPort",
                 timeServiceMock,
+                sampleService = voiceContext.sampleService
             )
         }
         client = createClient { install(ContentNegotiation) { json() } }

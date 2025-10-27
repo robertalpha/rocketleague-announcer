@@ -58,6 +58,10 @@ class Root {
                         classes = setOf("optional")
                         sampleService.getSamples().forEach { sample ->
                             button {
+                                attributes["hx-put"] = "/play"
+                                attributes["hx-vals"] = "{\"sample\":\"${sample.id}\"}"
+                                attributes["hx-swap"] = "none"
+
                                 span {
                                     + sample.name
                                 }

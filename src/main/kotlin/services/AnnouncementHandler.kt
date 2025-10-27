@@ -13,8 +13,7 @@ import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.utility.DeJitter
 
 class AnnouncementHandler(
-    private val discordService: DiscordService,
-    private val voiceChannel: VoiceChannel,
+    private val samplePlayer: SamplePlayer,
     private var sampleMapper: SampleMapper,
     statInterpreters: Collection<StatToAnnouncment>,
     gameEventInterpreters: Collection<GameEventToAnnouncement>,
@@ -81,7 +80,7 @@ class AnnouncementHandler(
     }
 
     private fun triggerSound(sample: String?) {
-        discordService.play(sample, voiceChannel)
+        samplePlayer.play(sample)
     }
 
     fun replaceMapping(newMap: SampleMapper) {
