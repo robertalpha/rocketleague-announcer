@@ -65,8 +65,9 @@ fun parseTeam(src: JsonTeam, srcPlayer: JsonPlayer?): Team {
             primaryColor = primaryColor,
             secondaryColor = secondaryColor,
             name =
-                CLUB_MAP[src.clubId]?.name
-                    ?: when (primaryColor) {
+                if (src.name != "") src.name
+                else
+                    when (primaryColor) {
                         BLUE -> "TEAM BLUE"
                         ORANGE -> "TEAM ORANGE"
                         else -> "Opponent"
@@ -80,7 +81,7 @@ fun parseTeam(src: JsonTeam, srcPlayer: JsonPlayer?): Team {
                     },
             players = players,
         )
-    (sequenceOf(srcPlayer) + (src.players?.asSequence() ?: emptySequence()))
+    (sequenceOf(srcPlayer) + (src.players.asSequence()))
         .filterNotNull()
         .map { parsePlayer(it, result) }
         .forEach { players.add(it) }

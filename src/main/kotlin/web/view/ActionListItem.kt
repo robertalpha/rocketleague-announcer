@@ -87,12 +87,10 @@ fun HtmlBlockTag.actionListItem(
             span {
                 classes = setOf("announcements")
                 actionItem.metatada.prevailingAnnouncement?.let {
-                    b {
-                        + it.name
-                    }
+                    b { +it.name }
                     +" / "
                 }
-                + actionItem.metatada.announcements
+                +actionItem.metatada.announcements
                     .filter { it != actionItem.metatada.prevailingAnnouncement }
                     .joinToString(" / ") { it.name }
             }
