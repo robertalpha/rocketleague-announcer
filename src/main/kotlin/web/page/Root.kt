@@ -57,7 +57,7 @@ class Root {
                     classes = setOf("content")
                     div {
                         classes = setOf("optional")
-                        sampleService.getSamples().forEach { sample ->
+                        sampleService.samples.forEach { sample ->
                             button {
                                 attributes["hx-put"] = "/play"
                                 attributes["hx-vals"] = "{\"sample\":\"${sample.id}\"}"
@@ -65,7 +65,7 @@ class Root {
 
                                 span { +sample.name }
                             }
-                            + " "
+                            +" "
                         }
                         div { classes = setOf("spacer") }
                     }
