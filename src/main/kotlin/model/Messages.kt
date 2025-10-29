@@ -97,12 +97,12 @@ data class JsonTeam(
     val clubId: Int? = null,
     val homeTeam: Boolean? = null,
     val index: Int? = null,
-    val name: String? = null,
+    val name: String = "",
     val num: Int? = null,
     val score: Int? = null,
     val primaryColor: JsonColor? = null,
     val secondaryColor: JsonColor? = null,
-    val players: List<JsonPlayer>? = Collections.emptyList(),
+    val players: List<JsonPlayer> = Collections.emptyList(),
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
