@@ -65,6 +65,7 @@ class Root {
 
                                 span { +sample.name }
                             }
+                            + " "
                         }
                         div { classes = setOf("spacer") }
                     }
