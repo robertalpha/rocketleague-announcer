@@ -65,8 +65,9 @@ fun parseTeam(src: JsonTeam, srcPlayer: JsonPlayer?): Team {
             primaryColor = primaryColor,
             secondaryColor = secondaryColor,
             name =
-                CLUB_MAP[src.clubId]?.name
-                    ?: when (primaryColor) {
+                if (src.name != "") src.name
+                else
+                    when (primaryColor) {
                         BLUE -> "TEAM BLUE"
                         ORANGE -> "TEAM ORANGE"
                         else -> "Opponent"
