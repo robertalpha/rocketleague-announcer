@@ -17,8 +17,7 @@ data class SseEvent(val data: String, val event: String? = null, val id: String?
 enum class SSE_EVENT_TYPE {
     NEW_ACTION,
     SWITCH_THEME,
-    HOME_TEAM,
-    AWAY_TEAM,
+    TEAMS,
     GAME_TIME,
     SCORE_BOARD;
 

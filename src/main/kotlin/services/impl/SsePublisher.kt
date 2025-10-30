@@ -21,7 +21,7 @@ import nl.vanalphenict.web.triggerUpdateSSE
 import nl.vanalphenict.web.view.actionListItem
 import nl.vanalphenict.web.view.emptyTeam
 import nl.vanalphenict.web.view.scoreBoardHtml
-import nl.vanalphenict.web.view.teamInfoHtml
+import nl.vanalphenict.web.view.teamsInfoHtml
 import nl.vanalphenict.web.view.timeRemainingHtml
 
 class SsePublisher(val timeService: TimeService) : EventHandler {
@@ -78,10 +78,7 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
     }
 
     private fun updateTeams(matchGUID: String, game: Game) {
-        runBlocking {
-            triggerUpdateSSE(SSE_EVENT_TYPE.HOME_TEAM, teamInfoHtml(game.home))
-            triggerUpdateSSE(SSE_EVENT_TYPE.AWAY_TEAM, teamInfoHtml(game.away))
-        }
+        runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.TEAMS, teamsInfoHtml(game.home, game.away)) }
         games[matchGUID] = game
     }
 
