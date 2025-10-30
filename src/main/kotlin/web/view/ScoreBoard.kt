@@ -40,16 +40,21 @@ fun HtmlBlockTag.scoreBoard(homeTeam: Team = emptyTeam(true), awayTeam: Team = e
             +"VS"
             timeRemaining(null)
         }
+        div {
+            attributes["hx-swap"] = "innerHTML"
+            attributes["sse-swap"] = SSE_EVENT_TYPE.TEAMS.asString()
+            renderTeamInfo(homeTeam)
+            renderTeamInfo(awayTeam)
+        }
+    }
+
+fun teamsInfoHtml(homeTeam: Team, awayTeam: Team) =
+    createHTML().body {
         renderTeamInfo(homeTeam)
         renderTeamInfo(awayTeam)
     }
 
-fun teamInfoHtml(team: Team) = createHTML().body { renderTeamInfo(team) }
-
 fun HtmlBlockTag.renderTeamInfo(team: Team) = div {
-    attributes["hx-swap"] = "outerHTML"
-    attributes["sse-swap"] =
-        (if (team.homeTeam) SSE_EVENT_TYPE.HOME_TEAM else SSE_EVENT_TYPE.AWAY_TEAM).asString()
     style =
         """
                 background: linear-gradient(0deg, 
