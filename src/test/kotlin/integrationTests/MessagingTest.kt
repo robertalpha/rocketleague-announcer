@@ -10,9 +10,6 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.sse.SSE
 import io.ktor.client.plugins.sse.sse
 import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.testApplication
 import io.ktor.sse.ServerSentEvent
@@ -91,10 +88,7 @@ class MessagingTest : AbstractMessagingTest() {
         messages.forEach {
             val mockTime = kotlin.time.Instant.parse(it.timestamp)
             timeServiceMock.setTime(mockTime)
-            client.post("/") {
-                contentType(ContentType.Application.Json)
-                setBody(TestMessage(topic = it.topic, message = it.message))
-            }
+            client.post("/") { send(it.topic, it.message) }
         }
         eventually(10.seconds) {
             val actionEvents =
@@ -105,8 +99,6 @@ class MessagingTest : AbstractMessagingTest() {
             actionEvents.count { it.data?.contains("icons/Win.webp") ?: false } shouldBe 3
         }
     }
-
-    @Serializable data class TestMessage(val topic: String, val message: String)
 
     private fun parseMessagesFromResource(testFile: String): List<MessageLine> {
         val stream = javaClass.getClassLoader().getResourceAsStream(testFile)!!

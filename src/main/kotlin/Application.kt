@@ -43,8 +43,6 @@ import nl.vanalphenict.utility.TimeService
 import nl.vanalphenict.utility.TimeServiceImpl
 import nl.vanalphenict.web.configureRouting
 import nl.vanalphenict.web.configureSSE
-import nl.vanalphenict.web.page.themeRoutes
-import nl.vanalphenict.web.routing.actionRoutes
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -159,8 +157,6 @@ fun Application.moduleWithDependencies(
     }
 
     val themeService = ThemeService(configs, announcementHandler)
-    configureRouting(client, themeService, sampleService)
-    themeRoutes(themeService, samplePlayer)
-    actionRoutes(statRepository)
+    configureRouting(themeService, sampleService, samplePlayer)
     configureSSE()
 }
