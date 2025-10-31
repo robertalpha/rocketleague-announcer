@@ -6,11 +6,8 @@ import com.janoz.discord.domain.VoiceChannel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.shouldBe
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.sse.SSE
 import io.ktor.client.plugins.sse.sse
-import io.ktor.client.request.post
-import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.testApplication
 import io.ktor.sse.ServerSentEvent
 import kotlin.test.Test
@@ -19,6 +16,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -30,6 +28,8 @@ import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.utility.TimeServiceMock
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import org.testcontainers.junit.jupiter.Testcontainers
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 @OptIn(DelicateCoroutinesApi::class)
 @Testcontainers
@@ -37,6 +37,7 @@ class MessagingTest : AbstractMessagingTest() {
 
     private val log = KotlinLogging.logger {}
 
+    @OptIn(ExperimentalAtomicApi::class)
     @Test
     fun testLines() = testApplication {
         val testFile = "RL_log_20250903.txt"
@@ -44,6 +45,9 @@ class MessagingTest : AbstractMessagingTest() {
         val timeServiceMock = TimeServiceMock()
 
         val messages = parseMessagesFromResource(testFile)
+
+        val semaphore = AtomicInt(0)
+
 
         application {
             val mappedPort = mosquitto.getMappedPort(1883)
@@ -57,9 +61,9 @@ class MessagingTest : AbstractMessagingTest() {
                 brokerAddress = "tcp://localhost:$mappedPort",
                 timeServiceMock,
                 sampleService = voiceContext.sampleService,
+                { println("${semaphore.addAndFetch(-1)} \t ${it}") }
             )
         }
-        client = createClient { install(ContentNegotiation) { json() } }
 
         val sseClient = createClient {
             install(SSE) {
@@ -68,6 +72,7 @@ class MessagingTest : AbstractMessagingTest() {
             }
         }
         val sseData = mutableListOf<ServerSentEvent>()
+
         GlobalScope.async {
             withContext(Dispatchers.IO) {
                 sseClient.sse(path = "/sse") {
@@ -85,12 +90,22 @@ class MessagingTest : AbstractMessagingTest() {
             }
         }
 
+        // wait for application to start and sse to conenct
+        delay(1000)
+
+        println("sending messages")
         messages.forEach {
             val mockTime = kotlin.time.Instant.parse(it.timestamp)
+            semaphore.addAndFetch(1)
             timeServiceMock.setTime(mockTime)
-            client.post("/") { send(it.topic, it.message) }
+            send(it.topic, it.message)
         }
+
         eventually(10.seconds) {
+            semaphore.load() shouldBe 0
+        }
+
+        eventually(2.seconds) {
             val actionEvents =
                 sseData.filter { it.event.equals(SSE_EVENT_TYPE.NEW_ACTION.asString()) }
             actionEvents.size shouldBe 48

@@ -90,6 +90,7 @@ fun Application.moduleWithDependencies(
     brokerAddress: String,
     timeService: TimeService,
     sampleService: SampleService,
+    msgProcessed: ((msg: String)-> Unit) = {},
 ) {
 
     val statRepository = StatRepository()
@@ -128,6 +129,7 @@ fun Application.moduleWithDependencies(
             System.getenv("BROKER_ADDRESS") ?: brokerAddress,
             timeService,
             gameTimeTrackerService,
+            msgProcessed,
         )
     } catch (ex: Exception) {
         log.error(ex) { "could not connect to broker" }

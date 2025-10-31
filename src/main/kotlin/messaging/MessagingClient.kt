@@ -24,6 +24,7 @@ class MessagingClient(
     serverAddress: String,
     timeService: TimeService,
     gameTimeTrackerService: GameTimeTrackerService,
+    msgProcessed: ((msg: String)-> Unit) = {}
 ) {
     private val TOPIC_ROOT = "rl2mqtt"
     private val TOPIC_STAT = "$TOPIC_ROOT/stat"
@@ -100,6 +101,7 @@ class MessagingClient(
                         log.error(e) { "could not parse message: $e" }
                         e.printStackTrace()
                     }
+                    msgProcessed(message.toString())
                 }
 
                 private fun logStatMessage(stat: JsonStatMessage) {
@@ -130,11 +132,5 @@ class MessagingClient(
     inline fun <reified T> decode(bytes: ByteArray): T {
         val string = String(bytes)
         return Json.decodeFromString<T>(string)
-    }
-
-    fun send(topic: String, body: String) {
-        val message = MqttMessage(body.toByteArray())
-        message.qos = QOS
-        client.publish(topic, message)
     }
 }

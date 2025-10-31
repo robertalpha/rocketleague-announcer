@@ -11,7 +11,7 @@ abstract class AbstractMessagingTest {
     companion object {
         @JvmField
         val mosquitto =
-            GenericContainer("eclipse-mosquitto:2.0.20")
+            GenericContainer("eclipse-mosquitto:2.0.21")
                 .withExposedPorts(1883, 9001)
                 .waitingFor(HostPortWaitStrategy().forPorts(1883))
                 .withCopyToContainer(
@@ -32,7 +32,7 @@ abstract class AbstractMessagingTest {
         }
 
         fun send(topic: String, message: String) {
-            mqttClient.publish(topic, message.toByteArray(), 1, true)
+            mqttClient.publish(topic, message.toByteArray(), 1, false)
         }
     }
 }
