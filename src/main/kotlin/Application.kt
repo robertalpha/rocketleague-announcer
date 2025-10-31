@@ -134,7 +134,6 @@ fun Application.moduleWithDependencies(
             log.error { "could not connect to broker" }
             throw ex
         }
-
     install(ContentNegotiation) {
         json(
             Json {
@@ -147,12 +146,14 @@ fun Application.moduleWithDependencies(
 
     install(SSE)
 
-    install(CallLogging) {
-        format { call ->
-            val status = call.response.status()
-            val httpMethod = call.request.httpMethod.value
-            val userAgent = call.request.headers["User-Agent"]
-            "Status: $status, HTTP method: $httpMethod, User agent: $userAgent"
+    if (log.isDebugEnabled()) {
+        install(CallLogging) {
+            format { call ->
+                val status = call.response.status()
+                val httpMethod = call.request.httpMethod.value
+                val userAgent = call.request.headers["User-Agent"]
+                "Status: $status, HTTP method: $httpMethod, User agent: $userAgent"
+            }
         }
     }
 
