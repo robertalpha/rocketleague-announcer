@@ -20,6 +20,7 @@ enum class SSE_EVENT_TYPE {
     TEAMS,
     GAME_TIME,
     SCORE_BOARD;
+
     fun asString() = this.name.lowercase()
 }
 

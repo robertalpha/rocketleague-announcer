@@ -73,9 +73,8 @@ fun HTML.homepage(themeService: ThemeService, sampleService: SampleService) {
 
         scoreBoard()
 
-        val htmx = { e: String -> "assets/htmx.org/dist/$e" }
-        script(src = htmx("htmx.js")) {}
-        script(src = htmx("ext/json-enc.js")) {}
+        script(src = "assets/htmx.org/dist/htmx.js") {}
+        script(src = "assets/htmx.org/dist/ext/json-enc.js") {}
         script(src = "assets/htmx-ext-sse/dist/sse.js") {}
     }
 }
