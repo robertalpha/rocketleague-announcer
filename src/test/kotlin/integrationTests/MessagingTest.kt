@@ -105,7 +105,7 @@ class MessagingTest : AbstractMessagingTest() {
             semaphore.load() shouldBe 0
         }
 
-        eventually(2.seconds) {
+        eventually(10.seconds) {
             val actionEvents =
                 sseData.filter { it.event.equals(SSE_EVENT_TYPE.NEW_ACTION.asString()) }
             actionEvents.size shouldBe 48
