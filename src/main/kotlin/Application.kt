@@ -122,18 +122,18 @@ fun Application.moduleWithDependencies(
             .add(eventPersister)
             .add(SsePublisher(timeService))
             .build()
-    val client =
-        try {
-            MessagingClient(
-                eventHandler,
-                System.getenv("BROKER_ADDRESS") ?: brokerAddress,
-                timeService,
-                gameTimeTrackerService,
-            )
-        } catch (ex: Exception) {
-            log.error { "could not connect to broker" }
-            throw ex
-        }
+    try {
+        MessagingClient(
+            eventHandler,
+            System.getenv("BROKER_ADDRESS") ?: brokerAddress,
+            timeService,
+            gameTimeTrackerService,
+        )
+    } catch (ex: Exception) {
+        log.error(ex) { "could not connect to broker" }
+        throw ex
+    }
+
     install(ContentNegotiation) {
         json(
             Json {
@@ -146,7 +146,7 @@ fun Application.moduleWithDependencies(
 
     install(SSE)
 
-    if (log.isDebugEnabled()) {
+    if (log.isTraceEnabled()) {
         install(CallLogging) {
             format { call ->
                 val status = call.response.status()

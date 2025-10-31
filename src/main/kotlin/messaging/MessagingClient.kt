@@ -97,7 +97,7 @@ class MessagingClient(
                             else -> logUnexpectedMessage(message, topic)
                         }
                     } catch (e: Exception) {
-                        log.error { "could not parse message: $e" }
+                        log.error(e) { "could not parse message: $e" }
                         e.printStackTrace()
                     }
                 }
@@ -111,7 +111,7 @@ class MessagingClient(
                 }
 
                 override fun connectionLost(cause: Throwable) {
-                    log.trace { "connectionLost: " + cause.message }
+                    log.trace(cause) { "connectionLost: " + cause.message }
                 }
 
                 override fun deliveryComplete(token: IMqttDeliveryToken) {
