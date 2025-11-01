@@ -5,6 +5,9 @@ import com.janoz.discord.domain.Guild
 import com.janoz.discord.domain.VoiceChannel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.assertions.nondeterministic.eventuallyConfig
+import io.kotest.assertions.nondeterministic.fibonacci
+import io.kotest.common.KotestInternal
 import io.kotest.matchers.shouldBe
 import io.ktor.client.plugins.sse.SSE
 import io.ktor.client.plugins.sse.sse
@@ -30,6 +33,7 @@ import nl.vanalphenict.web.SSE_EVENT_TYPE
 import org.testcontainers.junit.jupiter.Testcontainers
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(DelicateCoroutinesApi::class)
 @Testcontainers
@@ -37,7 +41,7 @@ class MessagingTest : AbstractMessagingTest() {
 
     private val log = KotlinLogging.logger {}
 
-    @OptIn(ExperimentalAtomicApi::class)
+    @OptIn(ExperimentalAtomicApi::class, KotestInternal::class)
     @Test
     fun testLines() = testApplication {
         val testFile = "RL_log_20250903.txt"
@@ -99,11 +103,17 @@ class MessagingTest : AbstractMessagingTest() {
             semaphore.addAndFetch(1)
             timeServiceMock.setTime(mockTime)
             send(it.topic, it.message)
+            eventually(
+                config = eventuallyConfig {
+                duration = 1.seconds
+                intervalFn = 5.milliseconds.fibonacci()
+            }
+            ) {
+
+                semaphore.load() shouldBe 0
+            }
         }
 
-        eventually(10.seconds) {
-            semaphore.load() shouldBe 0
-        }
 
         eventually(10.seconds) {
             val actionEvents =
