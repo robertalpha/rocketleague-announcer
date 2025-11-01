@@ -13,7 +13,10 @@ import io.ktor.client.plugins.sse.SSE
 import io.ktor.client.plugins.sse.sse
 import io.ktor.server.testing.testApplication
 import io.ktor.sse.ServerSentEvent
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -31,9 +34,6 @@ import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.utility.TimeServiceMock
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import org.testcontainers.junit.jupiter.Testcontainers
-import kotlin.concurrent.atomics.AtomicInt
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
-import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(DelicateCoroutinesApi::class)
 @Testcontainers
@@ -52,7 +52,6 @@ class MessagingTest : AbstractMessagingTest() {
 
         val semaphore = AtomicInt(0)
 
-
         application {
             val mappedPort = mosquitto.getMappedPort(1883)
             val voiceContext = VoiceFactory.createVoiceContextMock()
@@ -65,7 +64,7 @@ class MessagingTest : AbstractMessagingTest() {
                 brokerAddress = "tcp://localhost:$mappedPort",
                 timeServiceMock,
                 sampleService = voiceContext.sampleService,
-                { println("${semaphore.addAndFetch(-1)} \t ${it}") }
+                { println("${semaphore.addAndFetch(-1)} \t ${it}") },
             )
         }
 
@@ -104,16 +103,15 @@ class MessagingTest : AbstractMessagingTest() {
             timeServiceMock.setTime(mockTime)
             send(it.topic, it.message)
             eventually(
-                config = eventuallyConfig {
-                duration = 1.seconds
-                intervalFn = 5.milliseconds.fibonacci()
-            }
+                config =
+                    eventuallyConfig {
+                        duration = 1.seconds
+                        intervalFn = 5.milliseconds.fibonacci()
+                    }
             ) {
-
                 semaphore.load() shouldBe 0
             }
         }
-
 
         eventually(10.seconds) {
             val actionEvents =

@@ -24,7 +24,7 @@ class MessagingClient(
     serverAddress: String,
     timeService: TimeService,
     gameTimeTrackerService: GameTimeTrackerService,
-    msgProcessed: ((msg: String)-> Unit) = {}
+    msgProcessed: ((msg: String) -> Unit) = {},
 ) {
     private val TOPIC_ROOT = "rl2mqtt"
     private val TOPIC_STAT = "$TOPIC_ROOT/stat"

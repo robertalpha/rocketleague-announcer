@@ -90,7 +90,7 @@ fun Application.moduleWithDependencies(
     brokerAddress: String,
     timeService: TimeService,
     sampleService: SampleService,
-    msgProcessed: ((msg: String)-> Unit) = {},
+    msgProcessed: ((msg: String) -> Unit) = {},
 ) {
 
     val statRepository = StatRepository()
