@@ -1,6 +1,8 @@
 package nl.vanalphenict.messaging
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlin.io.encoding.Base64
+import kotlin.random.Random
 import kotlin.time.Clock
 import kotlinx.serialization.json.Json
 import nl.vanalphenict.model.JsonGameEventMessage
@@ -22,6 +24,7 @@ class MessagingClient(
     serverAddress: String,
     timeService: TimeService,
     gameTimeTrackerService: GameTimeTrackerService,
+    msgProcessed: ((msg: String) -> Unit) = {},
 ) {
     private val TOPIC_ROOT = "rl2mqtt"
     private val TOPIC_STAT = "$TOPIC_ROOT/stat"
@@ -40,7 +43,7 @@ class MessagingClient(
     private val log = KotlinLogging.logger {}
 
     init {
-        val clientId = "rouncerdouncer"
+        val clientId = "rla_announcer_" + Base64.encode(Random.nextBytes(3))
 
         client = MqttClient(serverAddress, clientId, MemoryPersistence())
         val options = MqttConnectOptions()
@@ -72,7 +75,6 @@ class MessagingClient(
             object : MqttCallback {
                 @Throws(Exception::class)
                 override fun messageArrived(topic: String, message: MqttMessage) {
-
                     try {
                         when (topic) {
                             TOPIC_STAT -> {
@@ -96,9 +98,10 @@ class MessagingClient(
                             else -> logUnexpectedMessage(message, topic)
                         }
                     } catch (e: Exception) {
-                        log.error { "could not parse message: $e" }
+                        log.error(e) { "could not parse message: $e" }
                         e.printStackTrace()
                     }
+                    msgProcessed(message.toString())
                 }
 
                 private fun logStatMessage(stat: JsonStatMessage) {
@@ -110,7 +113,7 @@ class MessagingClient(
                 }
 
                 override fun connectionLost(cause: Throwable) {
-                    log.trace { "connectionLost: " + cause.message }
+                    log.trace(cause) { "connectionLost: " + cause.message }
                 }
 
                 override fun deliveryComplete(token: IMqttDeliveryToken) {
@@ -129,11 +132,5 @@ class MessagingClient(
     inline fun <reified T> decode(bytes: ByteArray): T {
         val string = String(bytes)
         return Json.decodeFromString<T>(string)
-    }
-
-    fun send(topic: String, body: String) {
-        val message = MqttMessage(body.toByteArray())
-        message.qos = QOS
-        client.publish(topic, message)
     }
 }

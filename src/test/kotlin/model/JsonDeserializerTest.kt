@@ -1,7 +1,8 @@
 package model
 
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
-import kotlin.test.assertNotNull
 import kotlinx.serialization.json.Json
 import nl.vanalphenict.model.JsonGameEventMessage
 import nl.vanalphenict.model.JsonGameTimeMessage
@@ -40,6 +41,12 @@ class JsonDeserializerTest {
         """
             .trimIndent()
 
+    val statMessageWithNulls =
+        """
+            {"event":"Demolish","matchGUID":"C76862A211F08C338A293793E8FBC013","player":{"id":"PS4|6316389444873430622|0","name":"abdo_Elsafah","score":390,"team":{"clubId":0,"homeTeam":false,"index":0,"num":0,"primaryColor":{"B":255,"G":115,"R":24},"score":2,"secondaryColor":{"B":229,"G":229,"R":229}}},"victim":{"id":"PS4|3330796669522920986|0","name":"TeamGhost-1998","score":30,"team":{"clubId":0,"homeTeam":true,"index":1,"name":"Team","num":1,"primaryColor":{"B":24,"G":100,"R":194},"score":1,"secondaryColor":{"B":229,"G":229,"R":229}}}}
+        """
+            .trimIndent()
+
     val gameTimeMessage =
         """
             {"matchGUID":"C76862A211F08C338A293793E8FBC013","overtime":false,"remaining":0}
@@ -49,37 +56,47 @@ class JsonDeserializerTest {
     @Test
     fun parseStatMessageTest() {
         val output = genericDecode<JsonStatMessage>(statMessage)
-        assertNotNull(output)
+        output shouldNotBe null
+    }
+
+    @Test
+    fun parseStatMessageTeamNullTest() {
+        val output = genericDecode<JsonStatMessage>(statMessageWithNulls)
+        output shouldNotBe null
+        val team = output?.player?.team!!
+
+        team.name shouldBe ""
+        team.players shouldBe emptyList()
     }
 
     @Test
     fun parseGameEventMessageTest() {
         val output = genericDecode<JsonGameEventMessage>(gameEventMessage)
-        assertNotNull(output)
+        output shouldNotBe null
     }
 
     @Test
     fun parseGameEventStartMessageTest() {
         val output = genericDecode<JsonGameEventMessage>(gameEventStartMessage)
-        assertNotNull(output)
+        output shouldNotBe null
     }
 
     @Test
     fun parseGameEventNullTeamsMessageTest() {
         val output = genericDecode<JsonGameEventMessage>(gameEventNullTeamsMessage)
-        assertNotNull(output)
+        output shouldNotBe null
     }
 
     @Test
     fun parseLogMessageTest() {
         val output = genericDecode<JsonLogMessage>(logMessage)
-        assertNotNull(output)
+        output shouldNotBe null
     }
 
     @Test
     fun parseGameTimeMessageTest() {
         val output = genericDecode<JsonGameTimeMessage>(gameTimeMessage)
-        assertNotNull(output)
+        output shouldNotBe null
     }
 
     private inline fun <reified T> genericDecode(input: String): T? {

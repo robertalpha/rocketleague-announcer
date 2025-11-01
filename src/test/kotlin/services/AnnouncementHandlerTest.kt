@@ -47,8 +47,7 @@ class AnnouncementHandlerTest {
 
     val cut =
         AnnouncementHandler(
-            MockDiscordService(playedSampleQueue),
-            getVoiceChannel(),
+            SamplePlayer(MockDiscordService(playedSampleQueue), getVoiceChannel()),
             constructSampleMapper(emptyMap()),
             listOf(AsIs(), Save2All()),
             gameEventInterpreters = listOf(),

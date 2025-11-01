@@ -19,7 +19,7 @@ jobs:
 
     - uses: gradle/actions/setup-gradle@v3
     - name: Run tests with Gradle
-      run: ./gradlew test
+      run: ./gradlew test -i
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

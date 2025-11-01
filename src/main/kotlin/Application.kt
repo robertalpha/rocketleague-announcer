@@ -1,8 +1,7 @@
 package nl.vanalphenict
 
-import com.janoz.discord.DiscordService
+import com.janoz.discord.SampleService
 import com.janoz.discord.VoiceFactory
-import com.janoz.discord.domain.VoiceChannel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -22,6 +21,7 @@ import nl.vanalphenict.services.AnnouncementHandler
 import nl.vanalphenict.services.EventHandler
 import nl.vanalphenict.services.GameTimeTrackerService
 import nl.vanalphenict.services.SampleMapper
+import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.services.announcement.AsIs
 import nl.vanalphenict.services.announcement.DemolitionChain
@@ -43,8 +43,6 @@ import nl.vanalphenict.utility.TimeService
 import nl.vanalphenict.utility.TimeServiceImpl
 import nl.vanalphenict.web.configureRouting
 import nl.vanalphenict.web.configureSSE
-import nl.vanalphenict.web.page.themeRoutes
-import nl.vanalphenict.web.routing.actionRoutes
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -81,15 +79,18 @@ fun Application.module(brokerAddress: String = "tcp://localhost:1883") {
     val voiceChannel = discordService.getVoiceChannel(System.getenv("VOICE_CHANNEL_ID")!!.toLong())
     val timeService = TimeServiceImpl()
 
-    moduleWithDependencies(discordService, voiceChannel, configs, brokerAddress, timeService)
+    val samplePlayer = SamplePlayer(discordService, voiceChannel)
+
+    moduleWithDependencies(samplePlayer, configs, brokerAddress, timeService, sampleService)
 }
 
 fun Application.moduleWithDependencies(
-    discordService: DiscordService,
-    voiceChannel: VoiceChannel,
+    samplePlayer: SamplePlayer,
     configs: MutableList<SampleMapper>,
     brokerAddress: String,
     timeService: TimeService,
+    sampleService: SampleService,
+    msgProcessed: ((msg: String) -> Unit) = {},
 ) {
 
     val statRepository = StatRepository()
@@ -98,8 +99,7 @@ fun Application.moduleWithDependencies(
     val gameTimeTrackerService = GameTimeTrackerService()
     val announcementHandler =
         AnnouncementHandler(
-            discordService,
-            voiceChannel,
+            samplePlayer,
             configs.last(),
             listOf(
                 AsIs(),
@@ -123,18 +123,18 @@ fun Application.moduleWithDependencies(
             .add(eventPersister)
             .add(SsePublisher(timeService))
             .build()
-    val client =
-        try {
-            MessagingClient(
-                eventHandler,
-                System.getenv("BROKER_ADDRESS") ?: brokerAddress,
-                timeService,
-                gameTimeTrackerService,
-            )
-        } catch (ex: Exception) {
-            log.error { "could not connect to broker" }
-            throw ex
-        }
+    try {
+        MessagingClient(
+            eventHandler,
+            System.getenv("BROKER_ADDRESS") ?: brokerAddress,
+            timeService,
+            gameTimeTrackerService,
+            msgProcessed,
+        )
+    } catch (ex: Exception) {
+        log.error(ex) { "could not connect to broker" }
+        throw ex
+    }
 
     install(ContentNegotiation) {
         json(
@@ -148,18 +148,18 @@ fun Application.moduleWithDependencies(
 
     install(SSE)
 
-    install(CallLogging) {
-        format { call ->
-            val status = call.response.status()
-            val httpMethod = call.request.httpMethod.value
-            val userAgent = call.request.headers["User-Agent"]
-            "Status: $status, HTTP method: $httpMethod, User agent: $userAgent"
+    if (log.isTraceEnabled()) {
+        install(CallLogging) {
+            format { call ->
+                val status = call.response.status()
+                val httpMethod = call.request.httpMethod.value
+                val userAgent = call.request.headers["User-Agent"]
+                "Status: $status, HTTP method: $httpMethod, User agent: $userAgent"
+            }
         }
     }
 
     val themeService = ThemeService(configs, announcementHandler)
-    configureRouting(client, themeService)
-    themeRoutes(themeService)
-    actionRoutes(statRepository)
+    configureRouting(themeService, sampleService, samplePlayer)
     configureSSE()
 }
