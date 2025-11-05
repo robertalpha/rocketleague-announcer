@@ -7,5 +7,9 @@ import nl.vanalphenict.model.StatEvents
 
 interface StatToAnnouncment {
     fun listenTo(): Set<StatEvents>
-    fun interpret(statMessage: nl.vanalphenict.model.StatMessage, currentTimeStamp: Instant = Clock.System.now()): Set<Announcement>
+
+    fun interpret(
+        statMessage: nl.vanalphenict.model.StatMessage,
+        currentTimeStamp: Instant = Clock.System.now(),
+    ): Set<Announcement>
 }

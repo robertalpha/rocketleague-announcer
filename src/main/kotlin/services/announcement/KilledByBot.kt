@@ -1,19 +1,18 @@
 package nl.vanalphenict.services.announcement
 
+import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
+import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
-import kotlin.time.Instant
 
 class KilledByBot : StatToAnnouncment {
     override fun listenTo() = setOf(StatEvents.DEMOLISH)
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
-        return if (
-            StatEvents.DEMOLISH.eq(statMessage.event) &&
-            statMessage.victim?.team?.homeTeam==true &&
-            statMessage.player.isBot())
+        if (statMessage !is KillMessage) return emptySet()
+        return if (statMessage.victim.team.homeTeam && statMessage.player.bot)
             setOf(Announcement.KILLED_BY_BOT)
         else emptySet()
     }

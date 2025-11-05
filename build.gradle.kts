@@ -1,5 +1,6 @@
 val ktor_version: String by project
 val htmx_version: String by project
+val webjars_htmx_ext_sse_version: String by project
 val tailwindcss_version: String by project
 val kotlinwind_version: String by project
 val kotlin_version: String by project
@@ -9,6 +10,7 @@ val logback_version: String by project
 val testcontainers_version: String by project
 val eclipse_paho_version: String by project
 val discord_voice_version: String by project
+val kotlin_logging_version: String by project
 
 plugins {
     application
@@ -19,6 +21,10 @@ plugins {
 
     // ./gradlew dependencyUpdates
     id("com.github.ben-manes.versions") version "0.53.0"
+
+    // ./gradlew spotlessKotlinCheck
+    id("com.diffplug.spotless") version "8.0.0"
+
 }
 
 kotlin{
@@ -35,11 +41,21 @@ application {
     mainClass = "io.ktor.server.netty.EngineMain"
 }
 
+// Static code analysis tools, for later
+spotless {
+    kotlin {
+        target("src/**/*.kt")
+        targetExclude("src/main/kotlin/model/Announcement.kt")
+        ktfmt().kotlinlangStyle()
+    }
+}
+
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-server-sse:${ktor_version}")
     implementation("io.ktor:ktor-server-config-yaml:$ktor_version")
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
@@ -47,7 +63,9 @@ dependencies {
 
     implementation("io.ktor:ktor-server-call-logging:${ktor_version}")
     implementation("io.ktor:ktor-server-webjars:${ktor_version}")
+
     implementation("org.webjars.npm:htmx.org:${htmx_version}")
+    implementation("org.webjars.npm:htmx-ext-sse:${webjars_htmx_ext_sse_version}")
 
     implementation("io.github.allangomes:kotlinwind-css:$kotlinwind_version")
     implementation("org.webjars.npm:tailwindcss__browser:$tailwindcss_version")
@@ -63,6 +81,7 @@ dependencies {
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:$eclipse_paho_version")
 
     implementation("com.janoz.discord:discord-voice:$discord_voice_version" )
+    implementation("io.github.oshai:kotlin-logging-jvm:$kotlin_logging_version")
 
     testImplementation("org.testcontainers:testcontainers:$testcontainers_version")
     testImplementation("org.testcontainers:junit-jupiter:$testcontainers_version")

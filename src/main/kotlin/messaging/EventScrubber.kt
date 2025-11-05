@@ -1,54 +1,87 @@
 package nl.vanalphenict.messaging
 
-import kotlin.time.Clock
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
-import nl.vanalphenict.model.GameEventMessage
-import nl.vanalphenict.model.GameTimeMessage
-import nl.vanalphenict.model.LogMessage
-import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.model.JsonGameEventMessage
+import nl.vanalphenict.model.JsonGameTimeMessage
+import nl.vanalphenict.model.JsonLogMessage
+import nl.vanalphenict.model.JsonStatMessage
+import nl.vanalphenict.model.RLAMetaData
+import nl.vanalphenict.model.StatEvents
+import nl.vanalphenict.model.parseGameEventMessage
+import nl.vanalphenict.model.parseGameTimeMessage
+import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.services.EventHandler
+import nl.vanalphenict.services.GameTimeTrackerService
+import nl.vanalphenict.utility.TimeService
 
-class EventScrubber(private val eventHandler: EventHandler) {
+class EventScrubber(
+    private val eventHandler: EventHandler,
+    private val gameTimeTrackerService: GameTimeTrackerService,
+    private val timeService: TimeService,
+) {
+
+    private val log = KotlinLogging.logger {}
 
     private val messagesCache: MutableMap<Int, Instant> = HashMap()
 
-
-    fun processGameEvent(msg: GameEventMessage) {
+    fun processGameEvent(msg: JsonGameEventMessage) {
         messagesCache.computeIfAbsent(msg.hashCode()) {
-            eventHandler.handleGameEvent(msg)
-            Clock.System.now()
+            parseGameEventMessage(msg)?.let {
+                val time = gameTimeTrackerService.getGameTime(msg.matchGUID)
+                eventHandler.handleGameEvent(
+                    it,
+                    RLAMetaData(
+                        matchGUID = it.matchGUID,
+                        overtime = time.overtime,
+                        remaining = time.remaining,
+                    ),
+                )
+            } ?: log.warn { "Unable to parse game event message: $msg" }
+            timeService.now()
         }
         clearCache()
     }
 
-    fun processStat(msg: StatMessage) {
-        //Filter demolish stat message. Only use ticker
-        if (msg.event == "Demolish" && msg.victim == null) return
+    fun processStat(msg: JsonStatMessage) {
+        // Filter demolish stat message. Only use ticker
+        if (StatEvents.DEMOLISH.eq(msg.event) && msg.victim == null) return
         messagesCache.computeIfAbsent(msg.hashCode()) {
-            eventHandler.handleStatMessage(msg)
-            Clock.System.now()
+            parseStatMessage(msg)?.let {
+                val time = gameTimeTrackerService.getGameTime(msg.matchGUID)
+                eventHandler.handleStatMessage(
+                    it,
+                    RLAMetaData(
+                        matchGUID = it.matchGUID,
+                        overtime = time.overtime,
+                        remaining = time.remaining,
+                    ),
+                )
+            } ?: log.warn { "Unable to parse stat message: $msg" }
+            timeService.now()
         }
-        //BallHit is a frequent stat message, never double
+        // BallHit is a frequent stat message, never double
         if (msg.event != "BallHit") {
             clearCache()
         }
     }
 
-    fun processGameTime(msg: GameTimeMessage) {
+    fun processGameTime(msg: JsonGameTimeMessage) {
         messagesCache.computeIfAbsent(msg.hashCode()) {
-            eventHandler.handleGameTime(msg)
-            Clock.System.now()
+            val gameTimeMessage = parseGameTimeMessage(msg)
+            gameTimeTrackerService.storeGameTime(gameTimeMessage)
+            eventHandler.handleGameTime(gameTimeMessage)
+            timeService.now()
         }
         clearCache()
     }
 
-    fun processLog(msg: LogMessage) {
+    fun processLog(msg: JsonLogMessage) {
         eventHandler.handleLog(msg)
     }
 
     private fun clearCache() {
-        messagesCache.entries.removeIf { it.value.plus (500.milliseconds) < Clock.System.now() }
+        messagesCache.entries.removeIf { it.value.plus(500.milliseconds) < timeService.now() }
     }
 }
-

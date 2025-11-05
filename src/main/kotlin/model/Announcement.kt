@@ -1,5 +1,10 @@
 package nl.vanalphenict.model
 
+/**
+ * Home and away teams are determined by which players are sending in events. Players sending in
+ * events are considered home team. Results might get unpredictable when players from both teams are
+ * connected.
+ */
 enum class Announcement {
     KILLED_BY_BOT,          // When a bot kills a player
     OWN_GOAL,               // When a player scores an own goal
@@ -20,11 +25,23 @@ enum class Announcement {
     EXTERMINATION_DOUBLE,   // 14 demolitions = second extermination
     MUTUAL_DESTRUCTION,     // Player demolishes opponent, but is demolished as well
 
-    MATCH_START,            // Match timer has started
+    GOAL,                   // Goal
+    GOAL_HOME,              // Goal scored by home team
+    GOAL_AWAY,              // Goal scored by away team
+    GOAL_BY_BOT,            // Goal scored by bot
+
+    MATCH_START,            // Match has started
+
+    LEFT_5,                 // 5 secconds left
+    LEFT_4,                 // 4 secconds left
+    LEFT_3,                 // 3 secconds left
+    LEFT_2,                 // 2 secconds left
+    LEFT_1,                 // 1 secconds left
+
 
     // Direct mapping from Rocket League events
     AERIAL_GOAL,
-    BACKWARD_GOAL,
+    BACKWARDS_GOAL,
     BICYCLE_GOAL,
     LONG_GOAL,
     TURTLE_GOAL,

@@ -1,4 +1,4 @@
-package nl.vanalphenict.page
+package nl.vanalphenict.web.page
 
 import io.github.allangomes.kotlinwind.css.kw
 import io.ktor.server.html.Placeholder
@@ -27,52 +27,72 @@ import nl.vanalphenict.services.ThemeService
 
 class Root {
 
-    class LayoutTemplate(val themeService: ThemeService): Template<HTML> {
+    class LayoutTemplate(val themeService: ThemeService) : Template<HTML> {
         val header = Placeholder<FlowContent>()
         val content = TemplatePlaceholder<ContentTemplate>()
+
         override fun HTML.apply() {
             head {
                 // TODO: replace with build step to optimize css
                 script { src = "assets/tailwindcss__browser/dist/index.global.js" }
-
             }
             body {
-                style = kw.inline { flex.col.items_center.justify_center.gap[4]; }
-
+                style = kw.inline { flex.col.items_center.justify_center.gap[4] }
+                classes = setOf("bg-gray-900")
 
                 div {
-
                     h1 {
-                        classes = setOf("font-bold","leading-snug"," tracking-tight"," text-blue-600"," mx-auto"," w-full"," text-2xl"," lg:max-w-3xl"," lg:text-5xl")
-
+                        classes =
+                            setOf(
+                                "font-bold",
+                                "leading-snug",
+                                " tracking-tight",
+                                " text-blue-600",
+                                " mx-auto",
+                                " w-full",
+                                " text-2xl",
+                                " lg:max-w-3xl",
+                                " lg:text-5xl",
+                            )
                         insert(header)
                     }
 
                     p {
-                        +"Select theme:"
+                        classes =
+                            setOf(
+                                "font-bold",
+                                "leading-snug",
+                                " tracking-tight",
+                                " text-blue-400",
+                                " mx-auto",
+                            )
+                        +"Theme:"
                     }
                     div {
-                        renderThemes(themeService.themes,themeService.selectedTheme)
+                        attributes["hx-ext"] = "sse"
+                        attributes["sse-connect"] = "/sse"
+                        attributes["sse-swap"] = "switch_theme"
+                        div { renderThemes(themeService.themes, themeService.selectedTheme) }
                     }
 
-
-
+                    div { renderActions() }
                 }
 
-                script { src = "assets/htmx.org/dist/htmx.js" }
+                val htmx = { e: String -> "assets/htmx.org/dist/$e" }
+                script(src = htmx("htmx.js")) {}
+                script(src = htmx("ext/json-enc.js")) {}
+                script(src = "assets/htmx-ext-sse/dist/sse.js") {}
             }
-
         }
     }
 
     class ContentTemplate : Template<FlowContent> {
         val articleTitle = Placeholder<FlowContent>()
         val list = TemplatePlaceholder<ListTemplate>()
+
         override fun FlowContent.apply() {
             article {
-                h2 {
-                    insert(articleTitle)
-                }
+                h2 { insert(articleTitle) }
                 insert(ListTemplate(), list)
             }
         }
@@ -80,15 +100,14 @@ class Root {
 
     class ListTemplate : Template<FlowContent> {
         val item = PlaceholderList<UL, FlowContent>()
+
         override fun FlowContent.apply() {
             if (!item.isEmpty()) {
                 ul {
                     each(item) {
                         li {
                             if (it.first) {
-                                b {
-                                    insert(it)
-                                }
+                                b { insert(it) }
                             } else {
                                 insert(it)
                             }
@@ -98,5 +117,4 @@ class Root {
             }
         }
     }
-
 }

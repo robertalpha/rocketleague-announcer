@@ -15,28 +15,30 @@ class DemolitionChain(private val statRepository: StatRepository) : StatToAnnoun
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
 
-        if (statMessage.player.team?.homeTeam == false) return emptySet()
+        if (!statMessage.player.team.homeTeam) return emptySet()
 
-        var demos = statRepository.getStatHistory(statMessage.matchGUID)
-            .filter { (_,message) -> StatEvents.DEMOLISH.eq(message.event) }
-            .filter { (_,message) -> message.player.team?.homeTeam == true }
-            .sortedByDescending { it.first }
+        var demos =
+            statRepository
+                .getStatHistory(statMessage.matchGUID)
+                .filter { (_, message) -> StatEvents.DEMOLISH == message.event }
+                .filter { (_, message) -> message.player.team.homeTeam }
+                .sortedByDescending { it.timestamp }
 
         var pivot = currentTimeStamp
         var democounter = 1
         if (demos.isEmpty()) return emptySet()
         do {
             val head = demos.first()
-            if(pivot.minus(head.first) < PIVOT_DURATION) {
+            if (pivot.minus(head.timestamp) < PIVOT_DURATION) {
                 democounter++
-                pivot = head.first
+                pivot = head.timestamp
                 demos = demos.drop(1)
             } else {
                 demos = emptyList()
             }
         } while (demos.isNotEmpty())
 
-        return when(democounter) {
+        return when (democounter) {
             2 -> setOf(Announcement.DOUBLE_KILL)
             3 -> setOf(Announcement.TRIPLE_KILL)
             4 -> setOf(Announcement.QUAD_KILL)

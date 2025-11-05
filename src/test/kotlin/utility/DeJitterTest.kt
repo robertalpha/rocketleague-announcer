@@ -7,18 +7,14 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class DeJitterTest {
 
-    fun compare (l1:Long, l2:Long): Int {
+    fun compare(l1: Long, l2: Long): Int {
         return l1.compareTo(l2)
     }
 
     @Test
     fun testDeJitter() {
         val answers = ArrayList<Long>()
-        val deJittered = DeJitter<Long>(
-            100.milliseconds,
-             this::compare,
-            { o -> answers.add(o) }
-        )
+        val deJittered = DeJitter<Long>(100.milliseconds, this::compare, answers::add)
 
         true shouldBe true
 
@@ -37,9 +33,6 @@ class DeJitterTest {
         deJittered.add(1L) shouldBe true
         Thread.sleep(101)
 
-        answers shouldContainExactly listOf(3,1)
-
+        answers shouldContainExactly listOf(3, 1)
     }
-
-
 }
