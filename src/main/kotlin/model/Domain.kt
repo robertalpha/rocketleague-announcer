@@ -65,7 +65,7 @@ fun parseTeam(src: JsonTeam, srcPlayer: JsonPlayer?): Team {
             primaryColor = primaryColor,
             secondaryColor = secondaryColor,
             name =
-                if (src.name != "") src.name
+                if (src.name != null && src.name != "") src.name
                 else
                     when (primaryColor) {
                         BLUE -> "TEAM BLUE"

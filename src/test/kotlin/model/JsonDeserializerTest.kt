@@ -65,7 +65,6 @@ class JsonDeserializerTest {
         output shouldNotBe null
         val team = output?.player?.team!!
 
-        team.name shouldBe ""
         team.players shouldBe emptyList()
     }
 

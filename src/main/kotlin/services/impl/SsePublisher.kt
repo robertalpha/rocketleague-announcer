@@ -3,8 +3,6 @@ package nl.vanalphenict.services.impl
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.math.max
 import kotlinx.coroutines.runBlocking
-import kotlinx.html.body
-import kotlinx.html.stream.createHTML
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameEvents
 import nl.vanalphenict.model.GameTimeMessage
@@ -16,7 +14,7 @@ import nl.vanalphenict.model.Team
 import nl.vanalphenict.services.EventHandler
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import nl.vanalphenict.web.triggerUpdateSSE
-import nl.vanalphenict.web.view.actionListItem
+import nl.vanalphenict.web.view.actionListItemHtml
 import nl.vanalphenict.web.view.emptyTeam
 import nl.vanalphenict.web.view.scoreBoardHtml
 import nl.vanalphenict.web.view.teamsInfoHtml
@@ -32,8 +30,9 @@ class SsePublisher() : EventHandler {
 
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         log.trace { "SSE HANDLER handeling: ${msg.event.eventName}" }
-        val htmlText = createHTML().body { actionListItem(msg, metaData) }
-        runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
+        runBlocking {
+            triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, actionListItemHtml(msg, metaData))
+        }
 
         synchronized(this) {
             val oldGame = getGame(msg.matchGUID)
@@ -57,20 +56,25 @@ class SsePublisher() : EventHandler {
         if (msg.gameEvent == GameEvents.TEAMS_CREATED) {
             runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.SCORE_BOARD, scoreBoardHtml()) }
         }
-        if (msg.teams.size != 2) return
-        synchronized(this) {
-            val game =
-                if (msg.teams[0].homeTeam) Game(msg.teams[0], msg.teams[1])
-                else Game(msg.teams[1], msg.teams[0])
-            game.homeScore = game.home.score
-            game.awayScore = game.away.score
-            updateTeams(msg.matchGUID, game)
+        if (msg.teams.size == 2) {
+            synchronized(this) {
+                val game =
+                    if (msg.teams[0].homeTeam) Game(msg.teams[0], msg.teams[1])
+                    else Game(msg.teams[1], msg.teams[0])
+                game.homeScore = game.home.score
+                game.awayScore = game.away.score
+                updateTeams(msg.matchGUID, game)
+            }
         }
     }
 
     override fun handleGameTime(msg: GameTimeMessage) {
-        val htmlText = timeRemainingHtml(msg.remaining, msg.overtime)
-        runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.GAME_TIME, htmlText) }
+        runBlocking {
+            triggerUpdateSSE(
+                SSE_EVENT_TYPE.GAME_TIME,
+                timeRemainingHtml(msg.remaining, msg.overtime),
+            )
+        }
     }
 
     private fun updateTeams(matchGUID: String, game: Game) {
