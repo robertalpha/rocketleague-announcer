@@ -1,6 +1,5 @@
 package nl.vanalphenict.web.view
 
-import kotlin.time.Duration
 import kotlinx.html.HtmlBlockTag
 import kotlinx.html.LI
 import kotlinx.html.b
@@ -12,19 +11,16 @@ import kotlinx.html.span
 import kotlinx.html.style
 import kotlinx.html.visit
 import nl.vanalphenict.model.KillMessage
-import nl.vanalphenict.repository.StatRepository
+import nl.vanalphenict.model.RLAMetaData
+import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.utility.ColorUtils.Companion.toHexString
 import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
 
-fun HtmlBlockTag.actionListItem(
-    actionItem: StatRepository.StatMessageRecord,
-    timeLeft: Duration,
-    overtime: Boolean,
-) {
+fun HtmlBlockTag.actionListItem(message: StatMessage, metaData: RLAMetaData) {
     li {
         // no icons are associated with these:
         val hidden =
-            actionItem.message.event.eventName in
+            message.event.eventName in
                 setOf(
                     "BoostPickups",
                     "SmallBoostsCollected",
@@ -44,7 +40,7 @@ fun HtmlBlockTag.actionListItem(
         classes = if (hidden) setOf("hidden") else setOf("actionItem")
 
         img {
-            src = "web/icons/${actionItem.message.event.eventName}.webp"
+            src = "web/icons/${message.event.eventName}.webp"
             height = "50px"
             width = "50px"
         }
@@ -52,46 +48,46 @@ fun HtmlBlockTag.actionListItem(
         div {
             classes = setOf("accent")
             style =
-                "background: linear-gradient(0deg, ${actionItem.message.player.team.secondaryColor.darker().toHexString()} 0%, ${actionItem.message.player.team.secondaryColor.brighter().toHexString()} 100%);"
+                "background: linear-gradient(0deg, ${message.player.team.secondaryColor.darker().toHexString()} 0%, ${message.player.team.secondaryColor.brighter().toHexString()} 100%);"
             div {
                 classes = setOf("team")
                 style =
-                    "background: linear-gradient(0deg, ${actionItem.message.player.team.primaryColor.darker().toHexString()} 0%, ${actionItem.message.player.team.primaryColor.brighter().toHexString()} 100%);"
-                span { +actionItem.message.player.team.tag }
+                    "background: linear-gradient(0deg, ${message.player.team.primaryColor.darker().toHexString()} 0%, ${message.player.team.primaryColor.brighter().toHexString()} 100%);"
+                span { +message.player.team.tag }
             }
         }
         div {
             classes = setOf("info")
             span {
                 classes = setOf("time")
-                if (overtime) {
+                if (metaData.overtime) {
                     span { +"+" }
                 }
-                +timeLeft.toGameString
+                +metaData.remaining.toGameString
             }
             span {
                 classes = setOf("name")
-                +actionItem.message.player.name
+                +message.player.name
             }
             br
             span {
                 classes = setOf("info")
-                if (actionItem.message is KillMessage) {
+                if (message is KillMessage) {
                     +"Demolished "
-                    b { +actionItem.message.victim.name }
+                    b { +message.victim.name }
                 } else {
-                    +actionItem.message.event.eventName
+                    +message.event.eventName
                 }
             }
             br
             span {
                 classes = setOf("announcements")
-                actionItem.metatada.prevailingAnnouncement?.let {
+                metaData.prevailingAnnouncement?.let {
                     b { +it.name }
                     +" / "
                 }
-                +actionItem.metatada.announcements
-                    .filter { it != actionItem.metatada.prevailingAnnouncement }
+                +metaData.announcements
+                    .filter { it != metaData.prevailingAnnouncement }
                     .joinToString(" / ") { it.name }
             }
         }

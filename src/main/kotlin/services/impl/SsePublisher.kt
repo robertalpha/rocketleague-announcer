@@ -13,7 +13,6 @@ import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.model.Team
-import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.EventHandler
 import nl.vanalphenict.utility.TimeService
 import nl.vanalphenict.web.SSE_EVENT_TYPE
@@ -34,9 +33,7 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
 
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         log.trace { "SSE HANDLER handeling: ${msg.event.eventName}" }
-        val actionItem = StatRepository.StatMessageRecord(timeService.now(), msg, metaData)
-        val htmlText =
-            createHTML().body { actionListItem(actionItem, metaData.remaining, metaData.overtime) }
+        val htmlText = createHTML().body { actionListItem(msg, metaData) }
         runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
 
         synchronized(this) {
