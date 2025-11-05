@@ -3,7 +3,12 @@ package nl.vanalphenict.model
 import java.util.Collections
 import kotlinx.serialization.Serializable
 
-val CLUB_MAP = HashMap<Int, JsonClub>()
+val CLUB_MAP =
+    HashMap<Int, JsonClub>(
+        mapOf<Int, JsonClub>(
+            -1 to JsonClub(-1, "", "", JsonColor(229, 229, 229), JsonColor(128, 128, 128))
+        )
+    )
 
 @Serializable
 data class JsonGameEventMessage(
@@ -97,7 +102,7 @@ data class JsonTeam(
     val score: Int? = null,
     val primaryColor: JsonColor? = null,
     val secondaryColor: JsonColor? = null,
-    val players: List<JsonPlayer>? = Collections.emptyList(),
+    val players: List<JsonPlayer> = Collections.emptyList(),
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -116,7 +121,7 @@ data class JsonTeam(
     override fun hashCode(): Int {
         var result = clubId ?: 0
         result = 31 * result + (index ?: 0)
-        result = 31 * result + (players?.hashCode() ?: 0)
+        result = 31 * result + (players.hashCode())
         return result
     }
 }

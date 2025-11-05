@@ -29,3 +29,7 @@ If the server starts successfully, you'll see the following output:
 2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
 ```
 
+
+
+### Disclaimer:
+The Rocket League name and logo are a registered trademark of Psyonix and Epic Games. Its use in this project does not imply endorsement, sponsorship, or affiliation with Rocket League Announcer.

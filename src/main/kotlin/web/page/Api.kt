@@ -8,7 +8,10 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.routing.put
 import io.ktor.server.routing.routing
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import kotlinx.html.DIV
 import kotlinx.html.body
 import kotlinx.html.button
@@ -16,27 +19,25 @@ import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.id
 import kotlinx.html.role
-import kotlinx.html.stream.createHTML
 import kotlinx.html.style
+import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.services.Theme
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import nl.vanalphenict.web.triggerUpdateSSE
 
-fun Application.themeRoutes(themeService: ThemeService) {
+fun Application.themeRoutes(themeService: ThemeService, samplePlayer: SamplePlayer) {
     routing {
         // select a theme
         post("/themes") {
-            val themeId =
-                call.receive<String>().also {
-                    val id = it.substringAfter("=")
-                    themeService.selectTheme(id.toInt())
-                }
+            call.receive<String>().also {
+                val id = it.substringAfter("=")
+                themeService.selectTheme(id.toInt())
+            }
 
-            val htmlText =
-                createHTML().div { renderThemes(themeService.themes, themeService.selectedTheme) }
+            val htmlText = themeHtml(themeService.themes, themeService.selectedTheme)
             triggerUpdateSSE(SSE_EVENT_TYPE.SWITCH_THEME, htmlText)
-            call.respond(HttpStatusCode.OK)
+            call.respond(HttpStatusCode.OK, message = htmlText)
         }
 
         // read themes
@@ -44,6 +45,14 @@ fun Application.themeRoutes(themeService: ThemeService) {
             call.respondHtml {
                 body { div { renderThemes(themeService.themes, themeService.selectedTheme) } }
             }
+        }
+
+        put(path = "/play") {
+            call.receive<String>().also {
+                val id = it.substringAfter("=")
+                samplePlayer.play(URLDecoder.decode(id, StandardCharsets.UTF_8))
+            }
+            call.respond(HttpStatusCode.Accepted)
         }
     }
 }

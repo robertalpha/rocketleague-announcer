@@ -1,82 +1,94 @@
 package nl.vanalphenict.web.page
 
-import io.github.allangomes.kotlinwind.css.kw
-import io.ktor.server.html.Placeholder
-import io.ktor.server.html.PlaceholderList
+import com.janoz.discord.SampleService
 import io.ktor.server.html.Template
-import io.ktor.server.html.TemplatePlaceholder
-import io.ktor.server.html.each
-import io.ktor.server.html.insert
-import kotlinx.html.FlowContent
 import kotlinx.html.HTML
-import kotlinx.html.UL
-import kotlinx.html.article
-import kotlinx.html.b
+import kotlinx.html.HtmlBlockTag
 import kotlinx.html.body
+import kotlinx.html.button
 import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.h2
 import kotlinx.html.head
-import kotlinx.html.li
-import kotlinx.html.p
+import kotlinx.html.id
+import kotlinx.html.option
 import kotlinx.html.script
-import kotlinx.html.style
+import kotlinx.html.select
+import kotlinx.html.span
+import kotlinx.html.stream.createHTML
+import kotlinx.html.styleLink
 import kotlinx.html.ul
+import nl.vanalphenict.services.Theme
 import nl.vanalphenict.services.ThemeService
+import nl.vanalphenict.web.SSE_EVENT_TYPE
+import nl.vanalphenict.web.view.scoreBoard
 
 class Root {
 
-    class LayoutTemplate(val themeService: ThemeService) : Template<HTML> {
-        val header = Placeholder<FlowContent>()
-        val content = TemplatePlaceholder<ContentTemplate>()
+    class LayoutTemplate(val themeService: ThemeService, val sampleService: SampleService) :
+        Template<HTML> {
 
         override fun HTML.apply() {
             head {
-                // TODO: replace with build step to optimize css
-                script { src = "assets/tailwindcss__browser/dist/index.global.js" }
+                styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
+                styleLink(
+                    href = "https://fonts.googleapis.com",
+                    type = "text/css",
+                    rel = "preconnect",
+                )
+                styleLink(
+                    href =
+                        "https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap",
+                    rel = "stylesheet",
+                )
             }
             body {
-                style = kw.inline { flex.col.items_center.justify_center.gap[4] }
-                classes = setOf("bg-gray-900")
+                attributes["hx-ext"] = "sse"
+                attributes["sse-connect"] = "/sse"
+                h1 { +"Rocket League Announcer" }
 
                 div {
-                    h1 {
-                        classes =
-                            setOf(
-                                "font-bold",
-                                "leading-snug",
-                                " tracking-tight",
-                                " text-blue-600",
-                                " mx-auto",
-                                " w-full",
-                                " text-2xl",
-                                " lg:max-w-3xl",
-                                " lg:text-5xl",
-                            )
-                        insert(header)
-                    }
+                    classes = setOf("select")
+                    +"Announcer theme: "
+                    themeElement(themeService.themes, themeService.selectedTheme)
+                }
 
-                    p {
-                        classes =
-                            setOf(
-                                "font-bold",
-                                "leading-snug",
-                                " tracking-tight",
-                                " text-blue-400",
-                                " mx-auto",
-                            )
-                        +"Theme:"
+                div {
+                    classes = setOf("content")
+                    div {
+                        classes = setOf("optional")
+                        sampleService.packs.forEach { pack ->
+                            h2 { +pack.name }
+                            pack.samples
+                                .sortedBy { it.name }
+                                .forEach { sample ->
+                                    button {
+                                        attributes["hx-put"] = "/play"
+                                        attributes["hx-vals"] = "{\"sample\":\"${sample.id}\"}"
+                                        attributes["hx-swap"] = "none"
+
+                                        span { +sample.name }
+                                    }
+                                    +" "
+                                }
+                        }
+                        div { classes = setOf("spacer") }
+                    }
+                    ul {
+                        id = "actionlist"
+                        attributes["sse-swap"] = "new_action"
+                        attributes["hx-swap"] = "afterbegin"
+                        attributes["hx-target"] = "#actionlist"
                     }
                     div {
-                        attributes["hx-ext"] = "sse"
-                        attributes["sse-connect"] = "/sse"
-                        attributes["sse-swap"] = "switch_theme"
-                        div { renderThemes(themeService.themes, themeService.selectedTheme) }
+                        classes = setOf("veryOptional")
+                        +"WHAT A WIDE SCREEN!!!!"
                     }
-
-                    div { renderActions() }
                 }
+                div { id = "fader" }
+
+                scoreBoard()
 
                 val htmx = { e: String -> "assets/htmx.org/dist/$e" }
                 script(src = htmx("htmx.js")) {}
@@ -85,35 +97,47 @@ class Root {
             }
         }
     }
+}
 
-    class ContentTemplate : Template<FlowContent> {
-        val articleTitle = Placeholder<FlowContent>()
-        val list = TemplatePlaceholder<ListTemplate>()
+fun themeHtml(themes: List<Theme>, selectedTheme: Theme) =
+    createHTML().body { themeElement(themes, selectedTheme) }
 
-        override fun FlowContent.apply() {
-            article {
-                h2 { insert(articleTitle) }
-                insert(ListTemplate(), list)
+fun HtmlBlockTag.themeElement(themes: List<Theme>, selectedTheme: Theme) {
+    if (themes.size < 4) themeButtons(themes, selectedTheme) else themeSelect(themes, selectedTheme)
+}
+
+fun HtmlBlockTag.themeButtons(themes: List<Theme>, selectedTheme: Theme) {
+    div {
+        attributes["hx-swap"] = "outerHTML"
+        attributes["sse-swap"] = SSE_EVENT_TYPE.SWITCH_THEME.asString()
+        id = "announcerButtons"
+        themes.forEach { theme ->
+            button {
+                classes = if (selectedTheme == theme) setOf("selected") else emptySet()
+                attributes["hx-post"] = "/themes"
+                attributes["hx-vals"] = "{\"announcerSelect\":\"${theme.id}\"}"
+                attributes["hx-swap"] = "none"
+
+                span { +theme.title }
             }
         }
     }
+}
 
-    class ListTemplate : Template<FlowContent> {
-        val item = PlaceholderList<UL, FlowContent>()
+fun HtmlBlockTag.themeSelect(themes: List<Theme>, selectedTheme: Theme) {
+    select {
+        attributes["hx-post"] = "/themes"
+        attributes["hx-trigger"] = "change"
+        attributes["hx-swap"] = "outerHTML"
+        attributes["sse-swap"] = SSE_EVENT_TYPE.SWITCH_THEME.asString()
+        id = "announcerSelect"
+        name = "announcerSelect"
 
-        override fun FlowContent.apply() {
-            if (!item.isEmpty()) {
-                ul {
-                    each(item) {
-                        li {
-                            if (it.first) {
-                                b { insert(it) }
-                            } else {
-                                insert(it)
-                            }
-                        }
-                    }
-                }
+        themes.forEach { theme ->
+            option {
+                value = theme.id.toString()
+                selected = (selectedTheme == theme)
+                +theme.title
             }
         }
     }

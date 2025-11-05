@@ -1,6 +1,6 @@
 package integrationTests
 
-import com.janoz.discord.VoiceFactory
+import com.janoz.discord.VoiceContext
 import com.janoz.discord.domain.Guild
 import com.janoz.discord.domain.VoiceChannel
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -29,7 +29,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import nl.vanalphenict.moduleWithDependencies
 import nl.vanalphenict.services.SampleMapper
+import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.utility.TimeServiceMock
+import nl.vanalphenict.web.SSE_EVENT_TYPE
 import org.testcontainers.junit.jupiter.Testcontainers
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -48,17 +50,16 @@ class MessagingTest : AbstractMessagingTest() {
 
         application {
             val mappedPort = mosquitto.getMappedPort(1883)
-            val voiceContext = VoiceFactory.createVoiceContextMock()
-            val discordService = voiceContext.discordService
+            val voiceContext = VoiceContext.builder().asMock().build()
             val configsList = mutableListOf(SampleMapper("123", "123", emptyMap()))
             val voiceChannel =
                 VoiceChannel.builder().guild(Guild.builder().id(1L).build()).id(2L).build()
             moduleWithDependencies(
-                discordService = discordService,
-                voiceChannel = voiceChannel,
+                samplePlayer = SamplePlayer(voiceContext.discordService, voiceChannel),
                 configs = configsList,
                 brokerAddress = "tcp://localhost:$mappedPort",
                 timeServiceMock,
+                sampleService = voiceContext.sampleService,
             )
         }
         client = createClient { install(ContentNegotiation) { json() } }
@@ -96,10 +97,12 @@ class MessagingTest : AbstractMessagingTest() {
             }
         }
         eventually(10.seconds) {
-            sseData.size shouldBe 48
-            sseData.count { it.data?.contains("icons/Demolish.webp") ?: false } shouldBe 4
-            sseData.count { it.data?.contains("icons/Goal.webp") ?: false } shouldBe 5
-            sseData.count { it.data?.contains("icons/Win.webp") ?: false } shouldBe 3
+            val actionEvents =
+                sseData.filter { it.event.equals(SSE_EVENT_TYPE.NEW_ACTION.asString()) }
+            actionEvents.size shouldBe 48
+            actionEvents.count { it.data?.contains("icons/Demolish.webp") ?: false } shouldBe 4
+            actionEvents.count { it.data?.contains("icons/Goal.webp") ?: false } shouldBe 5
+            actionEvents.count { it.data?.contains("icons/Win.webp") ?: false } shouldBe 3
         }
     }
 
