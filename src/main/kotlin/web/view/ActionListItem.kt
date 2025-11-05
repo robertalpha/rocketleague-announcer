@@ -3,11 +3,13 @@ package nl.vanalphenict.web.view
 import kotlinx.html.HtmlBlockTag
 import kotlinx.html.LI
 import kotlinx.html.b
+import kotlinx.html.body
 import kotlinx.html.br
 import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.img
 import kotlinx.html.span
+import kotlinx.html.stream.createHTML
 import kotlinx.html.style
 import kotlinx.html.visit
 import nl.vanalphenict.model.KillMessage
@@ -15,6 +17,9 @@ import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.utility.ColorUtils.Companion.toHexString
 import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
+
+fun actionListItemHtml(msg: StatMessage, metaData: RLAMetaData) =
+    createHTML().body { actionListItem(msg, metaData) }
 
 fun HtmlBlockTag.actionListItem(message: StatMessage, metaData: RLAMetaData) {
     li {
