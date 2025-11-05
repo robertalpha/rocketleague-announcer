@@ -1,7 +1,6 @@
 val ktor_version: String by project
 val htmx_version: String by project
 val webjars_htmx_ext_sse_version: String by project
-val kotlinwind_version: String by project
 val kotlin_version: String by project
 val kotest_version: String by project
 val kotlinx_serialization_json_version: String by project
