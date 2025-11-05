@@ -12,7 +12,7 @@ class StatRepository {
     data class StatMessageRecord(
         val timestamp: Instant,
         val message: StatMessage,
-        val metatada: RLAMetaData,
+        val metaData: RLAMetaData,
     )
 
     companion object {
