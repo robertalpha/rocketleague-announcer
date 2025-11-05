@@ -97,7 +97,7 @@ data class JsonTeam(
     val clubId: Int? = null,
     val homeTeam: Boolean? = null,
     val index: Int? = null,
-    val name: String = "",
+    val name: String? = null,
     val num: Int? = null,
     val score: Int? = null,
     val primaryColor: JsonColor? = null,
@@ -121,7 +121,7 @@ data class JsonTeam(
     override fun hashCode(): Int {
         var result = clubId ?: 0
         result = 31 * result + (index ?: 0)
-        result = 31 * result + (players?.hashCode() ?: 0)
+        result = 31 * result + (players.hashCode())
         return result
     }
 }
