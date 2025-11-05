@@ -119,10 +119,7 @@ fun Application.moduleWithDependencies(
             listOf(MatchStart(gameEventRepository)),
         )
     val eventHandler =
-        EventHandler.Builder(announcementHandler)
-            .add(eventPersister)
-            .add(SsePublisher(timeService))
-            .build()
+        EventHandler.Builder(announcementHandler).add(eventPersister).add(SsePublisher()).build()
     try {
         MessagingClient(
             eventHandler,

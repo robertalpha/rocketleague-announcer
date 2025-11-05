@@ -14,7 +14,6 @@ import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.model.Team
 import nl.vanalphenict.services.EventHandler
-import nl.vanalphenict.utility.TimeService
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import nl.vanalphenict.web.triggerUpdateSSE
 import nl.vanalphenict.web.view.actionListItem
@@ -23,7 +22,7 @@ import nl.vanalphenict.web.view.scoreBoardHtml
 import nl.vanalphenict.web.view.teamsInfoHtml
 import nl.vanalphenict.web.view.timeRemainingHtml
 
-class SsePublisher(val timeService: TimeService) : EventHandler {
+class SsePublisher() : EventHandler {
 
     private val log = KotlinLogging.logger {}
 
