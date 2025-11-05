@@ -64,7 +64,7 @@ class MessagingTest : AbstractMessagingTest() {
                 brokerAddress = "tcp://localhost:$mappedPort",
                 timeServiceMock,
                 sampleService = voiceContext.sampleService,
-                { println("${semaphore.addAndFetch(-1)} \t ${it}") },
+                { semaphore.addAndFetch(-1) },
             )
         }
 
