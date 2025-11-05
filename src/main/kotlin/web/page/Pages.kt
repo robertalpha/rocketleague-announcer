@@ -7,6 +7,7 @@ import kotlinx.html.button
 import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.h1
+import kotlinx.html.h2
 import kotlinx.html.head
 import kotlinx.html.id
 import kotlinx.html.img
@@ -42,15 +43,20 @@ fun HTML.homepage(themeService: ThemeService, sampleService: SampleService) {
             classes = setOf("content")
             div {
                 classes = setOf("optional")
-                sampleService.samples.forEach { sample ->
-                    button {
-                        attributes["hx-put"] = "/play"
-                        attributes["hx-vals"] = "{\"sample\":\"${sample.id}\"}"
-                        attributes["hx-swap"] = "none"
+                sampleService.packs.forEach { pack ->
+                    h2 { +pack.name }
+                    pack.samples
+                        .sortedBy { it.name }
+                        .forEach { sample ->
+                            button {
+                                attributes["hx-put"] = "/play"
+                                attributes["hx-vals"] = "{\"sample\":\"${sample.id}\"}"
+                                attributes["hx-swap"] = "none"
 
-                        span { +sample.name }
-                    }
-                    +" "
+                                span { +sample.name }
+                            }
+                            +" "
+                        }
                 }
                 div { classes = setOf("spacer") }
             }

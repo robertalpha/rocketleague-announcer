@@ -1,6 +1,6 @@
 package integrationTests
 
-import com.janoz.discord.VoiceFactory
+import com.janoz.discord.VoiceContext
 import com.janoz.discord.domain.Guild
 import com.janoz.discord.domain.VoiceChannel
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -54,7 +54,7 @@ class MessagingTest : AbstractMessagingTest() {
 
         application {
             val mappedPort = mosquitto.getMappedPort(1883)
-            val voiceContext = VoiceFactory.createVoiceContextMock()
+            val voiceContext = VoiceContext.builder().asMock().build()
             val configsList = mutableListOf(SampleMapper("123", "123", emptyMap()))
             val voiceChannel =
                 VoiceChannel.builder().guild(Guild.builder().id(1L).build()).id(2L).build()

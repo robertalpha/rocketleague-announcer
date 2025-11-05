@@ -1,7 +1,7 @@
 package nl.vanalphenict
 
 import com.janoz.discord.SampleService
-import com.janoz.discord.VoiceFactory
+import com.janoz.discord.VoiceContext
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -51,7 +51,7 @@ fun main(args: Array<String>) {
 val log = KotlinLogging.logger {}
 
 fun Application.module(brokerAddress: String = "tcp://localhost:1883") {
-    val voiceContext = VoiceFactory.createVoiceContext(System.getenv("TOKEN"))
+    val voiceContext = VoiceContext.builder().token(System.getenv("TOKEN")).build()
     val sampleService = voiceContext.sampleService
     val discordService = voiceContext.discordService
 
