@@ -1,0 +1,100 @@
+@import "../variables";
+
+ul {
+}
+
+.actionItem {
+  display: block;
+  text-align: left;
+  height: 64px;
+  background: $gradientDefault;
+
+  width: 500px;
+  padding: 0;
+
+  border-radius: 10px;
+  margin: 5px 0 0;
+
+  span {
+    filter: drop-shadow(0 0 2px black);
+  }
+
+  img {
+    float: left;
+    padding: 4px 5px;
+  }
+
+  .accent {
+    transform: skewX(-15deg);
+    float: left;
+    padding: 0 5px;
+    height: 100%;
+    margin-right: 10px;
+  }
+
+  .team {
+    padding: 0 5px;
+    height: 100%;
+    text-align: center;
+    font-weight: bold;
+    overflow: hidden;
+    width: 80px;
+
+    span {
+      padding: 20px 5px;
+      font-size: 20px;
+
+      vertical-align: center;
+      display: inline-block;
+      line-height: normal;
+    }
+  }
+
+  div.info {
+    overflow: hidden;
+    padding: 5px 5px 0;
+  }
+
+  span.name {
+    font-size: 20px;
+    font-weight: bold;
+    display: block;
+    margin-top: 0;
+    margin-bottom: -20px;
+  }
+
+  span.info {
+    color: $lessColor;
+    display: block;
+    margin-bottom: -25px;
+    b {
+      color: $color;
+      font-weight: normal;
+    }
+  }
+
+  span.announcements {
+    font-size: 8px;
+    line-height: 15px;
+    color: lightgray;
+    padding: 0;
+    b {
+      color: $color;
+      font-weight: normal;
+    }
+  }
+
+  span.time {
+    float: right;
+    padding-right: 15px;
+    padding-top: 15px;
+    padding-bottom: 10px;
+    span {
+      color: red;
+    }
+  }
+}
+
+.hidden {
+  display: none;
+}

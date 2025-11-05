@@ -1,3 +1,5 @@
+import io.miret.etienne.gradle.sass.CompileSass
+
 val ktor_version: String by project
 val htmx_version: String by project
 val webjars_htmx_ext_sse_version: String by project
@@ -23,6 +25,9 @@ plugins {
     // ./gradlew spotlessKotlinCheck
     id("com.diffplug.spotless") version "8.0.0"
 
+    // sass compiler
+    id("io.miret.etienne.sass") version "1.6.0"
+
 }
 
 kotlin{
@@ -47,6 +52,25 @@ spotless {
         ktfmt().kotlinlangStyle()
     }
 }
+
+tasks.compileSass {
+    entryPoint("main.scss", "style.css")
+    destPath = "web/style"
+    sourceMap = CompileSass.SourceMap.none
+    style = compressed
+}
+
+sourceSets {
+    main {
+        resources {
+            // Add the directory where the sass plugin outputs the generated CSS
+            srcDir("${buildDir}/sass")
+        }
+    }
+}
+
+tasks.getByName(tasks.processResources.name).dependsOn("compileSass")
+
 
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")

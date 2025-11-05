@@ -1,0 +1,49 @@
+@import "../variables";
+
+/* When the screen is wide enough, display all content
+ */
+@media (min-width: 1500px) {
+  div.content {
+    width: 1500px;
+
+    div.veryOptional {
+      display: inline;
+    }
+  }
+}
+
+
+/* When the screen is not wide enough, hide soundboard buttons and
+ * use the compact scoreboard layout.
+ */
+@media (max-width: 1000px) {
+  div.content {
+    width: 500px;
+    div.optional {
+      display: none;
+    }
+  }
+
+  div.scoreboard {
+    width: 500px;
+
+    div.left, div.right {
+      width: 210px;
+    }
+
+    div.team {
+      width: 80px;
+      span.tag {
+        display: block;
+      }
+      span.name {
+        display: none;
+      }
+    }
+
+    div.center {
+      left: 210px;
+    }
+  }
+}
+

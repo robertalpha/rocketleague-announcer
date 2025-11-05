@@ -1,0 +1,96 @@
+@import "variables";
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: $font;
+  font-size: 15px;
+  background: $backgroundColor;
+  color: $color;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0 0 0;
+}
+
+h1 {
+  font-size: 35px;
+  font-weight: bold;
+  padding-left: 40px;
+  background-image: url("rl-logo-ds.png");
+  background-size: 40px;
+  background-repeat: no-repeat;
+  background-position: left 0 center;
+  filter: drop-shadow(0 0 10px black);
+  width: 460px;
+  margin: auto;
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: bold;
+  filter: drop-shadow(0 0 5px black);
+  margin: 0 5px;
+  color: $color;
+  border-bottom: 1px solid $lessColor;
+}
+
+div.content {
+  width: 1000px;
+  padding: 0;
+  margin: auto;
+  text-align: justify;
+  height: 100%;
+  overflow: hidden;
+
+   ul, div.optional, div.veryOptional {
+      display: inline;
+      margin: 0;
+      width: 500px;
+      padding: 0;
+      float: right;
+      height: 100%;
+      overflow: auto;
+  }
+
+  div.optional {
+    width: 490px;
+    margin: 0 5px;
+  }
+
+  div.veryOptional {
+    display: none;
+  }
+}
+
+/* Fader is used to separate the scoreboard from the rest of the page.
+ */
+div#fader {
+  height: 200px;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  background: linear-gradient(0deg,$backgroundColor 50%, $backgroundColorTransparent 100%);
+  pointer-events: none;
+}
+
+/*
+ * The spacer is used so content is long enought to scroll passe the
+ * scoreboard. Only used in situations where having access to all the
+ * content is really necessary
+ */
+div.spacer {
+  clear: both;
+  height: 150px;
+}
+
+@import "parts/themes";
+@import "parts/buttons";
+@import "parts/ticker";
+@import "parts/scoreboard";
+@import "parts/media-queries";
