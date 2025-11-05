@@ -57,14 +57,15 @@ class SsePublisher() : EventHandler {
         if (msg.gameEvent == GameEvents.TEAMS_CREATED) {
             runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.SCORE_BOARD, scoreBoardHtml()) }
         }
-        if (msg.teams.size != 2) return
-        synchronized(this) {
-            val game =
-                if (msg.teams[0].homeTeam) Game(msg.teams[0], msg.teams[1])
-                else Game(msg.teams[1], msg.teams[0])
-            game.homeScore = game.home.score
-            game.awayScore = game.away.score
-            updateTeams(msg.matchGUID, game)
+        if (msg.teams.size == 2) {
+            synchronized(this) {
+                val game =
+                    if (msg.teams[0].homeTeam) Game(msg.teams[0], msg.teams[1])
+                    else Game(msg.teams[1], msg.teams[0])
+                game.homeScore = game.home.score
+                game.awayScore = game.away.score
+                updateTeams(msg.matchGUID, game)
+            }
         }
     }
 
