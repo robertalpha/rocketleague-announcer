@@ -65,7 +65,9 @@ fun Application.configureRouting(
         staticResources("/web", "web")
         get("favicon.ico") {
             try {
-                call.respondBytes { this::class.java.getResourceAsStream("/favicon.ico")?.readAllBytes()!! }
+                call.respondBytes {
+                    this::class.java.getResourceAsStream("/favicon.ico")?.readAllBytes()!!
+                }
             } catch (_: Exception) {
                 call.respond(HttpStatusCode.NotFound)
             }
