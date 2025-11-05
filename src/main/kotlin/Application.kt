@@ -43,8 +43,6 @@ import nl.vanalphenict.utility.TimeService
 import nl.vanalphenict.utility.TimeServiceImpl
 import nl.vanalphenict.web.configureRouting
 import nl.vanalphenict.web.configureSSE
-import nl.vanalphenict.web.page.themeRoutes
-import nl.vanalphenict.web.routing.actionRoutes
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -92,6 +90,7 @@ fun Application.moduleWithDependencies(
     brokerAddress: String,
     timeService: TimeService,
     sampleService: SampleService,
+    msgProcessed: ((msg: String) -> Unit) = {},
 ) {
 
     val statRepository = StatRepository()
@@ -120,22 +119,19 @@ fun Application.moduleWithDependencies(
             listOf(MatchStart(gameEventRepository)),
         )
     val eventHandler =
-        EventHandler.Builder(announcementHandler)
-            .add(eventPersister)
-            .add(SsePublisher(timeService))
-            .build()
-    val client =
-        try {
-            MessagingClient(
-                eventHandler,
-                System.getenv("BROKER_ADDRESS") ?: brokerAddress,
-                timeService,
-                gameTimeTrackerService,
-            )
-        } catch (ex: Exception) {
-            log.error { "could not connect to broker" }
-            throw ex
-        }
+        EventHandler.Builder(announcementHandler).add(eventPersister).add(SsePublisher()).build()
+    try {
+        MessagingClient(
+            eventHandler,
+            System.getenv("BROKER_ADDRESS") ?: brokerAddress,
+            timeService,
+            gameTimeTrackerService,
+            msgProcessed,
+        )
+    } catch (ex: Exception) {
+        log.error(ex) { "could not connect to broker" }
+        throw ex
+    }
 
     install(ContentNegotiation) {
         json(
@@ -149,18 +145,18 @@ fun Application.moduleWithDependencies(
 
     install(SSE)
 
-    install(CallLogging) {
-        format { call ->
-            val status = call.response.status()
-            val httpMethod = call.request.httpMethod.value
-            val userAgent = call.request.headers["User-Agent"]
-            "Status: $status, HTTP method: $httpMethod, User agent: $userAgent"
+    if (log.isTraceEnabled()) {
+        install(CallLogging) {
+            format { call ->
+                val status = call.response.status()
+                val httpMethod = call.request.httpMethod.value
+                val userAgent = call.request.headers["User-Agent"]
+                "Status: $status, HTTP method: $httpMethod, User agent: $userAgent"
+            }
         }
     }
 
     val themeService = ThemeService(configs, announcementHandler)
-    configureRouting(client, themeService, sampleService)
-    themeRoutes(themeService, samplePlayer)
-    actionRoutes(statRepository)
+    configureRouting(themeService, sampleService, samplePlayer)
     configureSSE()
 }

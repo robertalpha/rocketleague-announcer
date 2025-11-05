@@ -3,8 +3,6 @@ package nl.vanalphenict.services.impl
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.math.max
 import kotlinx.coroutines.runBlocking
-import kotlinx.html.body
-import kotlinx.html.stream.createHTML
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameEvents
 import nl.vanalphenict.model.GameTimeMessage
@@ -13,18 +11,16 @@ import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.model.Team
-import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.EventHandler
-import nl.vanalphenict.utility.TimeService
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import nl.vanalphenict.web.triggerUpdateSSE
-import nl.vanalphenict.web.view.actionListItem
+import nl.vanalphenict.web.view.actionListItemHtml
 import nl.vanalphenict.web.view.emptyTeam
 import nl.vanalphenict.web.view.scoreBoardHtml
 import nl.vanalphenict.web.view.teamsInfoHtml
 import nl.vanalphenict.web.view.timeRemainingHtml
 
-class SsePublisher(val timeService: TimeService) : EventHandler {
+class SsePublisher() : EventHandler {
 
     private val log = KotlinLogging.logger {}
 
@@ -34,10 +30,9 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
 
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         log.trace { "SSE HANDLER handeling: ${msg.event.eventName}" }
-        val actionItem = StatRepository.StatMessageRecord(timeService.now(), msg, metaData)
-        val htmlText =
-            createHTML().body { actionListItem(actionItem, metaData.remaining, metaData.overtime) }
-        runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, htmlText) }
+        runBlocking {
+            triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, actionListItemHtml(msg, metaData))
+        }
 
         synchronized(this) {
             val oldGame = getGame(msg.matchGUID)
@@ -74,8 +69,12 @@ class SsePublisher(val timeService: TimeService) : EventHandler {
     }
 
     override fun handleGameTime(msg: GameTimeMessage) {
-        val htmlText = timeRemainingHtml(msg.remaining, msg.overtime)
-        runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.GAME_TIME, htmlText) }
+        runBlocking {
+            triggerUpdateSSE(
+                SSE_EVENT_TYPE.GAME_TIME,
+                timeRemainingHtml(msg.remaining, msg.overtime),
+            )
+        }
     }
 
     private fun updateTeams(matchGUID: String, game: Game) {

@@ -5,23 +5,24 @@ import com.janoz.discord.domain.Guild
 import com.janoz.discord.domain.VoiceChannel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.assertions.nondeterministic.eventuallyConfig
+import io.kotest.assertions.nondeterministic.fibonacci
+import io.kotest.common.KotestInternal
 import io.kotest.matchers.shouldBe
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.sse.SSE
 import io.ktor.client.plugins.sse.sse
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.testApplication
 import io.ktor.sse.ServerSentEvent
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -40,6 +41,7 @@ class MessagingTest : AbstractMessagingTest() {
 
     private val log = KotlinLogging.logger {}
 
+    @OptIn(ExperimentalAtomicApi::class, KotestInternal::class)
     @Test
     fun testLines() = testApplication {
         val testFile = "RL_log_20250903.txt"
@@ -47,6 +49,8 @@ class MessagingTest : AbstractMessagingTest() {
         val timeServiceMock = TimeServiceMock()
 
         val messages = parseMessagesFromResource(testFile)
+
+        val semaphore = AtomicInt(0)
 
         application {
             val mappedPort = mosquitto.getMappedPort(1883)
@@ -60,9 +64,9 @@ class MessagingTest : AbstractMessagingTest() {
                 brokerAddress = "tcp://localhost:$mappedPort",
                 timeServiceMock,
                 sampleService = voiceContext.sampleService,
+                { semaphore.addAndFetch(-1) },
             )
         }
-        client = createClient { install(ContentNegotiation) { json() } }
 
         val sseClient = createClient {
             install(SSE) {
@@ -71,6 +75,7 @@ class MessagingTest : AbstractMessagingTest() {
             }
         }
         val sseData = mutableListOf<ServerSentEvent>()
+
         GlobalScope.async {
             withContext(Dispatchers.IO) {
                 sseClient.sse(path = "/sse") {
@@ -88,14 +93,26 @@ class MessagingTest : AbstractMessagingTest() {
             }
         }
 
+        // wait for application to start and sse to conenct
+        delay(1000)
+
+        println("sending messages")
         messages.forEach {
             val mockTime = kotlin.time.Instant.parse(it.timestamp)
+            semaphore.addAndFetch(1)
             timeServiceMock.setTime(mockTime)
-            client.post("/") {
-                contentType(ContentType.Application.Json)
-                setBody(TestMessage(topic = it.topic, message = it.message))
+            send(it.topic, it.message)
+            eventually(
+                config =
+                    eventuallyConfig {
+                        duration = 1.seconds
+                        intervalFn = 5.milliseconds.fibonacci()
+                    }
+            ) {
+                semaphore.load() shouldBe 0
             }
         }
+
         eventually(10.seconds) {
             val actionEvents =
                 sseData.filter { it.event.equals(SSE_EVENT_TYPE.NEW_ACTION.asString()) }
@@ -105,8 +122,6 @@ class MessagingTest : AbstractMessagingTest() {
             actionEvents.count { it.data?.contains("icons/Win.webp") ?: false } shouldBe 3
         }
     }
-
-    @Serializable data class TestMessage(val topic: String, val message: String)
 
     private fun parseMessagesFromResource(testFile: String): List<MessageLine> {
         val stream = javaClass.getClassLoader().getResourceAsStream(testFile)!!

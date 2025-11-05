@@ -113,12 +113,12 @@ data class Player(val id: String, val name: String, val bot: Boolean, val team: 
 
 data class Team(
     val homeTeam: Boolean,
-    val score: Int,
-    val primaryColor: Color,
-    val secondaryColor: Color,
-    val name: String,
-    val tag: String,
-    val players: List<Player>,
+    val score: Int = -1,
+    val primaryColor: Color = GREY,
+    val secondaryColor: Color = DARK_GREY,
+    val name: String = "-",
+    val tag: String = "-",
+    val players: List<Player> = emptyList(),
 )
 
 fun toColor(src: JsonColor): Color = Color(src.R, src.G, src.B)
