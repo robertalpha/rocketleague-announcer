@@ -7,6 +7,7 @@ import io.ktor.server.html.respondHtml
 import io.ktor.server.http.content.staticResources
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
@@ -62,5 +63,14 @@ fun Application.configureRouting(
 
         // Static resources
         staticResources("/web", "web")
+        get("favicon.ico") {
+            try {
+                call.respondBytes {
+                    this::class.java.getResourceAsStream("/favicon.ico")?.readAllBytes()!!
+                }
+            } catch (_: Exception) {
+                call.respond(HttpStatusCode.NotFound)
+            }
+        }
     }
 }
