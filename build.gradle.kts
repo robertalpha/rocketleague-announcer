@@ -56,18 +56,9 @@ spotless {
 
 tasks.compileSass {
     entryPoint("main.scss", "style.css")
-    destPath = "web/style"
+    destPath = "../resources/main/web/style"
     sourceMap = CompileSass.SourceMap.none
     style = compressed
-}
-
-sourceSets {
-    main {
-        resources {
-            // Add the directory where the sass plugin outputs the generated CSS
-            srcDir("${buildDir}/sass")
-        }
-    }
 }
 
 tasks.getByName(tasks.processResources.name).dependsOn("compileSass")
