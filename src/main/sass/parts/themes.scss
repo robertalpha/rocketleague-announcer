@@ -1,0 +1,22 @@
+@import "../variables";
+
+div.select {
+  margin: auto;
+  width: 500px;
+
+  select {
+    outline: none;
+    appearance: none;
+    background-color: #333;
+    background-image: url("caret-down.png");
+    background-size: 10px;
+    background-repeat: no-repeat;
+    background-position: right 5px center;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 20px 5px 5px;
+    color: $color;
+    font-family: inherit;
+    font-size: 20px;
+  }
+}

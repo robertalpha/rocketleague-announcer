@@ -1,0 +1,40 @@
+@import "../variables";
+
+button {
+  font-family: $font;
+  background: $gradientDefault;
+  color: $color;
+  border: 0;
+  font-size: 20px;
+  padding: 5px 10px;
+  margin: 5px 2px;
+  border-radius: 5px;
+
+  span {
+    filter: drop-shadow(0 0 2px black);
+  }
+
+  &.selected {
+    background: $gradientSelected;
+    color: $color;
+  }
+
+  &:hover {
+    filter: drop-shadow(0 0 2px white);
+  }
+
+  &:active {
+    background: $gradientActive;
+  }
+
+  &.big {
+    float: left;
+    display: block;
+    margin-right: 5px;
+
+    span {
+      font-size: 55px;
+      filter: drop-shadow(0 0 5px black);
+    }
+  }
+}

@@ -1,0 +1,124 @@
+@import "../variables";
+
+div.scoreboard {
+  width: 1000px;
+  height:110px;
+  margin: auto;
+  font-size: 25px;
+  text-align: center;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+
+  div.left, div.right {
+    width: 460px;
+    height: 40px;
+    padding: 0 20px;
+    z-index: 200;
+    margin: 15px 0;
+    filter: drop-shadow(0 0 10px grey);
+    border-radius: 5px;
+  }
+
+  div.team{
+    width: 320px;
+    height: 30px;
+    padding: 5px 5px;
+    overflow: hidden;
+
+    span{
+      filter: drop-shadow(0 0 2px black);
+    }
+
+    span.tag {
+      display: none;
+    }
+  }
+
+  div.score {
+    height: 55px;
+    width: 60px;
+    position: absolute;
+    margin-top: -5px;
+    padding: 5px 5px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: $gradientScoreBoard;
+    filter: drop-shadow(0 0 2px black);
+
+    div {
+      background: $gradientScoreBoardDark;
+      padding: 0 5px;
+      border-radius: 5px;
+      height: 55px;
+      font-size: 45px;
+    }
+
+    span {
+      filter: drop-shadow(0 0 5px grey);
+    }
+  }
+
+  div.left {
+    float: left;
+    text-align: left;
+    transform: skewX(10deg);
+
+
+    div.team {
+      float: left;
+    }
+
+    div.score {
+      right: 30px;
+    }
+  }
+
+  div.right {
+    float: right;
+    text-align: right;
+    transform: skewX(-10deg);
+
+    div.team {
+      float: right;
+      white-space: nowrap;
+      direction: rtl;
+    }
+
+    div.score {
+      left: 30px;
+    }
+  }
+
+  div.center {
+    position: absolute;
+    z-index: 2;
+    left: 460px;
+    background: $gradientScoreBoard;
+    width: 80px;
+    margin: auto;
+    border-radius: 10px;
+    filter: drop-shadow(0 0 5px black);
+    font-size: 20px;
+    padding: 20px 0 5px 0;
+    color: $backgroundColor;
+
+    div {
+      color: $color;
+      width: 70px;
+      font-size: 15px;
+      background: $backgroundColor;
+      border-radius: 5px;
+      margin: 20px auto auto;
+    }
+
+    div.overtime {
+      background: darkred;
+    }
+
+    div.overtime:before {
+      content: "+"
+    }
+  }
+}
