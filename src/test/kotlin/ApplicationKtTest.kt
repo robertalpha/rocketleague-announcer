@@ -6,6 +6,7 @@ import com.janoz.discord.domain.VoiceChannel
 import integrationTests.AbstractMessagingTest
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -31,16 +32,14 @@ class ApplicationTest : AbstractMessagingTest() {
                 voiceContext.sampleService,
             )
         }
-        // validate html
-        val response = client.get("/")
-        assertEquals(HttpStatusCode.OK, response.status, message = "Failed to load homepage")
+        // validate web content
+        validateResource("/", "Failed to load homepage")
+        validateResource("/web/icons/Assist.webp", "Failed to load webicon")
+        validateResource("/web/style/style.css", "Stylesheet not found")
+    }
 
-        // validate stylesheet
-        val imgResponse = client.get("/web/icons/Assist.webp")
-        assertEquals(HttpStatusCode.OK, imgResponse.status, message ="Stylesheet not found")
-
-        // validate stylesheet
-        val cssResponse = client.get("/web/style/style.css")
-        assertEquals(HttpStatusCode.OK, cssResponse.status, message ="Stylesheet not found")
+    private suspend fun ApplicationTestBuilder.validateResource(uri: String, message: String) {
+        val response = client.get(uri)
+        assertEquals(HttpStatusCode.OK, response.status, message = message)
     }
 }
