@@ -5,7 +5,6 @@ import com.janoz.discord.domain.Guild
 import com.janoz.discord.domain.VoiceChannel
 import integrationTests.AbstractMessagingTest
 import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
@@ -34,11 +33,14 @@ class ApplicationTest : AbstractMessagingTest() {
         }
         // validate html
         val response = client.get("/")
-        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(HttpStatusCode.OK, response.status, message = "Failed to load homepage")
+
+        // validate stylesheet
+        val imgResponse = client.get("/web/icons/Assist.webp")
+        assertEquals(HttpStatusCode.OK, imgResponse.status, message ="Stylesheet not found")
 
         // validate stylesheet
         val cssResponse = client.get("/web/style/style.css")
-        assertEquals(HttpStatusCode.OK, cssResponse.status)
-        println(cssResponse.bodyAsText())
+        assertEquals(HttpStatusCode.OK, cssResponse.status, message ="Stylesheet not found")
     }
 }
