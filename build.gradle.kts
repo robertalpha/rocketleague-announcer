@@ -61,8 +61,7 @@ tasks.compileSass {
     style = compressed
 }
 
-tasks.getByName(tasks.processResources.name).dependsOn("compileSass")
-
+tasks.processResources.configure { finalizedBy("compileSass") }
 
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
