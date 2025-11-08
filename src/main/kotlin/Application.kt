@@ -35,6 +35,7 @@ import nl.vanalphenict.services.announcement.MatchStart
 import nl.vanalphenict.services.announcement.MutualDestruction
 import nl.vanalphenict.services.announcement.Retaliation
 import nl.vanalphenict.services.announcement.Revenge
+import nl.vanalphenict.services.announcement.WinLoss
 import nl.vanalphenict.services.announcement.WitnessSave
 import nl.vanalphenict.services.announcement.WitnessScore
 import nl.vanalphenict.services.impl.EventPersister
@@ -113,6 +114,7 @@ fun Application.moduleWithDependencies(
                 MutualDestruction(),
                 Retaliation(),
                 Revenge(),
+                WinLoss(),
                 WitnessScore(statRepository),
                 WitnessSave(statRepository),
             ),

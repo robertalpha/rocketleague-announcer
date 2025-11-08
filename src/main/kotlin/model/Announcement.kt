@@ -31,6 +31,8 @@ enum class Announcement {
     GOAL_BY_BOT,            // Goal scored by bot
 
     MATCH_START,            // Match has started
+    VICTORY,                // Match ends with a victory
+    DEFEAT,                 // Match ends with a loss
 
     LEFT_5,                 // 5 secconds left
     LEFT_4,                 // 4 secconds left

@@ -4,65 +4,79 @@
   "mapping": [
     {
       "announcement": "KILLED_BY_BOT",
-      "weight": 10,
+      "weight": 100,
       "samples": [
         "718360|HUMILIATION"
       ]
     },
     {
       "announcement": "OWN_GOAL",
-      "weight": 9,
+      "weight": 90,
       "samples": [
         "718360|HUMILIATION"
       ]
     },
     {
       "announcement": "REVENGE",
-      "weight": 8,
+      "weight": 80,
       "samples": [
         "718360|RETALIATION"
       ]
     },
     {
       "announcement": "MASSACRE",
-      "weight": 7,
+      "weight": 70,
       "samples": [
         "718360|MASSACRE"
       ]
     },
     {
       "announcement": "PENTA_KILL",
-      "weight": 6,
+      "weight": 60,
       "samples": [
         "718360|PENTA_KILL"
       ]
     },
     {
       "announcement": "QUAD_KILL",
-      "weight": 5,
+      "weight": 50,
       "samples": [
         "718360|QUAD_KILL"
       ]
     },
     {
       "announcement": "TRIPLE_KILL",
-      "weight": 4,
+      "weight": 40,
       "samples": [
         "718360|TRIPLE_KILL"
       ]
     },
     {
       "announcement": "DOUBLE_KILL",
-      "weight": 3,
+      "weight": 30,
       "samples": [
         "718360|DOUBLE_KILL"
       ]
     },
     {
       "announcement": "FIRST_BLOOD",
-      "weight": 2,
+      "weight": 20,
       "samples": [
         "718360|FIRST_BLOOD"
+      ]
+    },
+    {
+      "announcement": "VICTORY",
+      "weight": 2,
+      "samples": [
+        "718360|VICTORY"
+      ]
+    },
+    {
+      "announcement": "DEFEAT",
+      "weight": 1,
+      "samples": [
+        "718360|DEFEAT"
       ]
     }
   ]
