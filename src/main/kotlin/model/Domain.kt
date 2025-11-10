@@ -65,13 +65,14 @@ fun parseTeam(src: JsonTeam, srcPlayer: JsonPlayer?): Team {
             primaryColor = primaryColor,
             secondaryColor = secondaryColor,
             name =
-                if (src.name != null && src.name != "") src.name
-                else
-                    when (primaryColor) {
-                        BLUE -> "TEAM BLUE"
-                        ORANGE -> "TEAM ORANGE"
-                        else -> "Opponent"
-                    },
+                CLUB_MAP[src.clubId]?.name
+                    ?: if (src.name != null && src.name != "") src.name
+                    else
+                        when (primaryColor) {
+                            BLUE -> "TEAM BLUE"
+                            ORANGE -> "TEAM ORANGE"
+                            else -> "Opponent" // no default color and no club. Must be an opponent.
+                        },
             tag =
                 CLUB_MAP[src.clubId]?.tag
                     ?: when (primaryColor) {
