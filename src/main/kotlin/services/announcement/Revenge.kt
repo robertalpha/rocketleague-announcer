@@ -1,5 +1,6 @@
 package nl.vanalphenict.services.announcement
 
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
@@ -7,6 +8,7 @@ import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.StatToAnnouncment
+import nl.vanalphenict.utility.TimeUtils.Companion.bothHappenWithin
 
 class Revenge() : StatToAnnouncment {
     override fun listenTo() = setOf(StatEvents.DEMOLISH)
@@ -22,11 +24,15 @@ class Revenge() : StatToAnnouncment {
         grudges[current] = currentTimeStamp
         val reverted: Pair<String, String> = current.second to current.first
         return if (
-            grudges.containsKey(reverted) &&
-                grudges[reverted]!!.plus(grudgeDuration) > currentTimeStamp
+            grudges[reverted]?.let { grudge -> grudge.plus(grudgeDuration) > currentTimeStamp }
+                ?: false
         ) {
+            val isRevenge =
+                !grudges[reverted]!!.bothHappenWithin(currentTimeStamp, 100.milliseconds)
             grudges.remove(reverted)
-            setOf(Announcement.REVENGE)
+            if (isRevenge) {
+                setOf(Announcement.REVENGE)
+            } else emptySet()
         } else emptySet()
     }
 }
