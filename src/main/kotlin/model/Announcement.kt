@@ -25,10 +25,10 @@ enum class Announcement {
     EXTERMINATION_DOUBLE,   // 14 demolitions = second extermination
     MUTUAL_DESTRUCTION,     // Player demolishes opponent, but is demolished as well
 
-    SHOT,
-    SHOT_BY_BOT,
-    SHOT_HOME,
-    SHOT_AWAY,
+    SHOT,                   // Shot
+    SHOT_BY_BOT,            // Shot done by bot
+    SHOT_HOME,              // Shot done by home team
+    SHOT_AWAY,              // Shot done by away team
 
     GOAL,                   // Goal
     GOAL_HOME,              // Goal scored by home team
