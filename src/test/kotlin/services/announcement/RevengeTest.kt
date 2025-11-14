@@ -18,7 +18,7 @@ import nl.vanalphenict.support.getPlayerSwitch
 class RevengeTest {
 
     @Test
-    fun testRetaliation() {
+    fun testRevenge() {
         val cut = Revenge()
         val homePlayer = getPlayerEpic(getBlueTeam())
         val otherHomePlayer = getPlayerSwitch(getBlueTeam())
@@ -43,6 +43,29 @@ class RevengeTest {
         cut.interpret(
             demo(homePlayer, awayPlayer),
             Instant.parse("2020-08-30T18:43:06Z"),
+        ) shouldHaveSize 0
+    }
+
+    @Test
+    fun testNotRevenge() {
+        val cut = Revenge()
+        val homePlayer = getPlayerEpic(getBlueTeam())
+        val awayPlayer = getPlayerSteam(getOrangeTeam())
+
+        cut.interpret(
+            demo(awayPlayer, homePlayer),
+            Instant.parse("2020-08-30T18:43:02.000Z"),
+        ) shouldHaveSize 0
+        // killing the other opponent almost immediately is not a revenge, but happens on mutual
+        // destruction
+        cut.interpret(
+            demo(homePlayer, awayPlayer),
+            Instant.parse("2020-08-30T18:43:02.080Z"),
+        ) shouldHaveSize 0
+        // killing the other opponent after mutual destruction is also not revenge
+        cut.interpret(
+            demo(homePlayer, awayPlayer),
+            Instant.parse("2020-08-30T18:43:03.080Z"),
         ) shouldHaveSize 0
     }
 

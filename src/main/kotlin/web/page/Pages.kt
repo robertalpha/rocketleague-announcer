@@ -79,8 +79,8 @@ fun HTML.homepage(themeService: ThemeService, sampleService: SampleService) {
 
         scoreBoard()
 
-        script(src = "assets/htmx.org/dist/htmx.js") {}
-        script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.js") {}
-        script(src = "assets/htmx-ext-sse/dist/sse.js") {}
+        script(src = "assets/htmx.org/dist/htmx.min.js") {}
+        script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}
+        script(src = "assets/htmx-ext-sse/dist/sse.min.js") {}
     }
 }
