@@ -56,4 +56,6 @@ enum class Announcement {
     HATTRICK,
     SAVE,
     EPIC_SAVE,
+    CLEAR,
+    CENTER,
 }
