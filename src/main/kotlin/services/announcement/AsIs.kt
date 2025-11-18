@@ -21,6 +21,8 @@ class AsIs : StatToAnnouncment {
             StatEvents.SAVE to Announcement.SAVE,
             StatEvents.EPIC_SAVE to Announcement.EPIC_SAVE,
             StatEvents.OWN_GOAL to Announcement.OWN_GOAL,
+            StatEvents.CLEAR to Announcement.CLEAR,
+            StatEvents.CENTER to Announcement.CENTER,
         )
 
     override fun listenTo(): Set<StatEvents> {
