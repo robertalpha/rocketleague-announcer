@@ -39,11 +39,11 @@ enum class Announcement {
     VICTORY,                // Match ends with a victory
     DEFEAT,                 // Match ends with a loss
 
-    LEFT_5,                 // 5 secconds left
-    LEFT_4,                 // 4 secconds left
-    LEFT_3,                 // 3 secconds left
-    LEFT_2,                 // 2 secconds left
-    LEFT_1,                 // 1 secconds left
+    LEFT_5,                 // 5 seconds left
+    LEFT_4,                 // 4 seconds left
+    LEFT_3,                 // 3 seconds left
+    LEFT_2,                 // 2 seconds left
+    LEFT_1,                 // 1 second left
 
 
     // Direct mapping from Rocket League events
