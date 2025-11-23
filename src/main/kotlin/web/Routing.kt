@@ -55,8 +55,13 @@ fun Application.configureRouting(
         // Soundboard action
         put(path = "/play") {
             call.receive<String>().also {
-                val id = it.substringAfter("=")
-                samplePlayer.play(URLDecoder.decode(id, StandardCharsets.UTF_8))
+                val ids = it.substringAfter("=")
+                val decoded = URLDecoder.decode(ids, StandardCharsets.UTF_8)
+                if (decoded.contains(',')) {
+                    samplePlayer.playSemiRandom(decoded.split(','))
+                } else {
+                    samplePlayer.play(decoded)
+                }
             }
             call.respond(HttpStatusCode.Accepted)
         }
