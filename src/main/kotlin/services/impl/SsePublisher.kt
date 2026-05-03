@@ -53,7 +53,7 @@ class SsePublisher() : EventHandler {
     }
 
     override fun handleGameEvent(msg: GameEventMessage, metaData: RLAMetaData) {
-        if (msg.gameEvent == GameEvents.TEAMS_CREATED) {
+        if (msg.gameEvent == GameEvents.MATCH_CREATED) {
             runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.SCORE_BOARD, scoreBoardHtml()) }
         }
         if (msg.teams.size == 2) {

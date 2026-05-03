@@ -10,7 +10,6 @@ import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameEvents
-import nl.vanalphenict.model.JsonGameEventMessage
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.parseGameEventMessage
 import nl.vanalphenict.repository.GameEventRepository
@@ -28,7 +27,7 @@ class MatchStartTest {
 
     @Test
     fun testListener() {
-        cut.listenTo() shouldContainExactly setOf(GameEvents.START_ROUND)
+        cut.listenTo() shouldContainExactly setOf(GameEvents.ROUND_STARTED)
     }
 
     @Test
@@ -46,11 +45,9 @@ class MatchStartTest {
 
     fun startRoundMessage(matchGUID: String) =
         parseGameEventMessage(
-            JsonGameEventMessage(
-                matchGUID = matchGUID,
-                gameEvent = GameEvents.START_ROUND.eventName,
-                teams = listOf(getBlueTeam(), getOrangeTeam()),
-            )
+            GameEvents.ROUND_STARTED.eventName,
+            matchGUID,
+            listOf(getBlueTeam(), getOrangeTeam()),
         )!!
 
     private fun MatchStart.handleGameEvent(

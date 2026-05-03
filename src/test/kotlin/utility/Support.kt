@@ -3,15 +3,8 @@ package nl.vanalphenict.utility
 import java.awt.Color
 import kotlin.test.Test
 import kotlinx.serialization.json.Json
-import nl.vanalphenict.model.JsonStatMessage
-import nl.vanalphenict.support.getBlueTeam
-import nl.vanalphenict.support.getBot
-import nl.vanalphenict.support.getClubJeMoeder
-import nl.vanalphenict.support.getClubTeam
-import nl.vanalphenict.support.getOrangeTeam
-import nl.vanalphenict.support.getPlayerEpic
-import nl.vanalphenict.support.getPlayerSteam
-import nl.vanalphenict.support.getPlayerSwitch
+import nl.vanalphenict.model.JsonPlayerRef
+import nl.vanalphenict.model.JsonStatfeedEventData
 import nl.vanalphenict.utility.ColorUtils.Companion.toHexString
 
 class Support {
@@ -20,39 +13,32 @@ class Support {
     fun writeSomeJson() {
         println(
             Json.encodeToString(
-                JsonStatMessage(
-                    matchGUID = "123abc",
-                    event = "Goal",
-                    player = getPlayerEpic(team = getOrangeTeam()),
+                JsonStatfeedEventData(
+                    matchGuid = "123abc",
+                    eventName = "Goal",
+                    type = "Goal",
+                    mainTarget = JsonPlayerRef(name = "Jones", shortcut = 1, teamNum = 1),
                 )
             )
         )
         println(
             Json.encodeToString(
-                JsonStatMessage(
-                    matchGUID = "123abc",
-                    event = "Shot",
-                    player = getPlayerSteam(team = getBlueTeam()),
+                JsonStatfeedEventData(
+                    matchGuid = "123abc",
+                    eventName = "Shot",
+                    type = "Shot",
+                    mainTarget = JsonPlayerRef(name = "Gordon", shortcut = 2, teamNum = 0),
                 )
             )
         )
         println(
             Json.encodeToString(
-                JsonStatMessage(
-                    matchGUID = "123abc",
-                    event = "EpicSave",
-                    player = getPlayerSwitch(team = getClubTeam(getClubJeMoeder(), 0)),
-                )
-            )
-        )
-
-        println(
-            Json.encodeToString(
-                JsonStatMessage(
-                    matchGUID = "123abc",
-                    event = "Demolition",
-                    player = getBot(getOrangeTeam()),
-                    victim = getPlayerSteam(getBlueTeam()),
+                JsonStatfeedEventData(
+                    matchGuid = "123abc",
+                    eventName = "Demolish",
+                    type = "Demolition",
+                    mainTarget = JsonPlayerRef(name = "Maverick", shortcut = 0, teamNum = 1),
+                    secondaryTarget = JsonPlayerRef(name = "Gordon", shortcut = 2, teamNum = 0),
                 )
             )
         )

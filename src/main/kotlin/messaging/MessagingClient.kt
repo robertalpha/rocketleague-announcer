@@ -5,10 +5,14 @@ import kotlin.io.encoding.Base64
 import kotlin.random.Random
 import kotlin.time.Clock
 import kotlinx.serialization.json.Json
-import nl.vanalphenict.model.JsonGameEventMessage
-import nl.vanalphenict.model.JsonGameTimeMessage
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import nl.vanalphenict.model.JsonClockUpdatedSecondsData
 import nl.vanalphenict.model.JsonLogMessage
-import nl.vanalphenict.model.JsonStatMessage
+import nl.vanalphenict.model.JsonMatchGuidData
+import nl.vanalphenict.model.JsonStatfeedEventData
 import nl.vanalphenict.services.EventHandler
 import nl.vanalphenict.services.GameTimeTrackerService
 import nl.vanalphenict.utility.TimeService
@@ -26,11 +30,8 @@ class MessagingClient(
     gameTimeTrackerService: GameTimeTrackerService,
     msgProcessed: ((msg: String) -> Unit) = {},
 ) {
-    private val TOPIC_ROOT = "rl2mqtt"
-    private val TOPIC_STAT = "$TOPIC_ROOT/stat"
-    private val TOPIC_TICKER = "$TOPIC_ROOT/ticker"
-    private val TOPIC_GAME_EVENT = "$TOPIC_ROOT/gameevent"
-    private val TOPIC_GAME_TIME = "$TOPIC_ROOT/gametime"
+    private val TOPIC_ROOT = "rlapi2mqtt"
+    private val TOPIC_WILDCARD = "$TOPIC_ROOT/#"
     private val TOPIC_LOG = "$TOPIC_ROOT/log"
     private val QOS = 1
     private var scrubber: EventScrubber =
@@ -41,6 +42,16 @@ class MessagingClient(
         )
     private var client: MqttClient
     private val log = KotlinLogging.logger {}
+
+    internal val json = Json { ignoreUnknownKeys = true }
+
+    // Game events that carry only a MatchGuid and map to GameEvents enum
+    private val GAME_EVENT_NAMES = setOf(
+        "RoundStarted", "MatchCreated", "MatchInitialized", "MatchDestroyed",
+        "MatchEnded", "MatchPaused", "MatchUnpaused", "CountdownBegin",
+        "GoalReplayStart", "GoalReplayWillEnd", "GoalReplayEnd",
+        "PodiumStart", "ReplayCreated",
+    )
 
     init {
         val clientId = "rla_announcer_" + Base64.encode(Random.nextBytes(3))
@@ -59,57 +70,48 @@ class MessagingClient(
 
         client.connect(options)
 
-        fun logUnexpectedMessage(message: MqttMessage, topic: String) {
-            log.warn {
-                """
-                unexpected message on non subscribed topic:")
-                topic: $topic
-                qos: ${message.qos}
-                message content: ${String(message.payload)}
-            """
-                    .trimIndent()
-            }
-        }
-
         client.setCallback(
             object : MqttCallback {
                 @Throws(Exception::class)
                 override fun messageArrived(topic: String, message: MqttMessage) {
                     try {
-                        when (topic) {
-                            TOPIC_STAT -> {
-                                val stat = decode<JsonStatMessage>(message.payload)
-                                logStatMessage(stat)
-                                scrubber.processStat(stat)
+                        val payload = String(message.payload)
+                        val envelope = json.parseToJsonElement(payload).jsonObject
+                        val eventName = envelope["Event"]?.jsonPrimitive?.content ?: return
+                        val dataElement = envelope["Data"]
+                        val dataStr = when {
+                            dataElement is JsonPrimitive && dataElement.isString -> dataElement.content
+                            dataElement != null -> dataElement.toString()
+                            else -> "{}"
+                        }
+
+                        log.trace { "${Clock.System.now()} - [$eventName] $dataStr" }
+
+                        when {
+                            eventName == "StatfeedEvent" -> {
+                                val msg = json.decodeFromString<JsonStatfeedEventData>(dataStr)
+                                scrubber.processStatfeedEvent(msg)
                             }
-                            TOPIC_TICKER ->
-                                scrubber.processStat(decode<JsonStatMessage>(message.payload))
-                            TOPIC_GAME_TIME ->
-                                scrubber.processGameTime(
-                                    decode<JsonGameTimeMessage>(message.payload)
-                                )
-                            TOPIC_GAME_EVENT -> {
-                                val msg = decode<JsonGameEventMessage>(message.payload)
-                                logGameEvent(msg)
-                                scrubber.processGameEvent(msg)
+                            eventName == "ClockUpdatedSeconds" -> {
+                                val msg = json.decodeFromString<JsonClockUpdatedSecondsData>(dataStr)
+                                scrubber.processClockUpdatedSeconds(msg)
                             }
-                            TOPIC_LOG ->
-                                scrubber.processLog(decode<JsonLogMessage>(message.payload))
-                            else -> logUnexpectedMessage(message, topic)
+                            eventName in GAME_EVENT_NAMES -> {
+                                val msg = json.decodeFromString<JsonMatchGuidData>(dataStr)
+                                scrubber.processGameEvent(eventName, msg)
+                            }
+                            topic == TOPIC_LOG -> {
+                                scrubber.processLog(json.decodeFromString<JsonLogMessage>(payload))
+                            }
+                            else -> {
+                                log.trace { "Unhandled event: $eventName" }
+                            }
                         }
                     } catch (e: Exception) {
                         log.error(e) { "could not parse message: $e" }
                         e.printStackTrace()
                     }
                     msgProcessed(message.toString())
-                }
-
-                private fun logStatMessage(stat: JsonStatMessage) {
-                    log.trace { "${Clock.System.now()} - $stat" }
-                }
-
-                private fun logGameEvent(gameEvent: JsonGameEventMessage) {
-                    log.trace { "${Clock.System.now()} - $gameEvent" }
                 }
 
                 override fun connectionLost(cause: Throwable) {
@@ -122,15 +124,11 @@ class MessagingClient(
             }
         )
 
-        client.subscribe(TOPIC_STAT, QOS)
-        client.subscribe(TOPIC_GAME_EVENT, QOS)
-        client.subscribe(TOPIC_GAME_TIME, QOS)
-        client.subscribe(TOPIC_TICKER, QOS)
-        client.subscribe(TOPIC_LOG, QOS)
+        client.subscribe(TOPIC_WILDCARD, QOS)
     }
 
-    inline fun <reified T> decode(bytes: ByteArray): T {
+    internal inline fun <reified T> decode(bytes: ByteArray): T {
         val string = String(bytes)
-        return Json.decodeFromString<T>(string)
+        return json.decodeFromString<T>(string)
     }
 }

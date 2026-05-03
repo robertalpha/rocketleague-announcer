@@ -3,90 +3,90 @@ package nl.vanalphenict.support
 import com.janoz.discord.domain.Guild
 import com.janoz.discord.domain.VoiceChannel
 import kotlin.time.Duration.Companion.seconds
-import nl.vanalphenict.model.JsonClub
-import nl.vanalphenict.model.JsonColor
-import nl.vanalphenict.model.JsonPlayer
-import nl.vanalphenict.model.JsonStatMessage
+import nl.vanalphenict.model.BLUE
+import nl.vanalphenict.model.DARK_GREY
+import nl.vanalphenict.model.JsonPlayerRef
+import nl.vanalphenict.model.JsonStatfeedEventData
 import nl.vanalphenict.model.JsonTeam
+import nl.vanalphenict.model.KillMessage
+import nl.vanalphenict.model.ORANGE
+import nl.vanalphenict.model.Player
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatEvents
-import nl.vanalphenict.model.parseStatMessage
+import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.model.Team
+import nl.vanalphenict.model.parseStatfeedEvent
 
-fun getBot(team: JsonTeam, score: Int = 123) =
-    JsonPlayer(id = "Unknown|0|0", name = "Maverick", score = score, team = team)
+// ── JSON-level fixtures (for deserialization / scrubber tests) ───────────────
 
-fun getPlayerSwitch(team: JsonTeam, score: Int = 123) =
-    JsonPlayer(id = "Switch|12345678901234567890|0", name = "Mario", score = score, team = team)
-
-fun getPlayerPlaystation(team: JsonTeam, score: Int = 123) =
-    JsonPlayer(id = "PS4|1234567890123456789|0", name = "Snake", score = score, team = team)
-
-fun getPlayerEpic(team: JsonTeam, score: Int = 123) =
-    JsonPlayer(
-        id = "Epic|12345678cafebabe12345678cafebabe|0",
-        name = "Jones",
-        score = score,
-        team = team,
-    )
-
-fun getPlayerSteam(team: JsonTeam, score: Int = 123) =
-    JsonPlayer(id = "Steam|12345678901234567|0", name = "Gordon", score = score, team = team)
-
-fun getClubJeMoeder() =
-    JsonClub(
-        id = 2194253,
-        name = "JEMOEDER",
-        tag = "JM",
-        accentColor = JsonColor(0, 0, 178),
-        primaryColor = JsonColor(38, 38, 38),
-    )
-
-fun getBlueTeam(home: Boolean = true, score: Int = 123, club: Int = 0) =
+fun getBlueTeam(score: Int = 123) =
     JsonTeam(
-        clubId = club,
-        homeTeam = home,
-        index = 0,
         name = "Team",
-        num = 0,
+        teamNum = 0,
         score = score,
-        primaryColor = JsonColor(24, 115, 255),
-        secondaryColor = JsonColor(5, 5, 5),
+        colorPrimary = "1873FF",
+        colorSecondary = "050505",
     )
 
-fun getOrangeTeam(home: Boolean = false, score: Int = 123, club: Int = 0) =
+fun getOrangeTeam(score: Int = 123) =
     JsonTeam(
-        clubId = club,
-        homeTeam = home,
-        index = 1,
         name = "Team",
-        num = 1,
+        teamNum = 1,
         score = score,
-        primaryColor = JsonColor(194, 100, 24),
-        secondaryColor = JsonColor(229, 229, 229),
+        colorPrimary = "C26418",
+        colorSecondary = "E5E5E5",
     )
 
-fun getClubTeam(club: JsonClub, index: Int, home: Boolean = false, score: Int = 123) =
-    JsonTeam(
-        clubId = club.id,
-        homeTeam = home,
-        index = index,
-        name = club.name,
-        num = index,
-        score = score,
-        primaryColor = club.primaryColor,
-        secondaryColor = club.accentColor,
-    )
+// ── Domain-level fixtures (for announcement / service tests) ────────────────
+
+fun blueTeam(score: Int = 0) =
+    Team(teamNum = 0, score = score, primaryColor = BLUE, secondaryColor = DARK_GREY, name = "TEAM BLUE", tag = "BLUE")
+
+fun orangeTeam(score: Int = 0) =
+    Team(teamNum = 1, score = score, primaryColor = ORANGE, secondaryColor = DARK_GREY, name = "TEAM ORANGE", tag = "ORNG")
+
+fun playerEpic(team: Team = orangeTeam()) =
+    Player(id = "Epic|12345678cafebabe12345678cafebabe|0", name = "Jones", bot = false, team = team)
+
+fun playerSteam(team: Team = blueTeam()) =
+    Player(id = "Steam|12345678901234567|0", name = "Gordon", bot = false, team = team)
+
+fun playerSwitch(team: Team = blueTeam()) =
+    Player(id = "Switch|12345678901234567890|0", name = "Mario", bot = false, team = team)
+
+fun playerPlaystation(team: Team = orangeTeam()) =
+    Player(id = "PS4|1234567890123456789|0", name = "Snake", bot = false, team = team)
+
+fun botPlayer(team: Team = orangeTeam()) =
+    Player(id = "bot|Maverick|0", name = "Maverick", bot = true, team = team)
+
+fun demoMessage(
+    attacker: Player,
+    victim: Player,
+    matchGUID: String = "123",
+) = KillMessage(matchGUID = matchGUID, event = StatEvents.DEMOLISH, player = attacker, victim = victim)
+
+fun statMessage(
+    event: StatEvents,
+    player: Player,
+    matchGUID: String = "123abc",
+) = StatMessage(matchGUID = matchGUID, event = event, player = player)
+
+// ── Convenience: build a StatMessage via parseStatfeedEvent (for getEvent compat) ──
 
 fun getEvent(event: StatEvents) =
-    parseStatMessage(
-        JsonStatMessage(
-            matchGUID = "123abc",
-            event = event.eventName,
-            player = getPlayerEpic(team = getOrangeTeam()),
+    parseStatfeedEvent(
+        JsonStatfeedEventData(
+            matchGuid = "123abc",
+            eventName = event.eventName,
+            type = event.eventName,
+            mainTarget = JsonPlayerRef(name = "Jones", shortcut = 1, teamNum = 1),
         )
     )!!
 
 fun getMetaData() = RLAMetaData(matchGUID = "123abc", overtime = false, remaining = 300.seconds)
+
+// ── Discord fixtures ────────────────────────────────────────────────────────
 
 fun getVoiceChannel(guildId: Long = 1, voiceChannelId: Long = 2) =
     VoiceChannel.builder()

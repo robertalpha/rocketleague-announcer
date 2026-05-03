@@ -6,18 +6,16 @@ import kotlin.test.Test
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
-import nl.vanalphenict.model.JsonStatMessage
-import nl.vanalphenict.model.JsonTeam
 import nl.vanalphenict.model.RLAMetaData
-import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.repository.StatRepository
-import nl.vanalphenict.support.getBlueTeam
-import nl.vanalphenict.support.getBot
-import nl.vanalphenict.support.getOrangeTeam
-import nl.vanalphenict.support.getPlayerEpic
-import nl.vanalphenict.support.getPlayerPlaystation
-import nl.vanalphenict.support.getPlayerSteam
-import nl.vanalphenict.support.getPlayerSwitch
+import nl.vanalphenict.support.blueTeam
+import nl.vanalphenict.support.botPlayer
+import nl.vanalphenict.support.demoMessage
+import nl.vanalphenict.support.orangeTeam
+import nl.vanalphenict.support.playerEpic
+import nl.vanalphenict.support.playerPlaystation
+import nl.vanalphenict.support.playerSteam
+import nl.vanalphenict.support.playerSwitch
 import nl.vanalphenict.utility.TimeUtils.Companion.bothHappenWithin
 
 class StatRepositoryTest {
@@ -31,35 +29,24 @@ class StatRepositoryTest {
 
     @Test
     fun testGetByGuid() {
-        val orange: JsonTeam = getOrangeTeam()
-        val blue: JsonTeam = getBlueTeam()
+        val orange = orangeTeam()
+        val blue = blueTeam()
 
         val first = Instant.parse("2020-01-01T12:00:00Z")
         statRepository.addStatMessage(
             first,
-            parseStatMessage(
-                JsonStatMessage("GUID123", "Demolish", getPlayerSteam(orange), getPlayerEpic(blue))
-            )!!,
+            demoMessage(playerSteam(orange), playerEpic(blue), matchGUID = "GUID123"),
             RLAMetaData(matchGUID = "123", overtime = false, remaining = 100.seconds),
         )
         statRepository.addStatMessage(
             Instant.parse("2020-01-01T12:00:01Z"),
-            parseStatMessage(
-                JsonStatMessage(
-                    "GUID123",
-                    "Demolish",
-                    getPlayerSwitch(blue),
-                    getPlayerSteam(orange),
-                )
-            )!!,
+            demoMessage(playerSwitch(blue), playerSteam(orange), matchGUID = "GUID123"),
             RLAMetaData(matchGUID = "123", overtime = false, remaining = 90.seconds),
         )
 
         statRepository.addStatMessage(
             Instant.parse("2020-01-01T12:00:02Z"),
-            parseStatMessage(
-                JsonStatMessage("OTHER", "Demolish", getBot(blue), getPlayerPlaystation(orange))
-            )!!,
+            demoMessage(botPlayer(blue), playerPlaystation(orange), matchGUID = "OTHER"),
             RLAMetaData(matchGUID = "123", overtime = false, remaining = 80.seconds),
         )
 

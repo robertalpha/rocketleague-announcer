@@ -60,11 +60,19 @@ enum class StatEvents(val eventName: String) {
 }
 
 enum class GameEvents(val eventName: String) {
-    START_ROUND("Function GameEvent_Soccar_TA.Active.StartRound"),
-    TEAMS_CREATED("Function TAGame.GameEvent_Soccar_TA.OnAllTeamsCreated"),
-    PLAYER_ADDED("Function TAGame.GameEvent_TA.EventPlayerAdded"),
-    PLAYER_REMOVED("Function TAGame.GameEvent_TA.EventPlayerRemoved"),
-    MATCH_ENDED("Function TAGame.GameEvent_Soccar_TA.EventMatchEnded");
+    ROUND_STARTED("RoundStarted"),
+    MATCH_CREATED("MatchCreated"),
+    MATCH_INITIALIZED("MatchInitialized"),
+    MATCH_DESTROYED("MatchDestroyed"),
+    MATCH_ENDED("MatchEnded"),
+    MATCH_PAUSED("MatchPaused"),
+    MATCH_UNPAUSED("MatchUnpaused"),
+    COUNTDOWN_BEGIN("CountdownBegin"),
+    GOAL_REPLAY_START("GoalReplayStart"),
+    GOAL_REPLAY_WILL_END("GoalReplayWillEnd"),
+    GOAL_REPLAY_END("GoalReplayEnd"),
+    PODIUM_START("PodiumStart"),
+    REPLAY_CREATED("ReplayCreated");
 
     fun eq(other: String): Boolean {
         return eventName == other

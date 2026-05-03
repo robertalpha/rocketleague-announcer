@@ -4,12 +4,12 @@ import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
-import nl.vanalphenict.model.JsonStatMessage
 import nl.vanalphenict.model.StatEvents
-import nl.vanalphenict.model.parseStatMessage
-import nl.vanalphenict.support.getBot
-import nl.vanalphenict.support.getOrangeTeam
-import nl.vanalphenict.support.getPlayerSteam
+import nl.vanalphenict.support.blueTeam
+import nl.vanalphenict.support.botPlayer
+import nl.vanalphenict.support.orangeTeam
+import nl.vanalphenict.support.playerSteam
+import nl.vanalphenict.support.statMessage
 
 class ShotTest {
 
@@ -25,13 +25,7 @@ class ShotTest {
     @Test
     fun interpretBotAway() {
         cut.interpret(
-            parseStatMessage(
-                JsonStatMessage(
-                    matchGUID = "123abc",
-                    event = "Shot",
-                    player = getBot(getOrangeTeam(home = false)),
-                )
-            )!!,
+            statMessage(StatEvents.SHOT, botPlayer(orangeTeam())),
             ts,
         ) shouldContainExactly
             setOf(Announcement.SHOT, Announcement.SHOT_AWAY, Announcement.SHOT_BY_BOT)
@@ -40,13 +34,7 @@ class ShotTest {
     @Test
     fun interpretBotHome() {
         cut.interpret(
-            parseStatMessage(
-                JsonStatMessage(
-                    matchGUID = "123abc",
-                    event = "Shot",
-                    player = getBot(getOrangeTeam(home = true)),
-                )
-            )!!,
+            statMessage(StatEvents.SHOT, botPlayer(blueTeam())),
             ts,
         ) shouldContainExactly
             setOf(Announcement.SHOT, Announcement.SHOT_HOME, Announcement.SHOT_BY_BOT)
@@ -55,13 +43,7 @@ class ShotTest {
     @Test
     fun interpretPlayerAway() {
         cut.interpret(
-            parseStatMessage(
-                JsonStatMessage(
-                    matchGUID = "123abc",
-                    event = "Shot",
-                    player = getPlayerSteam(getOrangeTeam(home = false)),
-                )
-            )!!,
+            statMessage(StatEvents.SHOT, playerSteam(orangeTeam())),
             ts,
         ) shouldContainExactly setOf(Announcement.SHOT, Announcement.SHOT_AWAY)
     }
@@ -69,13 +51,7 @@ class ShotTest {
     @Test
     fun interpretPlayerHome() {
         cut.interpret(
-            parseStatMessage(
-                JsonStatMessage(
-                    matchGUID = "123abc",
-                    event = "Shot",
-                    player = getPlayerSteam(getOrangeTeam(home = true)),
-                )
-            )!!,
+            statMessage(StatEvents.SHOT, playerSteam(blueTeam())),
             ts,
         ) shouldContainExactly setOf(Announcement.SHOT, Announcement.SHOT_HOME)
     }
