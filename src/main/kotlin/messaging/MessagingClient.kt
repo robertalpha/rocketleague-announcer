@@ -5,7 +5,6 @@ import kotlin.io.encoding.Base64
 import kotlin.random.Random
 import kotlin.time.Clock
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -46,12 +45,22 @@ class MessagingClient(
     internal val json = Json { ignoreUnknownKeys = true }
 
     // Game events that carry only a MatchGuid and map to GameEvents enum
-    private val GAME_EVENT_NAMES = setOf(
-        "RoundStarted", "MatchCreated", "MatchInitialized", "MatchDestroyed",
-        "MatchEnded", "MatchPaused", "MatchUnpaused", "CountdownBegin",
-        "GoalReplayStart", "GoalReplayWillEnd", "GoalReplayEnd",
-        "PodiumStart", "ReplayCreated",
-    )
+    private val GAME_EVENT_NAMES =
+        setOf(
+            "RoundStarted",
+            "MatchCreated",
+            "MatchInitialized",
+            "MatchDestroyed",
+            "MatchEnded",
+            "MatchPaused",
+            "MatchUnpaused",
+            "CountdownBegin",
+            "GoalReplayStart",
+            "GoalReplayWillEnd",
+            "GoalReplayEnd",
+            "PodiumStart",
+            "ReplayCreated",
+        )
 
     init {
         val clientId = "rla_announcer_" + Base64.encode(Random.nextBytes(3))
@@ -79,11 +88,13 @@ class MessagingClient(
                         val envelope = json.parseToJsonElement(payload).jsonObject
                         val eventName = envelope["Event"]?.jsonPrimitive?.content ?: return
                         val dataElement = envelope["Data"]
-                        val dataStr = when {
-                            dataElement is JsonPrimitive && dataElement.isString -> dataElement.content
-                            dataElement != null -> dataElement.toString()
-                            else -> "{}"
-                        }
+                        val dataStr =
+                            when {
+                                dataElement is JsonPrimitive && dataElement.isString ->
+                                    dataElement.content
+                                dataElement != null -> dataElement.toString()
+                                else -> "{}"
+                            }
 
                         log.trace { "${Clock.System.now()} - [$eventName] $dataStr" }
 
@@ -93,7 +104,8 @@ class MessagingClient(
                                 scrubber.processStatfeedEvent(msg)
                             }
                             eventName == "ClockUpdatedSeconds" -> {
-                                val msg = json.decodeFromString<JsonClockUpdatedSecondsData>(dataStr)
+                                val msg =
+                                    json.decodeFromString<JsonClockUpdatedSecondsData>(dataStr)
                                 scrubber.processClockUpdatedSeconds(msg)
                             }
                             eventName in GAME_EVENT_NAMES -> {

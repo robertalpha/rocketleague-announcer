@@ -7,10 +7,7 @@ import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 
 // ── Envelope ────────────────────────────────────────────────────────────────
 
-@Serializable
-data class JsonEnvelope(
-    @SerialName("Event") val event: String,
-)
+@Serializable data class JsonEnvelope(@SerialName("Event") val event: String)
 
 // ── Shared sub-objects ──────────────────────────────────────────────────────
 
@@ -195,9 +192,7 @@ data class JsonCrossbarHitData(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class JsonMatchGuidData(
-    @SerialName("MatchGuid") val matchGuid: String = "",
-)
+data class JsonMatchGuidData(@SerialName("MatchGuid") val matchGuid: String = "")
 
 // ── Log message (kept for backwards compat if still used) ───────────────────
 

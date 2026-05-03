@@ -33,10 +33,7 @@ class ShotTest {
 
     @Test
     fun interpretBotHome() {
-        cut.interpret(
-            statMessage(StatEvents.SHOT, botPlayer(blueTeam())),
-            ts,
-        ) shouldContainExactly
+        cut.interpret(statMessage(StatEvents.SHOT, botPlayer(blueTeam())), ts) shouldContainExactly
             setOf(Announcement.SHOT, Announcement.SHOT_HOME, Announcement.SHOT_BY_BOT)
     }
 

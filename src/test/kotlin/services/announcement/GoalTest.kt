@@ -5,7 +5,6 @@ import kotlin.test.Test
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatEvents
-import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.support.blueTeam
 import nl.vanalphenict.support.botPlayer
 import nl.vanalphenict.support.orangeTeam
@@ -34,10 +33,7 @@ class GoalTest {
 
     @Test
     fun interpretBotHome() {
-        cut.interpret(
-            statMessage(StatEvents.GOAL, botPlayer(blueTeam())),
-            ts,
-        ) shouldContainExactly
+        cut.interpret(statMessage(StatEvents.GOAL, botPlayer(blueTeam())), ts) shouldContainExactly
             setOf(Announcement.GOAL, Announcement.GOAL_HOME, Announcement.GOAL_BY_BOT)
     }
 

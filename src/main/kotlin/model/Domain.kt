@@ -12,7 +12,11 @@ private val log = KotlinLogging.logger {}
 
 // ── Parse: GameEvent (simple events that map to GameEvents enum) ────────────
 
-fun parseGameEventMessage(event: String, matchGuid: String, teams: List<JsonTeam> = emptyList()): GameEventMessage? {
+fun parseGameEventMessage(
+    event: String,
+    matchGuid: String,
+    teams: List<JsonTeam> = emptyList(),
+): GameEventMessage? {
     val gameEvent = GameEvents.entries.find { it.eq(event) }
     if (gameEvent == null) {
         log.info { "Event \"$event\" not supported." }
@@ -73,44 +77,50 @@ fun parseTeam(src: JsonTeam): Team {
         score = src.score,
         primaryColor = primaryColor,
         secondaryColor = secondaryColor,
-        name = src.name.ifEmpty {
+        name =
+            src.name.ifEmpty {
+                when (src.teamNum) {
+                    0 -> "TEAM BLUE"
+                    1 -> "TEAM ORANGE"
+                    else -> "Opponent"
+                }
+            },
+        tag =
             when (src.teamNum) {
-                0 -> "TEAM BLUE"
-                1 -> "TEAM ORANGE"
-                else -> "Opponent"
-            }
-        },
-        tag = when (src.teamNum) {
-            0 -> "BLUE"
-            1 -> "ORNG"
-            else -> "TAG"
-        },
+                0 -> "BLUE"
+                1 -> "ORNG"
+                else -> "TAG"
+            },
     )
 }
 
 fun teamForNum(teamNum: Int): Team {
     return Team(
         teamNum = teamNum,
-        name = when (teamNum) {
-            0 -> "TEAM BLUE"
-            1 -> "TEAM ORANGE"
-            else -> "Opponent"
-        },
-        primaryColor = when (teamNum) {
-            0 -> BLUE
-            1 -> ORANGE
-            else -> GREY
-        },
-        secondaryColor = when (teamNum) {
-            0 -> BLUE
-            1 -> ORANGE
-            else -> DARK_GREY
-        },
-        tag = when (teamNum) {
-            0 -> "BLUE"
-            1 -> "ORNG"
-            else -> "TAG"
-        },
+        name =
+            when (teamNum) {
+                0 -> "TEAM BLUE"
+                1 -> "TEAM ORANGE"
+                else -> "Opponent"
+            },
+        primaryColor =
+            when (teamNum) {
+                0 -> BLUE
+                1 -> ORANGE
+                else -> GREY
+            },
+        secondaryColor =
+            when (teamNum) {
+                0 -> BLUE
+                1 -> ORANGE
+                else -> DARK_GREY
+            },
+        tag =
+            when (teamNum) {
+                0 -> "BLUE"
+                1 -> "ORNG"
+                else -> "TAG"
+            },
     )
 }
 
@@ -148,7 +158,8 @@ data class Team(
     val tag: String = "-",
     val players: List<Player> = emptyList(),
 ) {
-    val homeTeam: Boolean get() = teamNum == 0
+    val homeTeam: Boolean
+        get() = teamNum == 0
 }
 
 fun hexToColor(hex: String): Color {

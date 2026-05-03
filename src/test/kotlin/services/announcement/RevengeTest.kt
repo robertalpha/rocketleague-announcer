@@ -5,7 +5,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import kotlin.test.Test
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
-import nl.vanalphenict.model.Player
 import nl.vanalphenict.services.announcement.Revenge
 import nl.vanalphenict.support.blueTeam
 import nl.vanalphenict.support.demoMessage

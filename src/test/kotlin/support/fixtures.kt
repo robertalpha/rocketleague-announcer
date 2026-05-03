@@ -40,10 +40,24 @@ fun getOrangeTeam(score: Int = 123) =
 // ── Domain-level fixtures (for announcement / service tests) ────────────────
 
 fun blueTeam(score: Int = 0) =
-    Team(teamNum = 0, score = score, primaryColor = BLUE, secondaryColor = DARK_GREY, name = "TEAM BLUE", tag = "BLUE")
+    Team(
+        teamNum = 0,
+        score = score,
+        primaryColor = BLUE,
+        secondaryColor = DARK_GREY,
+        name = "TEAM BLUE",
+        tag = "BLUE",
+    )
 
 fun orangeTeam(score: Int = 0) =
-    Team(teamNum = 1, score = score, primaryColor = ORANGE, secondaryColor = DARK_GREY, name = "TEAM ORANGE", tag = "ORNG")
+    Team(
+        teamNum = 1,
+        score = score,
+        primaryColor = ORANGE,
+        secondaryColor = DARK_GREY,
+        name = "TEAM ORANGE",
+        tag = "ORNG",
+    )
 
 fun playerEpic(team: Team = orangeTeam()) =
     Player(id = "Epic|12345678cafebabe12345678cafebabe|0", name = "Jones", bot = false, team = team)
@@ -60,17 +74,16 @@ fun playerPlaystation(team: Team = orangeTeam()) =
 fun botPlayer(team: Team = orangeTeam()) =
     Player(id = "bot|Maverick|0", name = "Maverick", bot = true, team = team)
 
-fun demoMessage(
-    attacker: Player,
-    victim: Player,
-    matchGUID: String = "123",
-) = KillMessage(matchGUID = matchGUID, event = StatEvents.DEMOLISH, player = attacker, victim = victim)
+fun demoMessage(attacker: Player, victim: Player, matchGUID: String = "123") =
+    KillMessage(
+        matchGUID = matchGUID,
+        event = StatEvents.DEMOLISH,
+        player = attacker,
+        victim = victim,
+    )
 
-fun statMessage(
-    event: StatEvents,
-    player: Player,
-    matchGUID: String = "123abc",
-) = StatMessage(matchGUID = matchGUID, event = event, player = player)
+fun statMessage(event: StatEvents, player: Player, matchGUID: String = "123abc") =
+    StatMessage(matchGUID = matchGUID, event = event, player = player)
 
 // ── Convenience: build a StatMessage via parseStatfeedEvent (for getEvent compat) ──
 
