@@ -5,8 +5,13 @@
 ## Features
 
  - subscribes to lightweight MQTT broker
+ - supports Rocket League Stats API message model read by [rlapi2mqtt](https://github.com/robertalpha/rlapi2mqtt)
  - monitors and responds to demolitions
  - supports sound pack templates
+
+## Screenshot
+
+![Rocket League Announcer](screenshot.png)
 
 ## Building & Running
 
