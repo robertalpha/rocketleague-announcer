@@ -23,7 +23,7 @@ class KickOffKill(private val gameEventRepository: GameEventRepository) : StatTo
                 .filter { (instant, _) ->
                     instant.bothHappenWithin(currentTimeStamp, kickoffDuration)
                 }
-                .count { (_, event) -> event.gameEvent == GameEvents.START_ROUND } > 0
+                .count { (_, event) -> event.gameEvent == GameEvents.ROUND_STARTED } > 0
         )
             setOf(Announcement.KICK_OFF_KILL)
         else emptySet()

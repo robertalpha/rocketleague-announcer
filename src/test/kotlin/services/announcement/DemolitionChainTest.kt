@@ -6,16 +6,15 @@ import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import nl.vanalphenict.model.Announcement
-import nl.vanalphenict.model.JsonStatMessage
 import nl.vanalphenict.model.RLAMetaData
-import nl.vanalphenict.model.parseStatMessage
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.announcement.DemoChain
 import nl.vanalphenict.services.announcement.DemolitionChain
-import nl.vanalphenict.support.getBlueTeam
-import nl.vanalphenict.support.getOrangeTeam
-import nl.vanalphenict.support.getPlayerEpic
-import nl.vanalphenict.support.getPlayerSteam
+import nl.vanalphenict.support.blueTeam
+import nl.vanalphenict.support.demoMessage
+import nl.vanalphenict.support.orangeTeam
+import nl.vanalphenict.support.playerEpic
+import nl.vanalphenict.support.playerSteam
 
 class DemolitionChainTest {
     @Test
@@ -59,13 +58,5 @@ class DemolitionChainTest {
             Announcement.MASSACRE
     }
 
-    fun demoStatmessage() =
-        parseStatMessage(
-            JsonStatMessage(
-                matchGUID = "123",
-                event = "Demolish",
-                player = getPlayerEpic(getBlueTeam()),
-                victim = getPlayerSteam(getOrangeTeam()),
-            )
-        )!!
+    fun demoStatmessage() = demoMessage(playerEpic(blueTeam()), playerSteam(orangeTeam()))
 }

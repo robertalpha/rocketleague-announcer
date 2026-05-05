@@ -18,16 +18,13 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import nl.vanalphenict.moduleWithDependencies
 import nl.vanalphenict.services.SampleMapper
 import nl.vanalphenict.services.SamplePlayer
@@ -40,11 +37,12 @@ import org.testcontainers.junit.jupiter.Testcontainers
 class MessagingTest : AbstractMessagingTest() {
 
     private val log = KotlinLogging.logger {}
+    private val TOPIC = "rlapi2mqtt/events"
 
     @OptIn(ExperimentalAtomicApi::class, KotestInternal::class)
     @Test
     fun testLines() = testApplication {
-        val testFile = "RL_log_20250903.txt"
+        val testFile = "rlapi2mqtt_1.log"
 
         val timeServiceMock = TimeServiceMock()
 
@@ -93,15 +91,17 @@ class MessagingTest : AbstractMessagingTest() {
             }
         }
 
-        // wait for application to start and sse to conenct
+        // wait for application to start and sse to connect
         delay(1000)
 
-        println("sending messages")
-        messages.forEach {
-            val mockTime = kotlin.time.Instant.parse(it.timestamp)
+        var mockTime = Instant.parse("2025-01-01T12:00:00Z")
+
+        println("sending ${messages.size} messages")
+        messages.forEach { message ->
+            mockTime = mockTime.plus(100.milliseconds)
             semaphore.addAndFetch(1)
             timeServiceMock.setTime(mockTime)
-            send(it.topic, it.message)
+            send(TOPIC, message)
             eventually(
                 config =
                     eventuallyConfig {
@@ -116,32 +116,14 @@ class MessagingTest : AbstractMessagingTest() {
         eventually(10.seconds) {
             val actionEvents =
                 sseData.filter { it.event.equals(SSE_EVENT_TYPE.NEW_ACTION.asString()) }
-            actionEvents.size shouldBe 48
-            actionEvents.count { it.data?.contains("icons/Demolish.webp") ?: false } shouldBe 4
+            actionEvents.count { it.data?.contains("icons/Demolish.webp") ?: false } shouldBe 10
             actionEvents.count { it.data?.contains("icons/Goal.webp") ?: false } shouldBe 5
             actionEvents.count { it.data?.contains("icons/Win.webp") ?: false } shouldBe 3
         }
     }
 
-    private fun parseMessagesFromResource(testFile: String): List<MessageLine> {
+    private fun parseMessagesFromResource(testFile: String): List<String> {
         val stream = javaClass.getClassLoader().getResourceAsStream(testFile)!!
-
-        val lines = String(stream.readAllBytes()).lines()
-        return lines
-            .filter { it.isNotBlank() }
-            .map {
-                try {
-                    Json.decodeFromString(MessageLine.serializer(), it)
-                } catch (e: Exception) {
-                    log.error { "could nor parse MessageLine: ${it}$" }
-                    throw e
-                }
-            }
-            .sortedBy { it.timestamp }
+        return String(stream.readAllBytes()).lines().filter { it.isNotBlank() }
     }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    @Serializable
-    @JsonIgnoreUnknownKeys
-    data class MessageLine(val topic: String, val timestamp: String, val message: String)
 }

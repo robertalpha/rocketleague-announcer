@@ -3,15 +3,15 @@ package nl.vanalphenict.messaging
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
-import nl.vanalphenict.model.JsonGameEventMessage
-import nl.vanalphenict.model.JsonGameTimeMessage
+import nl.vanalphenict.model.JsonClockUpdatedSecondsData
 import nl.vanalphenict.model.JsonLogMessage
-import nl.vanalphenict.model.JsonStatMessage
+import nl.vanalphenict.model.JsonMatchGuidData
+import nl.vanalphenict.model.JsonStatfeedEventData
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatEvents
+import nl.vanalphenict.model.parseClockUpdatedSeconds
 import nl.vanalphenict.model.parseGameEventMessage
-import nl.vanalphenict.model.parseGameTimeMessage
-import nl.vanalphenict.model.parseStatMessage
+import nl.vanalphenict.model.parseStatfeedEvent
 import nl.vanalphenict.services.EventHandler
 import nl.vanalphenict.services.GameTimeTrackerService
 import nl.vanalphenict.utility.TimeService
@@ -26,10 +26,11 @@ class EventScrubber(
 
     private val messagesCache: MutableMap<Int, Instant> = HashMap()
 
-    fun processGameEvent(msg: JsonGameEventMessage) {
-        messagesCache.computeIfAbsent(msg.hashCode()) {
-            parseGameEventMessage(msg)?.let {
-                val time = gameTimeTrackerService.getGameTime(msg.matchGUID)
+    fun processGameEvent(eventName: String, msg: JsonMatchGuidData) {
+        val key = (eventName + msg.matchGuid).hashCode()
+        messagesCache.computeIfAbsent(key) {
+            parseGameEventMessage(eventName, msg.matchGuid)?.let {
+                val time = gameTimeTrackerService.getGameTime(msg.matchGuid)
                 eventHandler.handleGameEvent(
                     it,
                     RLAMetaData(
@@ -38,18 +39,18 @@ class EventScrubber(
                         remaining = time.remaining,
                     ),
                 )
-            } ?: log.warn { "Unable to parse game event message: $msg" }
+            } ?: log.warn { "Unable to parse game event message: $eventName $msg" }
             timeService.now()
         }
         clearCache()
     }
 
-    fun processStat(msg: JsonStatMessage) {
-        // Filter demolish stat message. Only use ticker
-        if (StatEvents.DEMOLISH.eq(msg.event) && msg.victim == null) return
+    fun processStatfeedEvent(msg: JsonStatfeedEventData) {
+        // Filter demolish stat message without a secondary target
+        if (StatEvents.DEMOLISH.eq(msg.eventName) && msg.secondaryTarget == null) return
         messagesCache.computeIfAbsent(msg.hashCode()) {
-            parseStatMessage(msg)?.let {
-                val time = gameTimeTrackerService.getGameTime(msg.matchGUID)
+            parseStatfeedEvent(msg)?.let {
+                val time = gameTimeTrackerService.getGameTime(msg.matchGuid)
                 eventHandler.handleStatMessage(
                     it,
                     RLAMetaData(
@@ -58,18 +59,15 @@ class EventScrubber(
                         remaining = time.remaining,
                     ),
                 )
-            } ?: log.warn { "Unable to parse stat message: $msg" }
+            } ?: log.warn { "Unable to parse statfeed event: $msg" }
             timeService.now()
         }
-        // BallHit is a frequent stat message, never double
-        if (msg.event != "BallHit") {
-            clearCache()
-        }
+        clearCache()
     }
 
-    fun processGameTime(msg: JsonGameTimeMessage) {
+    fun processClockUpdatedSeconds(msg: JsonClockUpdatedSecondsData) {
         messagesCache.computeIfAbsent(msg.hashCode()) {
-            val gameTimeMessage = parseGameTimeMessage(msg)
+            val gameTimeMessage = parseClockUpdatedSeconds(msg)
             gameTimeTrackerService.storeGameTime(gameTimeMessage)
             eventHandler.handleGameTime(gameTimeMessage)
             timeService.now()

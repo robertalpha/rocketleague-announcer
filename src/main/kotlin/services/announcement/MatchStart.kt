@@ -8,7 +8,7 @@ import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.services.GameEventToAnnouncement
 
 class MatchStart(private val gameEventRepository: GameEventRepository) : GameEventToAnnouncement {
-    override fun listenTo() = setOf(GameEvents.START_ROUND)
+    override fun listenTo() = setOf(GameEvents.ROUND_STARTED)
 
     override fun interpret(
         statMessage: GameEventMessage,
@@ -17,7 +17,7 @@ class MatchStart(private val gameEventRepository: GameEventRepository) : GameEve
 
         return if (
             gameEventRepository.getGameEventHistory(statMessage.matchGUID).count { (_, event) ->
-                GameEvents.START_ROUND == event.gameEvent
+                GameEvents.ROUND_STARTED == event.gameEvent
             } == 0
         )
             setOf(Announcement.MATCH_START)

@@ -1,152 +1,199 @@
 package nl.vanalphenict.model
 
-import java.util.Collections
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 
-val CLUB_MAP =
-    HashMap<Int, JsonClub>(
-        mapOf<Int, JsonClub>(
-            -1 to JsonClub(-1, "", "", JsonColor(229, 229, 229), JsonColor(128, 128, 128))
-        )
-    )
+// ── Envelope ────────────────────────────────────────────────────────────────
 
+@Serializable data class JsonEnvelope(@SerialName("Event") val event: String)
+
+// ── Shared sub-objects ──────────────────────────────────────────────────────
+
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class JsonGameEventMessage(
-    val matchGUID: String,
-    val gameEvent: String,
-    val teams: List<JsonTeam>? = emptyList(),
+@JsonIgnoreUnknownKeys
+data class JsonPlayerRef(
+    @SerialName("Name") val name: String,
+    @SerialName("Shortcut") val shortcut: Int = 0,
+    @SerialName("TeamNum") val teamNum: Int = 0,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class JsonPlayerFull(
+    @SerialName("Name") val name: String = "",
+    @SerialName("PrimaryId") val primaryId: String = "",
+    @SerialName("Shortcut") val shortcut: Int = 0,
+    @SerialName("TeamNum") val teamNum: Int = 0,
+    @SerialName("Score") val score: Int = 0,
+    @SerialName("Goals") val goals: Int = 0,
+    @SerialName("Shots") val shots: Int = 0,
+    @SerialName("Assists") val assists: Int = 0,
+    @SerialName("Saves") val saves: Int = 0,
+    @SerialName("Touches") val touches: Int = 0,
+    @SerialName("CarTouches") val carTouches: Int = 0,
+    @SerialName("Demos") val demos: Int = 0,
+    @SerialName("bHasCar") val hasCar: Boolean = false,
+    @SerialName("Speed") val speed: Double = 0.0,
+    @SerialName("Boost") val boost: Int = 0,
+    @SerialName("bBoosting") val boosting: Boolean = false,
+    @SerialName("bOnGround") val onGround: Boolean = false,
+    @SerialName("bOnWall") val onWall: Boolean = false,
+    @SerialName("bPowersliding") val powersliding: Boolean = false,
+    @SerialName("bDemolished") val demolished: Boolean = false,
+    @SerialName("bSupersonic") val supersonic: Boolean = false,
+    @SerialName("Attacker") val attacker: JsonPlayerRef? = null,
+) {
+    fun isBot(): Boolean = primaryId == "" || primaryId == "Unknown|0|0"
+
+    fun botSaveId(): String = if (isBot()) "bot|$name|0" else primaryId
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class JsonTeam(
+    @SerialName("Name") val name: String = "",
+    @SerialName("TeamNum") val teamNum: Int = 0,
+    @SerialName("Score") val score: Int = 0,
+    @SerialName("ColorPrimary") val colorPrimary: String = "",
+    @SerialName("ColorSecondary") val colorSecondary: String = "",
 )
 
 @Serializable
-data class JsonGameTimeMessage(val matchGUID: String, val remaining: Int, val overtime: Boolean)
+data class JsonVector(
+    @SerialName("X") val x: Int = 0,
+    @SerialName("Y") val y: Int = 0,
+    @SerialName("Z") val z: Int = 0,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class JsonBallState(
+    @SerialName("Speed") val speed: Double = 0.0,
+    @SerialName("TeamNum") val teamNum: Int = 255,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class JsonGameState(
+    @SerialName("Teams") val teams: List<JsonTeam> = emptyList(),
+    @SerialName("TimeSeconds") val timeSeconds: Int = 0,
+    @SerialName("bOvertime") val overtime: Boolean = false,
+    @SerialName("Frame") val frame: Int = 0,
+    @SerialName("Elapsed") val elapsed: Double = 0.0,
+    @SerialName("Ball") val ball: JsonBallState = JsonBallState(),
+    @SerialName("bReplay") val replay: Boolean = false,
+    @SerialName("bHasWinner") val hasWinner: Boolean = false,
+    @SerialName("Winner") val winner: String = "",
+    @SerialName("Arena") val arena: String = "",
+    @SerialName("bHasTarget") val hasTarget: Boolean = false,
+    @SerialName("Target") val target: JsonPlayerRef? = null,
+)
 
 @Serializable
-data class JsonStatMessage(
-    val matchGUID: String,
-    val event: String,
-    val player: JsonPlayer,
-    val victim: JsonPlayer? = null,
-) {
+data class JsonBallLastTouch(
+    @SerialName("Player") val player: JsonPlayerRef,
+    @SerialName("Speed") val speed: Double = 0.0,
+)
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+// ── Event Data payloads ─────────────────────────────────────────────────────
 
-        other as JsonStatMessage
+// UpdateState
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class JsonUpdateStateData(
+    @SerialName("MatchGuid") val matchGuid: String = "",
+    @SerialName("Players") val players: List<JsonPlayerFull> = emptyList(),
+    @SerialName("Game") val game: JsonGameState = JsonGameState(),
+)
 
-        if (event != other.event) return false
-        if (matchGUID != other.matchGUID) return false
-        if (player != other.player) return false
-        if (victim != other.victim) return false
+// StatfeedEvent
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class JsonStatfeedEventData(
+    @SerialName("MatchGuid") val matchGuid: String = "",
+    @SerialName("EventName") val eventName: String = "",
+    @SerialName("Type") val type: String = "",
+    @SerialName("MainTarget") val mainTarget: JsonPlayerRef = JsonPlayerRef(""),
+    @SerialName("SecondaryTarget") val secondaryTarget: JsonPlayerRef? = null,
+)
 
-        return true
-    }
+// GoalScored
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class JsonGoalScoredData(
+    @SerialName("MatchGuid") val matchGuid: String = "",
+    @SerialName("GoalSpeed") val goalSpeed: Double = 0.0,
+    @SerialName("GoalTime") val goalTime: Double = 0.0,
+    @SerialName("ImpactLocation") val impactLocation: JsonVector = JsonVector(),
+    @SerialName("Scorer") val scorer: JsonPlayerRef = JsonPlayerRef(""),
+    @SerialName("Assister") val assister: JsonPlayerRef? = null,
+    @SerialName("BallLastTouch") val ballLastTouch: JsonBallLastTouch? = null,
+)
 
-    override fun hashCode(): Int {
-        var result = event.hashCode()
-        result = 31 * result + matchGUID.hashCode()
-        result = 31 * result + player.hashCode()
-        result = 31 * result + (victim?.hashCode() ?: 0)
-        return result
-    }
-}
+// ClockUpdatedSeconds
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class JsonClockUpdatedSecondsData(
+    @SerialName("MatchGuid") val matchGuid: String = "",
+    @SerialName("TimeSeconds") val timeSeconds: Int = 0,
+    @SerialName("bOvertime") val overtime: Boolean = false,
+)
+
+// MatchEnded
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class JsonMatchEndedData(
+    @SerialName("MatchGuid") val matchGuid: String = "",
+    @SerialName("WinnerTeamNum") val winnerTeamNum: Int = 0,
+)
+
+// BallHit
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class JsonBallHitData(
+    @SerialName("MatchGuid") val matchGuid: String = "",
+    @SerialName("Players") val players: List<JsonPlayerRef> = emptyList(),
+    @SerialName("Ball") val ball: JsonBallHitBall = JsonBallHitBall(),
+)
+
+@Serializable
+data class JsonBallHitBall(
+    @SerialName("PreHitSpeed") val preHitSpeed: Double = 0.0,
+    @SerialName("PostHitSpeed") val postHitSpeed: Double = 0.0,
+    @SerialName("Location") val location: JsonVector = JsonVector(),
+)
+
+// CrossbarHit
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class JsonCrossbarHitData(
+    @SerialName("MatchGuid") val matchGuid: String = "",
+    @SerialName("BallLocation") val ballLocation: JsonVector = JsonVector(),
+    @SerialName("BallSpeed") val ballSpeed: Double = 0.0,
+    @SerialName("ImpactForce") val impactForce: Double = 0.0,
+    @SerialName("BallLastTouch") val ballLastTouch: JsonBallLastTouch? = null,
+)
+
+// Simple events that only carry a MatchGuid
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class JsonMatchGuidData(@SerialName("MatchGuid") val matchGuid: String = "")
+
+// ── Log message (kept for backwards compat if still used) ───────────────────
 
 @Serializable data class JsonLogMessage(val log: String, val user: String, val userId: String)
-
-@Serializable
-data class JsonPlayer(
-    val id: String,
-    val name: String,
-    val score: Int? = null,
-    val team: JsonTeam? = null,
-    val club: JsonClub? = null,
-) {
-    init {
-        club?.let { CLUB_MAP[it.id] = it }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as JsonPlayer
-
-        if (score != other.score) return false
-        if (id != other.id) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + name.hashCode()
-        return result
-    }
-
-    fun isBot(): Boolean {
-        return id == "Unknown|0|0"
-    }
-
-    fun botSaveId(): String {
-        return if (isBot()) "bot|$name|0" else id
-    }
-}
-
-@Serializable
-data class JsonTeam(
-    val clubId: Int? = null,
-    val homeTeam: Boolean? = null,
-    val index: Int? = null,
-    val name: String? = null,
-    val num: Int? = null,
-    val score: Int? = null,
-    val primaryColor: JsonColor? = null,
-    val secondaryColor: JsonColor? = null,
-    val players: List<JsonPlayer> = Collections.emptyList(),
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as JsonTeam
-
-        if (clubId != other.clubId) return false
-        if (index != other.index) return false
-        if (score != other.score) return false
-        if (players != other.players) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = clubId ?: 0
-        result = 31 * result + (index ?: 0)
-        result = 31 * result + (players.hashCode())
-        return result
-    }
-}
-
-@Serializable
-data class JsonClub(
-    val id: Int,
-    val name: String,
-    val tag: String,
-    val accentColor: JsonColor,
-    val primaryColor: JsonColor,
-) {
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as JsonClub
-
-        return id == other.id
-    }
-
-    override fun hashCode(): Int {
-        return id
-    }
-}
-
-@Serializable data class JsonColor(val R: Int, val G: Int, val B: Int)

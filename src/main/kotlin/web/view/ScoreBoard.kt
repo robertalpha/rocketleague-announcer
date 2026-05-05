@@ -89,4 +89,4 @@ fun HtmlBlockTag.renderTeamInfo(team: Team) = div {
     }
 }
 
-fun emptyTeam(homeTeam: Boolean) = Team(homeTeam = homeTeam)
+fun emptyTeam(homeTeam: Boolean) = Team(teamNum = if (homeTeam) 0 else 1)
