@@ -71,9 +71,9 @@ data class JsonTeam(
 
 @Serializable
 data class JsonVector(
-    @SerialName("X") val x: Int = 0,
-    @SerialName("Y") val y: Int = 0,
-    @SerialName("Z") val z: Int = 0,
+    @SerialName("X") val x: Double = 0.0,
+    @SerialName("Y") val y: Double = 0.0,
+    @SerialName("Z") val z: Double = 0.0,
 )
 
 @OptIn(ExperimentalSerializationApi::class)

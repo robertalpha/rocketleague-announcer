@@ -1,9 +1,11 @@
 package nl.vanalphenict.repository
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.Collections
 import kotlin.time.Duration.Companion.seconds
 import nl.vanalphenict.model.Game
 import nl.vanalphenict.model.GameTimeMessage
+import nl.vanalphenict.model.GoalEventMessage
 import nl.vanalphenict.model.JsonGameState
 import nl.vanalphenict.model.JsonPlayer
 import nl.vanalphenict.model.JsonPlayerFull
@@ -22,18 +24,25 @@ import nl.vanalphenict.utility.ColorUtils.Companion.hexToColor
  * TODO: validate synchrnization sollution
  */
 class GameStateRepository {
+    private val log = KotlinLogging.logger {}
 
     private val games = Collections.synchronizedMap(HashMap<String, Game>())
     private val players = Collections.synchronizedMap(HashMap<Key, Player>())
     private val teams = Collections.synchronizedMap(HashMap<Key, Team>())
 
     fun getGame(matchGuid: String): Game {
-        return games.computeIfAbsent(matchGuid) { Game(matchGuid = matchGuid) }
+        return games.computeIfAbsent(matchGuid) {
+            log.info { "Creating new game: ${matchGuid}" }
+            Game(matchGuid = matchGuid)
+        }
     }
 
     fun getTeam(matchGuid: String, teamNum: Int): Team {
         return teams.computeIfAbsent(Key(matchGuid, teamNum)) {
-            getDefaultTeam(teamNum).also { getGame(matchGuid).teams.add(it) }
+            getDefaultTeam(teamNum).also {
+                log.info { "Creating new team: ${it.name} (${it.teamNum})" }
+                getGame(matchGuid).teams.add(it)
+            }
         }
     }
 
@@ -50,6 +59,9 @@ class GameStateRepository {
      */
     fun getPlayer(matchGuid: String, player: JsonPlayer): Player {
         return players.computeIfAbsent(Key(matchGuid, player.shortcut)) {
+            log.info {
+                "Creating new player: ${player.name} (shortcut ${player.shortcut}, team ${player.teamNum})"
+            }
             val player =
                 Player(
                     name = player.name,
@@ -85,6 +97,11 @@ class GameStateRepository {
         val game = getGame(gameTime.matchGuid)
         game.overtime = gameTime.overtime
         game.remaining = gameTime.remaining
+    }
+
+    // ── Interpreting Goal Update ─────────────────────────────────────────────────
+    fun processGoalScored(goal: GoalEventMessage) {
+        goal.scorer.team.score += 1
     }
 
     // ── Interpreting State Update ────────────────────────────────────────────────

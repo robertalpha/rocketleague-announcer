@@ -32,7 +32,7 @@ class SsePublisher(val gameStateRepository: GameStateRepository) : GameEventHand
         if (msg.gameEvent == GameEvents.MATCH_CREATED) {
             runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.SCORE_BOARD, scoreBoardHtml()) }
         }
-        if (msg.gameEvent in setOf(GameEvents.ROUND_STARTED, GameEvents.GOAL_REPLAY_START)) {
+        if (msg.gameEvent in setOf(GameEvents.ROUND_STARTED, GameEvents.GOAL_SCORED)) {
             updateTeams(msg.matchGuid)
         }
     }

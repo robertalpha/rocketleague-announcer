@@ -31,7 +31,7 @@ class MessageInterpreter(
         setOf(
             GameEvents.COUNTDOWN_BEGIN.eventName,
             GameEvents.GOAL_REPLAY_END.eventName,
-            GameEvents.GOAL_REPLAY_END.eventName,
+            GameEvents.GOAL_REPLAY_WILL_END.eventName,
             GameEvents.GOAL_REPLAY_START.eventName,
             GameEvents.GOAL_REPLAY_WILL_END.eventName,
             GameEvents.MATCH_CREATED.eventName,
@@ -60,15 +60,16 @@ class MessageInterpreter(
             }
             "ClockUpdatedSeconds" -> {
                 parseClockUpdatedSeconds(data).let {
-                    eventHandler.handleGameTime(it)
                     gameStateRepository.processClockUpdatedSeconds(it)
+                    eventHandler.handleGameTime(it)
                 }
             }
             GameEvents.CROSSBAR_HIT.eventName -> {
                 // TODO: Parse CrossbarHit
             }
             GameEvents.GOAL_SCORED.eventName -> {
-                parseGoalScored(data).let {
+                parseGoalScored(data)?.let {
+                    gameStateRepository.processGoalScored(it)
                     eventHandler.handleGameEvent(it, gameStateRepository.getMetadata(it.matchGuid))
                 }
             }
@@ -120,22 +121,26 @@ class MessageInterpreter(
             )
         }
 
-    fun parseGoalScored(dataStr: String): GoalEventMessage =
-        json.decodeFromString<JsonGoalScoredData>(dataStr).let { data ->
-            GoalEventMessage(
-                matchGuid = data.matchGuid,
-                gameEvent = GameEvents.GOAL_SCORED,
-                goalSpead = data.goalSpeed,
-                goalTime = data.goalTime,
-                scorer = gameStateRepository.getPlayer(data.matchGuid, data.scorer),
-                assister = data.assister?.let { gameStateRepository.getPlayer(data.matchGuid, it) },
-                lastToucher =
-                    data.ballLastTouch?.player?.let {
-                        gameStateRepository.getPlayer(data.matchGuid, it)
-                    },
-                touchSpeed = data.ballLastTouch?.speed,
-            )
-        }
+    fun parseGoalScored(dataStr: String): GoalEventMessage? =
+        json
+            .decodeFromString<JsonGoalScoredData>(dataStr)
+            .takeIf { it.scorer.name != "" } // Ignore illegal goal message during replay
+            ?.let { data ->
+                GoalEventMessage(
+                    matchGuid = data.matchGuid,
+                    gameEvent = GameEvents.GOAL_SCORED,
+                    goalSpead = data.goalSpeed,
+                    goalTime = data.goalTime,
+                    scorer = gameStateRepository.getPlayer(data.matchGuid, data.scorer),
+                    assister =
+                        data.assister?.let { gameStateRepository.getPlayer(data.matchGuid, it) },
+                    lastToucher =
+                        data.ballLastTouch?.player?.let {
+                            gameStateRepository.getPlayer(data.matchGuid, it)
+                        },
+                    touchSpeed = data.ballLastTouch?.speed,
+                )
+            }
 
     fun parseOtherGameEvent(gameEvent: String, dataStr: String): GameEventMessage? {
         val data = json.decodeFromString<JsonMatchGuidData>(dataStr)
