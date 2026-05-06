@@ -3,7 +3,7 @@ package nl.vanalphenict.model
 import kotlin.time.Duration
 
 data class RLAMetaData(
-    val matchGUID: String,
+    val matchGuid: String,
     var prevailingAnnouncement: Announcement? = null,
     val announcements: MutableSet<Announcement> = HashSet(),
     val overtime: Boolean,
@@ -60,19 +60,22 @@ enum class StatEvents(val eventName: String) {
 }
 
 enum class GameEvents(val eventName: String) {
-    ROUND_STARTED("RoundStarted"),
+    BALL_HIT("BallHit"),
+    COUNTDOWN_BEGIN("CountdownBegin"),
+    CROSSBAR_HIT("CrossbarHit"),
+    GOAL_REPLAY_END("GoalReplayEnd"),
+    GOAL_REPLAY_START("GoalReplayStart"),
+    GOAL_REPLAY_WILL_END("GoalReplayWillEnd"),
+    GOAL_SCORED("GoalScored"),
     MATCH_CREATED("MatchCreated"),
     MATCH_INITIALIZED("MatchInitialized"),
     MATCH_DESTROYED("MatchDestroyed"),
     MATCH_ENDED("MatchEnded"),
     MATCH_PAUSED("MatchPaused"),
     MATCH_UNPAUSED("MatchUnpaused"),
-    COUNTDOWN_BEGIN("CountdownBegin"),
-    GOAL_REPLAY_START("GoalReplayStart"),
-    GOAL_REPLAY_WILL_END("GoalReplayWillEnd"),
-    GOAL_REPLAY_END("GoalReplayEnd"),
     PODIUM_START("PodiumStart"),
-    REPLAY_CREATED("ReplayCreated");
+    REPLAY_CREATED("ReplayCreated"),
+    ROUND_STARTED("RoundStarted");
 
     fun eq(other: String): Boolean {
         return eventName == other

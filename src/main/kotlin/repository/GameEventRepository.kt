@@ -19,7 +19,7 @@ class GameEventRepository {
     }
 
     fun getGameEventHistory(matchGuid: String): List<GameEventRecord> {
-        return gameEventHistory.filter { (_, message) -> matchGuid == message.matchGUID }
+        return gameEventHistory.filter { (_, message) -> matchGuid == message.matchGuid }
     }
 
     fun clear() {

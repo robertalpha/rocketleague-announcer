@@ -15,9 +15,9 @@ import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.services.announcement.AsIs
-import nl.vanalphenict.support.getEvent
 import nl.vanalphenict.support.getMetaData
 import nl.vanalphenict.support.getVoiceChannel
+import nl.vanalphenict.support.statMessage
 
 class AnnouncementHandlerTest {
 
@@ -57,7 +57,7 @@ class AnnouncementHandlerTest {
     fun testNoInterpreter() {
         cut.replaceMapping(sampleMapper)
 
-        cut.handleStatMessage(getEvent(StatEvents.DEMOLITION), getMetaData())
+        cut.handleStatMessage(statMessage(StatEvents.DEMOLITION), getMetaData())
         Thread.sleep(150)
         playedSampleQueue.isEmpty() shouldBe true
     }
@@ -66,7 +66,7 @@ class AnnouncementHandlerTest {
     fun testNoMapping() {
         cut.replaceMapping(sampleMapper)
 
-        cut.handleStatMessage(getEvent(StatEvents.EPIC_SAVE), getMetaData())
+        cut.handleStatMessage(statMessage(StatEvents.EPIC_SAVE), getMetaData())
         Thread.sleep(150)
         playedSampleQueue.isEmpty() shouldBe true
     }
@@ -75,7 +75,7 @@ class AnnouncementHandlerTest {
     fun testSingleEvent() {
         cut.replaceMapping(sampleMapper)
 
-        cut.handleStatMessage(getEvent(StatEvents.AERIAL_GOAL), getMetaData())
+        cut.handleStatMessage(statMessage(StatEvents.AERIAL_GOAL), getMetaData())
         playedSampleQueue.take() shouldBe "aerial_goal.wav"
         playedSampleQueue.isEmpty() shouldBe true
     }
@@ -84,13 +84,13 @@ class AnnouncementHandlerTest {
     fun testMultipleEventsParalel() {
         cut.replaceMapping(sampleMapper)
 
-        cut.handleStatMessage(getEvent(StatEvents.SAVE), getMetaData())
+        cut.handleStatMessage(statMessage(StatEvents.SAVE), getMetaData())
         playedSampleQueue.take() shouldBe "aerial_goal.wav"
         playedSampleQueue.isEmpty() shouldBe true
 
         cut.replaceMapping(sampleMapperRev)
 
-        cut.handleStatMessage(getEvent(StatEvents.SAVE), getMetaData())
+        cut.handleStatMessage(statMessage(StatEvents.SAVE), getMetaData())
         playedSampleQueue.take() shouldBe "hattrick.wav"
         playedSampleQueue.isEmpty() shouldBe true
     }
@@ -99,22 +99,22 @@ class AnnouncementHandlerTest {
     fun testMultipleEventsSerial() {
         cut.replaceMapping(sampleMapper)
 
-        cut.handleStatMessage(getEvent(StatEvents.AERIAL_GOAL), getMetaData())
-        cut.handleStatMessage(getEvent(StatEvents.LONG_GOAL), getMetaData())
+        cut.handleStatMessage(statMessage(StatEvents.AERIAL_GOAL), getMetaData())
+        cut.handleStatMessage(statMessage(StatEvents.LONG_GOAL), getMetaData())
         playedSampleQueue.take() shouldBe "aerial_goal.wav"
         playedSampleQueue.isEmpty() shouldBe true
 
-        cut.handleStatMessage(getEvent(StatEvents.AERIAL_GOAL), getMetaData())
+        cut.handleStatMessage(statMessage(StatEvents.AERIAL_GOAL), getMetaData())
         Thread.sleep(110)
-        cut.handleStatMessage(getEvent(StatEvents.LONG_GOAL), getMetaData())
+        cut.handleStatMessage(statMessage(StatEvents.LONG_GOAL), getMetaData())
         playedSampleQueue.take() shouldBe "aerial_goal.wav"
         playedSampleQueue.take() shouldBe "long_goal.wav"
         playedSampleQueue.isEmpty() shouldBe true
 
         cut.replaceMapping(sampleMapperRev)
 
-        cut.handleStatMessage(getEvent(StatEvents.AERIAL_GOAL), getMetaData())
-        cut.handleStatMessage(getEvent(StatEvents.LONG_GOAL), getMetaData())
+        cut.handleStatMessage(statMessage(StatEvents.AERIAL_GOAL), getMetaData())
+        cut.handleStatMessage(statMessage(StatEvents.LONG_GOAL), getMetaData())
         playedSampleQueue.take() shouldBe "long_goal.wav"
         playedSampleQueue.isEmpty() shouldBe true
     }

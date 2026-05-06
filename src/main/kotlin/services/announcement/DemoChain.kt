@@ -16,16 +16,16 @@ class DemoChain : StatToAnnouncment {
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
 
-        val streak = data.computeIfAbsent(statMessage.matchGUID) { Pair(0, currentTimeStamp) }
+        val streak = data.computeIfAbsent(statMessage.matchGuid) { Pair(0, currentTimeStamp) }
 
-        if (statMessage.player.team?.homeTeam == false) {
-            data.remove(statMessage.matchGUID)
+        if (!statMessage.player.team.hasContributors) {
+            data.remove(statMessage.matchGuid)
             return if (streak.first > 1) setOf(Announcement.COMBO_BREAKER) else emptySet()
         }
 
         return if (currentTimeStamp.minus(streak.second) < pivotDuration) {
             val streakLength = streak.first + 1
-            data[statMessage.matchGUID] = Pair(streakLength, currentTimeStamp)
+            data[statMessage.matchGuid] = Pair(streakLength, currentTimeStamp)
             if (streakLength > 5) return setOf(Announcement.MASSACRE)
             if (streakLength < 2) return emptySet()
             setOf(
@@ -37,7 +37,7 @@ class DemoChain : StatToAnnouncment {
                 )[streakLength - 2]
             )
         } else {
-            data.remove(statMessage.matchGUID)
+            data.remove(statMessage.matchGuid)
             emptySet()
         }
     }

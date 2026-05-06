@@ -5,14 +5,14 @@ import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.repository.StatRepository
-import nl.vanalphenict.services.EventHandler
+import nl.vanalphenict.services.GameEventHandler
 import nl.vanalphenict.utility.TimeService
 
 class EventPersister(
     val statRepository: StatRepository,
     val gameEventRepository: GameEventRepository,
     val timeService: TimeService,
-) : EventHandler {
+) : GameEventHandler {
 
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         synchronized(this) { statRepository.addStatMessage(timeService.now(), msg, metaData) }

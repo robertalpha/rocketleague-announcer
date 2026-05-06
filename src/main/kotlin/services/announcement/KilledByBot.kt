@@ -12,7 +12,7 @@ class KilledByBot : StatToAnnouncment {
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
         if (statMessage !is KillMessage) return emptySet()
-        return if (statMessage.victim.team.homeTeam && statMessage.player.bot)
+        return if (statMessage.victim.team.hasContributors && statMessage.player.bot)
             setOf(Announcement.KILLED_BY_BOT)
         else emptySet()
     }

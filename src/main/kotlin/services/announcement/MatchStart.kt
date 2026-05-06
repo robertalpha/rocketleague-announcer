@@ -16,7 +16,7 @@ class MatchStart(private val gameEventRepository: GameEventRepository) : GameEve
     ): Set<Announcement> {
 
         return if (
-            gameEventRepository.getGameEventHistory(statMessage.matchGUID).count { (_, event) ->
+            gameEventRepository.getGameEventHistory(statMessage.matchGuid).count { (_, event) ->
                 GameEvents.ROUND_STARTED == event.gameEvent
             } == 0
         )

@@ -12,7 +12,7 @@ class Goal : StatToAnnouncment {
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant) =
         setOfNotNull(
             Announcement.GOAL,
-            if (statMessage.player.team.homeTeam) Announcement.GOAL_HOME
+            if (statMessage.player.team.hasContributors) Announcement.GOAL_HOME
             else Announcement.GOAL_AWAY,
             if (statMessage.player.bot) Announcement.GOAL_BY_BOT else null,
         )

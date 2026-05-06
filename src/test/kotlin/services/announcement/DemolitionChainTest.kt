@@ -21,7 +21,7 @@ class DemolitionChainTest {
     fun interpret() {
         val repo = StatRepository()
         val cut = DemolitionChain(repo)
-        val metaData = RLAMetaData(matchGUID = "123", overtime = false, remaining = 100.seconds)
+        val metaData = RLAMetaData(matchGuid = "123", overtime = false, remaining = 100.seconds)
 
         cut.interpret(demoStatmessage(), Instant.parse("2020-08-30T18:43:00Z")) shouldHaveSize 0
         repo.addStatMessage(Instant.parse("2020-08-30T18:43:00Z"), demoStatmessage(), metaData)

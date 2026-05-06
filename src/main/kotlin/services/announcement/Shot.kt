@@ -12,7 +12,7 @@ class Shot : StatToAnnouncment {
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant) =
         setOfNotNull(
             Announcement.SHOT,
-            if (statMessage.player.team.homeTeam) Announcement.SHOT_HOME
+            if (statMessage.player.team.hasContributors) Announcement.SHOT_HOME
             else Announcement.SHOT_AWAY,
             if (statMessage.player.bot) Announcement.SHOT_BY_BOT else null,
         )

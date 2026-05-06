@@ -9,30 +9,33 @@ import kotlinx.html.span
 import kotlinx.html.stream.createHTML
 import kotlinx.html.style
 import nl.vanalphenict.model.Team
+import nl.vanalphenict.model.getDefaultTeam
 import nl.vanalphenict.utility.ColorUtils.Companion.toHexString
 import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 
-fun scoreBoardHtml(homeTeam: Team = emptyTeam(true), awayTeam: Team = emptyTeam(false)) =
+fun scoreBoardHtml(homeTeam: Team = getDefaultTeam(0), awayTeam: Team = getDefaultTeam(1)) =
     createHTML().body { scoreBoard(homeTeam, awayTeam) }
 
-fun HtmlBlockTag.scoreBoard(homeTeam: Team = emptyTeam(true), awayTeam: Team = emptyTeam(false)) =
+fun HtmlBlockTag.scoreBoard(
+    homeTeam: Team = getDefaultTeam(0),
+    awayTeam: Team = getDefaultTeam(1),
+) = div {
+    attributes["hx-swap"] = "outerHTML"
+    attributes["sse-swap"] = SSE_EVENT_TYPE.SCORE_BOARD.asString()
+    classes = setOf("scoreboard")
     div {
-        attributes["hx-swap"] = "outerHTML"
-        attributes["sse-swap"] = SSE_EVENT_TYPE.SCORE_BOARD.asString()
-        classes = setOf("scoreboard")
-        div {
-            classes = setOf("center")
-            +"VS"
-            timeRemaining(null)
-        }
-        div {
-            attributes["hx-swap"] = "innerHTML"
-            attributes["sse-swap"] = SSE_EVENT_TYPE.TEAMS.asString()
-            renderTeamInfo(homeTeam)
-            renderTeamInfo(awayTeam)
-        }
+        classes = setOf("center")
+        +"VS"
+        timeRemaining(null)
     }
+    div {
+        attributes["hx-swap"] = "innerHTML"
+        attributes["sse-swap"] = SSE_EVENT_TYPE.TEAMS.asString()
+        renderTeamInfo(homeTeam)
+        renderTeamInfo(awayTeam)
+    }
+}
 
 fun timeRemainingHtml(remaining: Duration?, overtime: Boolean = false) =
     createHTML().body { timeRemaining(remaining, overtime) }
@@ -62,7 +65,7 @@ fun HtmlBlockTag.renderTeamInfo(team: Team) = div {
     """
             .trimIndent()
 
-    classes = if (team.homeTeam) setOf("left") else setOf("right")
+    classes = if (team.teamNum == 0) setOf("left") else setOf("right")
     div {
         classes = setOf("team")
         style =
@@ -79,7 +82,7 @@ fun HtmlBlockTag.renderTeamInfo(team: Team) = div {
         }
         span {
             classes = setOf("tag")
-            +team.tag
+            +team.name
         }
     }
 
@@ -88,5 +91,3 @@ fun HtmlBlockTag.renderTeamInfo(team: Team) = div {
         div { span { +if (team.score == -1) "-" else team.score.toString() } }
     }
 }
-
-fun emptyTeam(homeTeam: Boolean) = Team(teamNum = if (homeTeam) 0 else 1)

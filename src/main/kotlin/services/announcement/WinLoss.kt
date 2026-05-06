@@ -10,7 +10,7 @@ class WinLoss : StatToAnnouncment {
     override fun listenTo(): Set<StatEvents> = setOf(StatEvents.MVP)
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> =
-        if (statMessage.player.team.homeTeam) {
+        if (statMessage.player.team.hasContributors) {
             setOf(Announcement.VICTORY)
         } else {
             setOf(Announcement.DEFEAT)

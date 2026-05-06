@@ -15,7 +15,7 @@ class AnnouncementHandler(
     private var sampleMapper: SampleMapper,
     statInterpreters: Collection<StatToAnnouncment>,
     gameEventInterpreters: Collection<GameEventToAnnouncement>,
-) : EventHandler {
+) : GameEventHandler {
 
     private val statInterpreterMap: MutableMap<StatEvents, Set<StatToAnnouncment>> = HashMap()
     private val gameEventInterpreterMap:

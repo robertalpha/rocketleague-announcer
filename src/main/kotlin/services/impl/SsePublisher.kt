@@ -1,54 +1,30 @@
 package nl.vanalphenict.services.impl
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlin.math.max
 import kotlinx.coroutines.runBlocking
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameEvents
 import nl.vanalphenict.model.GameTimeMessage
-import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.RLAMetaData
-import nl.vanalphenict.model.StatEvents
 import nl.vanalphenict.model.StatMessage
-import nl.vanalphenict.model.Team
-import nl.vanalphenict.services.EventHandler
+import nl.vanalphenict.model.getDefaultTeam
+import nl.vanalphenict.repository.GameStateRepository
+import nl.vanalphenict.services.GameEventHandler
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import nl.vanalphenict.web.triggerUpdateSSE
 import nl.vanalphenict.web.view.actionListItemHtml
-import nl.vanalphenict.web.view.emptyTeam
 import nl.vanalphenict.web.view.scoreBoardHtml
 import nl.vanalphenict.web.view.teamsInfoHtml
 import nl.vanalphenict.web.view.timeRemainingHtml
 
-class SsePublisher() : EventHandler {
+class SsePublisher(val gameStateRepository: GameStateRepository) : GameEventHandler {
 
     private val log = KotlinLogging.logger {}
-
-    private val games: MutableMap<String, Game> = HashMap()
-
-    private fun getGame(matchGUID: String) = games[matchGUID] ?: Game()
 
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         log.trace { "SSE HANDLER handeling: ${msg.event.eventName}" }
         runBlocking {
             triggerUpdateSSE(SSE_EVENT_TYPE.NEW_ACTION, actionListItemHtml(msg, metaData))
-        }
-
-        synchronized(this) {
-            val oldGame = getGame(msg.matchGUID)
-            val team =
-                if (msg.event == StatEvents.GOAL)
-                    msg.player.team.copy(score = msg.player.team.score + 1)
-                else msg.player.team
-
-            val newGame =
-                if (msg is KillMessage) {
-                    if (team.homeTeam) Game(home = team, away = msg.victim.team)
-                    else Game(away = team, home = msg.victim.team)
-                } else if (team.homeTeam) oldGame.copy(home = team) else oldGame.copy(away = team)
-            newGame.homeScore = max(newGame.home.score, oldGame.homeScore)
-            newGame.awayScore = max(newGame.away.score, oldGame.awayScore)
-            updateTeams(msg.matchGUID, newGame)
         }
     }
 
@@ -56,15 +32,8 @@ class SsePublisher() : EventHandler {
         if (msg.gameEvent == GameEvents.MATCH_CREATED) {
             runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.SCORE_BOARD, scoreBoardHtml()) }
         }
-        if (msg.teams.size == 2) {
-            synchronized(this) {
-                val game =
-                    if (msg.teams[0].homeTeam) Game(msg.teams[0], msg.teams[1])
-                    else Game(msg.teams[1], msg.teams[0])
-                game.homeScore = game.home.score
-                game.awayScore = game.away.score
-                updateTeams(msg.matchGUID, game)
-            }
+        if (msg.gameEvent in setOf(GameEvents.ROUND_STARTED, GameEvents.GOAL_REPLAY_START)) {
+            updateTeams(msg.matchGuid)
         }
     }
 
@@ -77,15 +46,10 @@ class SsePublisher() : EventHandler {
         }
     }
 
-    private fun updateTeams(matchGUID: String, game: Game) {
-        runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.TEAMS, teamsInfoHtml(game.home, game.away)) }
-        games[matchGUID] = game
+    private fun updateTeams(matchGuid: String) {
+        val game = gameStateRepository.getGame(matchGuid)
+        val homeTeam = game.teams.filter { it.teamNum == 0 }.getOrElse(0) { getDefaultTeam(0) }
+        val awayTeam = game.teams.filter { it.teamNum == 1 }.getOrElse(0) { getDefaultTeam(1) }
+        runBlocking { triggerUpdateSSE(SSE_EVENT_TYPE.TEAMS, teamsInfoHtml(homeTeam, awayTeam)) }
     }
-
-    data class Game(
-        val home: Team = emptyTeam(true),
-        val away: Team = emptyTeam(false),
-        var homeScore: Int = 0,
-        var awayScore: Int = 0,
-    )
 }

@@ -16,10 +16,10 @@ import java.io.FileInputStream
 import kotlinx.serialization.json.Json
 import nl.vanalphenict.messaging.MessagingClient
 import nl.vanalphenict.repository.GameEventRepository
+import nl.vanalphenict.repository.GameStateRepository
 import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.AnnouncementHandler
-import nl.vanalphenict.services.EventHandler
-import nl.vanalphenict.services.GameTimeTrackerService
+import nl.vanalphenict.services.GameEventHandler
 import nl.vanalphenict.services.SampleMapper
 import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.services.ThemeService
@@ -96,8 +96,8 @@ fun Application.moduleWithDependencies(
 
     val statRepository = StatRepository()
     val gameEventRepository = GameEventRepository()
+    val gameStateRepository = GameStateRepository()
     val eventPersister = EventPersister(statRepository, gameEventRepository, timeService)
-    val gameTimeTrackerService = GameTimeTrackerService()
     val announcementHandler =
         AnnouncementHandler(
             samplePlayer,
@@ -121,13 +121,16 @@ fun Application.moduleWithDependencies(
             listOf(MatchStart(gameEventRepository)),
         )
     val eventHandler =
-        EventHandler.Builder(announcementHandler).add(eventPersister).add(SsePublisher()).build()
+        GameEventHandler.Builder(announcementHandler)
+            .add(eventPersister)
+            .add(SsePublisher(gameStateRepository))
+            .build()
     try {
         MessagingClient(
             eventHandler,
             System.getenv("BROKER_ADDRESS") ?: brokerAddress,
             timeService,
-            gameTimeTrackerService,
+            gameStateRepository,
             msgProcessed,
         )
     } catch (ex: Exception) {
