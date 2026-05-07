@@ -52,7 +52,8 @@ enum class StatEvents(val eventName: String) {
     DISTANCE_DRIVEN_METERS("DistanceDrivenMeters"),
     DISTANCE_FLOWN("DistanceFlown"),
     DOUBLE_GRAPPLE("DoubleGrapple"),
-    MAX_DODGE_STREAK("MaxDodgeStreak");
+    MAX_DODGE_STREAK("MaxDodgeStreak"),
+    FLIP_RESET("FlipReset");
 
     fun eq(other: String): Boolean {
         return eventName == other
