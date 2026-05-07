@@ -47,8 +47,10 @@ class GameStateRepository {
     }
 
     /** Find the player by match and player id */
-    fun getPlayer(matchGuid: String, shortcut: Int): Player {
-        return players.get(Key(matchGuid, shortcut))!! // TODO at this point they should be known
+    fun getPlayer(matchGuid: String, shortcut: Int, teamNum: Int): Player {
+        return players.get(Key(matchGuid, shortcut))!!.also {
+            fixPlayerTeam(matchGuid, it, teamNum)
+        }
     }
 
     /**
@@ -58,22 +60,34 @@ class GameStateRepository {
      * provided.
      */
     fun getPlayer(matchGuid: String, player: JsonPlayer): Player {
-        return players.computeIfAbsent(Key(matchGuid, player.shortcut)) {
-            log.info {
-                "Creating new player: ${player.name} (shortcut ${player.shortcut}, team ${player.teamNum})"
+        return players
+            .computeIfAbsent(Key(matchGuid, player.shortcut)) {
+                log.info {
+                    "Creating new player: ${player.name} (shortcut ${player.shortcut}, team ${player.teamNum})"
+                }
+                val player =
+                    Player(
+                        name = player.name,
+                        id = "-1",
+                        shortcut = player.shortcut,
+                        teamNum = player.teamNum,
+                        bot = false,
+                        team = getTeam(matchGuid, player.teamNum),
+                    )
+                player.team.players.add(player)
+                player
             }
-            val player =
-                Player(
-                    name = player.name,
-                    id = "-1",
-                    shortcut = player.shortcut,
-                    teamNum = player.teamNum,
-                    bot = false,
-                    team = getTeam(matchGuid, player.teamNum),
-                )
-            player.team.players.add(player)
-            player
-        }
+            .also { fixPlayerTeam(matchGuid, it, player.teamNum) }
+    }
+
+    private fun fixPlayerTeam(matchGuid: String, player: Player, actualTeam: Int) {
+        if (player.teamNum == actualTeam) return
+        val wrongTeam = player.teamNum
+        player.teamNum = actualTeam
+        player.team = getTeam(matchGuid, actualTeam)
+        getTeam(matchGuid, wrongTeam).players.remove(player)
+        getTeam(matchGuid, actualTeam).players.add(player)
+        log.error { "Team mismatch for ${player.name}: $wrongTeam != $actualTeam" }
     }
 
     fun getMetadata(matchGuid: String): RLAMetaData {
@@ -116,42 +130,42 @@ class GameStateRepository {
         }
     }
 
-    private fun processPlayer(matchGuid: String, jsonPlayer: JsonPlayerFull) =
-        getPlayer(matchGuid, jsonPlayer).apply {
-            id = jsonPlayer.botSaveId()
-            bot = jsonPlayer.isBot()
-            score = jsonPlayer.score
-            goals = jsonPlayer.goals
-            shots = jsonPlayer.shots
-            assists = jsonPlayer.assists
-            saves = jsonPlayer.saves
-            touches = jsonPlayer.touches
-            carTouches = jsonPlayer.carTouches
-            demos = jsonPlayer.demos
-            hasCar = jsonPlayer.hasCar
-            speed = jsonPlayer.speed
-            boost = jsonPlayer.boost
-            boosting = jsonPlayer.boosting
-            onGround = jsonPlayer.onGround
-            onWall = jsonPlayer.onWall
-            powersliding = jsonPlayer.powersliding
-            demolished = jsonPlayer.demolished
-            supersonic = jsonPlayer.supersonic
-            attacker = jsonPlayer.attacker?.let { getPlayer(matchGuid, it) }
+    private fun processPlayer(matchGuid: String, player: JsonPlayerFull) =
+        getPlayer(matchGuid, player).apply {
+            id = player.botSaveId()
+            bot = player.isBot()
+            score = player.score
+            goals = player.goals
+            shots = player.shots
+            assists = player.assists
+            saves = player.saves
+            touches = player.touches
+            carTouches = player.carTouches
+            demos = player.demos
+            hasCar = player.hasCar
+            speed = player.speed
+            boost = player.boost
+            boosting = player.boosting
+            onGround = player.onGround
+            onWall = player.onWall
+            powersliding = player.powersliding
+            demolished = player.demolished
+            supersonic = player.supersonic
+            attacker = player.attacker?.let { getPlayer(matchGuid, it) }
         }
 
-    private fun processTeam(matchGuid: String, team1: JsonTeam) =
-        getTeam(matchGuid, team1.teamNum).apply {
-            name = team1.name
-            score = team1.score
-            primaryColor = team1.colorPrimary.hexToColor()
-            secondaryColor = team1.colorSecondary.hexToColor()
+    private fun processTeam(matchGuid: String, team: JsonTeam) =
+        getTeam(matchGuid, team.teamNum).apply {
+            name = team.name
+            score = team.score
+            primaryColor = team.colorPrimary.hexToColor()
+            secondaryColor = team.colorSecondary.hexToColor()
         }
 
-    private fun processGame(matchGuid: String, jsonGame: JsonGameState) =
+    private fun processGame(matchGuid: String, game: JsonGameState) =
         getGame(matchGuid).apply {
-            replay = jsonGame.replay
-            overtime = jsonGame.overtime
-            remaining = jsonGame.timeSeconds.seconds
+            replay = game.replay
+            overtime = game.overtime
+            remaining = game.timeSeconds.seconds
         }
 }

@@ -99,13 +99,23 @@ class MessageInterpreter(
             log.info { "Event \"${src.eventName}\" not supported." }
             return null
         }
-        val player = gameStateRepository.getPlayer(src.matchGuid, src.mainTarget.shortcut)
+        val player =
+            gameStateRepository.getPlayer(
+                src.matchGuid,
+                src.mainTarget.shortcut,
+                src.mainTarget.teamNum,
+            )
         return if (event == StatEvents.DEMOLISH && src.secondaryTarget != null) {
             KillMessage(
                 matchGuid = src.matchGuid,
                 event = event,
                 player = player,
-                victim = gameStateRepository.getPlayer(src.matchGuid, src.secondaryTarget.shortcut),
+                victim =
+                    gameStateRepository.getPlayer(
+                        src.matchGuid,
+                        src.secondaryTarget.shortcut,
+                        src.secondaryTarget.teamNum,
+                    ),
             )
         } else {
             StatMessage(matchGuid = src.matchGuid, event = event, player = player)

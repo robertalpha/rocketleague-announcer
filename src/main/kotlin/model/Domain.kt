@@ -52,7 +52,7 @@ data class Player(
     val name: String,
     var id: String,
     val shortcut: Int,
-    val teamNum: Int,
+    var teamNum: Int,
     var bot: Boolean,
     var score: Int = -1,
     var goals: Int = -1,
@@ -72,7 +72,7 @@ data class Player(
     var demolished: Boolean = false,
     var supersonic: Boolean = false,
     var attacker: Player? = null,
-    val team: Team,
+    var team: Team,
     var contributor: Boolean = false,
 )
 
