@@ -60,7 +60,7 @@ class MessagingClient(
                 override fun messageArrived(topic: String, message: MqttMessage) {
                     try {
                         val payload = String(message.payload)
-                        val key = payload.hashCode()
+                        val key = msgHash(topic, payload)
                         messagesCache.computeIfAbsent(key) {
                             val envelope = json.parseToJsonElement(payload).jsonObject
                             val eventName = envelope["Event"]?.jsonPrimitive?.content
@@ -108,4 +108,18 @@ class MessagingClient(
     private fun clearCache() {
         messagesCache.entries.removeIf { it.value.plus(500.milliseconds) < timeService.now() }
     }
+
+    /**
+     * Messages might be sent multiple times so we need a hash to detect duplicates. Some messages
+     * have specific hash calculations because equivalent messages might differ slightly because of
+     * rounding and timing issues.
+     *
+     * For example, the same goal message might contain slightly different impact locations
+     */
+    private fun msgHash(topic: String, payload: String) =
+        when {
+            // Never more than one goal scored per 500 milliseconds
+            topic == "rlapi2mqtt/goalscored" -> topic.hashCode()
+            else -> payload.hashCode()
+        }
 }
