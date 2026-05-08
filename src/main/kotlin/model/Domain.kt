@@ -89,8 +89,18 @@ data class Team(
 fun getDefaultTeam(teamNum: Int) =
     Team(
         teamNum = teamNum,
-        name = if (teamNum == 0) "BLUE" else "ORANGE",
-        primaryColor = if (teamNum == 0) ColorUtils.BLUE else ColorUtils.ORANGE,
+        name =
+            when {
+                (teamNum == 0) -> "Blue"
+                (teamNum == 1) -> "Orange"
+                else -> "NONE"
+            },
+        primaryColor =
+            when {
+                (teamNum == 0) -> ColorUtils.BLUE
+                (teamNum == 1) -> ColorUtils.ORANGE
+                else -> ColorUtils.GREY
+            },
         secondaryColor = ColorUtils.DARK_GREY,
     )
 
