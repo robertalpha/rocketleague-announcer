@@ -92,11 +92,11 @@ fun Application.moduleWithDependencies(
     timeService: TimeService,
     sampleService: SampleService,
     msgProcessed: ((msg: String) -> Unit) = {},
+    gameStateRepository: GameStateRepository = GameStateRepository(),
 ) {
 
     val statRepository = StatRepository()
     val gameEventRepository = GameEventRepository()
-    val gameStateRepository = GameStateRepository()
     val eventPersister = EventPersister(statRepository, gameEventRepository, timeService)
     val announcementHandler =
         AnnouncementHandler(
