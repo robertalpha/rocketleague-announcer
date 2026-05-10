@@ -47,7 +47,7 @@ class JsonDeserializerTest {
 
     val updateStateMessage =
         """
-            {"MatchGuid":"A1B2C3D4","Players":[{"Name":"PlayerA","PrimaryId":"Steam|123|0","Shortcut":1,"TeamNum":0,"Score":125,"Goals":1,"Shots":2,"Assists":0,"Saves":1,"Touches":14,"CarTouches":3,"Demos":0,"bHasCar":true,"Speed":1200,"Boost":45,"bBoosting":true,"bOnGround":true,"bOnWall":false,"bPowersliding":false,"bDemolished":false,"bSupersonic":true}],"Game":{"Teams":[{"Name":"Blue","TeamNum":0,"Score":1,"ColorPrimary":"0000FF","ColorSecondary":"0000AA"}],"TimeSeconds":180,"bOvertime":false,"Ball":{"Speed":850.5,"TeamNum":0},"bReplay":false,"bHasWinner":false,"Winner":"","Arena":"Stadium_P","bHasTarget":false}}
+            {"MatchGuid":"A1B2C3D4","Players":[{"Name":"PlayerA","PrimaryId":"Steam|123|0","Shortcut":1,"TeamNum":1,"Score":125,"Goals":1,"Shots":2,"Assists":0,"Saves":1,"Touches":14,"CarTouches":3,"Demos":0,"bHasCar":true,"Speed":1200,"Boost":45,"bBoosting":true,"bOnGround":true,"bOnWall":false,"bPowersliding":false,"bDemolished":false,"bSupersonic":true}],"Game":{"Teams":[{"Name":"Blue","TeamNum":0,"Score":1,"ColorPrimary":"0000FF","ColorSecondary":"0000AA"}],"TimeSeconds":180,"bOvertime":false,"Ball":{"Speed":850.5,"TeamNum":0},"bReplay":false,"bHasWinner":false,"Winner":"","Arena":"Stadium_P","bHasTarget":false}}
         """
             .trimIndent()
 
@@ -95,6 +95,8 @@ class JsonDeserializerTest {
         output!!.players.size shouldBe 1
         output.players[0].name shouldBe "PlayerA"
         output.game.teams.size shouldBe 1
+        output.players[0].teamNum shouldBe 1
+        output.players[0].shortcut shouldBe 1
     }
 
     @Test

@@ -11,23 +11,29 @@ import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 
 // ── Shared sub-objects ──────────────────────────────────────────────────────
 
+interface JsonPlayer {
+    val name: String
+    val shortcut: Int
+    val teamNum: Int
+}
+
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
 data class JsonPlayerRef(
-    @SerialName("Name") val name: String,
-    @SerialName("Shortcut") val shortcut: Int = 0,
-    @SerialName("TeamNum") val teamNum: Int = 0,
-)
+    @SerialName("Name") override val name: String,
+    @SerialName("Shortcut") override val shortcut: Int = 0,
+    @SerialName("TeamNum") override val teamNum: Int = 0,
+) : JsonPlayer
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
 data class JsonPlayerFull(
-    @SerialName("Name") val name: String = "",
+    @SerialName("Name") override val name: String,
     @SerialName("PrimaryId") val primaryId: String = "",
-    @SerialName("Shortcut") val shortcut: Int = 0,
-    @SerialName("TeamNum") val teamNum: Int = 0,
+    @SerialName("Shortcut") override val shortcut: Int,
+    @SerialName("TeamNum") override val teamNum: Int,
     @SerialName("Score") val score: Int = 0,
     @SerialName("Goals") val goals: Int = 0,
     @SerialName("Shots") val shots: Int = 0,
@@ -46,7 +52,7 @@ data class JsonPlayerFull(
     @SerialName("bDemolished") val demolished: Boolean = false,
     @SerialName("bSupersonic") val supersonic: Boolean = false,
     @SerialName("Attacker") val attacker: JsonPlayerRef? = null,
-) {
+) : JsonPlayer {
     fun isBot(): Boolean = primaryId == "" || primaryId == "Unknown|0|0"
 
     fun botSaveId(): String = if (isBot()) "bot|$name|0" else primaryId
@@ -65,9 +71,9 @@ data class JsonTeam(
 
 @Serializable
 data class JsonVector(
-    @SerialName("X") val x: Int = 0,
-    @SerialName("Y") val y: Int = 0,
-    @SerialName("Z") val z: Int = 0,
+    @SerialName("X") val x: Double = 0.0,
+    @SerialName("Y") val y: Double = 0.0,
+    @SerialName("Z") val z: Double = 0.0,
 )
 
 @OptIn(ExperimentalSerializationApi::class)

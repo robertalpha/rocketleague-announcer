@@ -3,17 +3,14 @@ package nl.vanalphenict.messaging
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.io.encoding.Base64
 import kotlin.random.Random
-import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Instant
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import nl.vanalphenict.model.JsonClockUpdatedSecondsData
-import nl.vanalphenict.model.JsonLogMessage
-import nl.vanalphenict.model.JsonMatchGuidData
-import nl.vanalphenict.model.JsonStatfeedEventData
-import nl.vanalphenict.services.EventHandler
-import nl.vanalphenict.services.GameTimeTrackerService
+import nl.vanalphenict.repository.GameStateRepository
+import nl.vanalphenict.services.GameEventHandler
 import nl.vanalphenict.utility.TimeService
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
@@ -23,44 +20,22 @@ import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 
 class MessagingClient(
-    eventHandler: EventHandler,
+    eventHandler: GameEventHandler,
     serverAddress: String,
-    timeService: TimeService,
-    gameTimeTrackerService: GameTimeTrackerService,
+    val timeService: TimeService,
+    gameStateRepository: GameStateRepository,
     msgProcessed: ((msg: String) -> Unit) = {},
 ) {
     private val TOPIC_ROOT = "rlapi2mqtt"
     private val TOPIC_WILDCARD = "$TOPIC_ROOT/#"
-    private val TOPIC_LOG = "$TOPIC_ROOT/log"
     private val QOS = 1
-    private var scrubber: EventScrubber =
-        EventScrubber(
-            eventHandler = eventHandler,
-            gameTimeTrackerService = gameTimeTrackerService,
-            timeService = timeService,
-        )
+
+    private val interpreter =
+        MessageInterpreter(eventHandler = eventHandler, gameStateRepository = gameStateRepository)
     private var client: MqttClient
     private val log = KotlinLogging.logger {}
-
+    private val messagesCache: MutableMap<Int, Instant> = HashMap()
     internal val json = Json { ignoreUnknownKeys = true }
-
-    // Game events that carry only a MatchGuid and map to GameEvents enum
-    private val GAME_EVENT_NAMES =
-        setOf(
-            "RoundStarted",
-            "MatchCreated",
-            "MatchInitialized",
-            "MatchDestroyed",
-            "MatchEnded",
-            "MatchPaused",
-            "MatchUnpaused",
-            "CountdownBegin",
-            "GoalReplayStart",
-            "GoalReplayWillEnd",
-            "GoalReplayEnd",
-            "PodiumStart",
-            "ReplayCreated",
-        )
 
     init {
         val clientId = "rla_announcer_" + Base64.encode(Random.nextBytes(3))
@@ -85,40 +60,27 @@ class MessagingClient(
                 override fun messageArrived(topic: String, message: MqttMessage) {
                     try {
                         val payload = String(message.payload)
-                        val envelope = json.parseToJsonElement(payload).jsonObject
-                        val eventName = envelope["Event"]?.jsonPrimitive?.content ?: return
-                        val dataElement = envelope["Data"]
-                        val dataStr =
-                            when {
-                                dataElement is JsonPrimitive && dataElement.isString ->
-                                    dataElement.content
-                                dataElement != null -> dataElement.toString()
-                                else -> "{}"
+                        val key = msgHash(topic, payload)
+                        messagesCache.computeIfAbsent(key) {
+                            val envelope = json.parseToJsonElement(payload).jsonObject
+                            val eventName = envelope["Event"]?.jsonPrimitive?.content
+                            val dataElement = envelope["Data"]
+                            val dataStr =
+                                when {
+                                    dataElement is JsonPrimitive && dataElement.isString ->
+                                        dataElement.content
+                                    dataElement != null -> dataElement.toString()
+                                    else -> "{}"
+                                }
+                            if (eventName != null) {
+                                log.trace { "${timeService.now()} - [$eventName] $dataStr" }
+                                interpreter.interpret(eventName, dataStr)
+                            } else {
+                                log.error { "Event name not found in message: $payload" }
                             }
-
-                        log.trace { "${Clock.System.now()} - [$eventName] $dataStr" }
-
-                        when {
-                            eventName == "StatfeedEvent" -> {
-                                val msg = json.decodeFromString<JsonStatfeedEventData>(dataStr)
-                                scrubber.processStatfeedEvent(msg)
-                            }
-                            eventName == "ClockUpdatedSeconds" -> {
-                                val msg =
-                                    json.decodeFromString<JsonClockUpdatedSecondsData>(dataStr)
-                                scrubber.processClockUpdatedSeconds(msg)
-                            }
-                            eventName in GAME_EVENT_NAMES -> {
-                                val msg = json.decodeFromString<JsonMatchGuidData>(dataStr)
-                                scrubber.processGameEvent(eventName, msg)
-                            }
-                            topic == TOPIC_LOG -> {
-                                scrubber.processLog(json.decodeFromString<JsonLogMessage>(payload))
-                            }
-                            else -> {
-                                log.trace { "Unhandled event: $eventName" }
-                            }
+                            timeService.now()
                         }
+                        clearCache()
                     } catch (e: Exception) {
                         log.error(e) { "could not parse message: $e" }
                         e.printStackTrace()
@@ -135,7 +97,6 @@ class MessagingClient(
                 }
             }
         )
-
         client.subscribe(TOPIC_WILDCARD, QOS)
     }
 
@@ -143,4 +104,23 @@ class MessagingClient(
         val string = String(bytes)
         return json.decodeFromString<T>(string)
     }
+
+    private fun clearCache() {
+        messagesCache.entries.removeIf { it.value.plus(500.milliseconds) < timeService.now() }
+    }
+
+    /**
+     * Messages might be sent multiple times so we need a hash to detect duplicates. Some messages
+     * have specific hash calculations because equivalent messages might differ slightly because of
+     * rounding and timing issues.
+     *
+     * For example, the same goal message might contain slightly different impact locations
+     */
+    private fun msgHash(topic: String, payload: String) =
+        when {
+            // During a match never more than one goal scored per 500 milliseconds
+            // TODO: fix https://github.com/robertalpha/rocketleague-announcer/issues/42
+            topic == "rlapi2mqtt/goalscored" -> topic.hashCode()
+            else -> payload.hashCode()
+        }
 }

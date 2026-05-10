@@ -35,19 +35,19 @@ class StatRepositoryTest {
         val first = Instant.parse("2020-01-01T12:00:00Z")
         statRepository.addStatMessage(
             first,
-            demoMessage(playerSteam(orange), playerEpic(blue), matchGUID = "GUID123"),
-            RLAMetaData(matchGUID = "123", overtime = false, remaining = 100.seconds),
+            demoMessage(playerSteam(orange), playerEpic(blue), matchGuid = "GUID123"),
+            RLAMetaData(matchGuid = "123", overtime = false, remaining = 100.seconds),
         )
         statRepository.addStatMessage(
             Instant.parse("2020-01-01T12:00:01Z"),
-            demoMessage(playerSwitch(blue), playerSteam(orange), matchGUID = "GUID123"),
-            RLAMetaData(matchGUID = "123", overtime = false, remaining = 90.seconds),
+            demoMessage(playerSwitch(blue), playerSteam(orange), matchGuid = "GUID123"),
+            RLAMetaData(matchGuid = "123", overtime = false, remaining = 90.seconds),
         )
 
         statRepository.addStatMessage(
             Instant.parse("2020-01-01T12:00:02Z"),
-            demoMessage(botPlayer(blue), playerPlaystation(orange), matchGUID = "OTHER"),
-            RLAMetaData(matchGUID = "123", overtime = false, remaining = 80.seconds),
+            demoMessage(botPlayer(blue), playerPlaystation(orange), matchGuid = "OTHER"),
+            RLAMetaData(matchGuid = "123", overtime = false, remaining = 80.seconds),
         )
 
         val result = statRepository.getStatHistory("GUID123")

@@ -58,7 +58,7 @@ fun HtmlBlockTag.actionListItem(message: StatMessage, metaData: RLAMetaData) {
                 classes = setOf("team")
                 style =
                     "background: linear-gradient(0deg, ${message.player.team.primaryColor.darker().toHexString()} 0%, ${message.player.team.primaryColor.brighter().toHexString()} 100%);"
-                span { +message.player.team.tag }
+                span { +message.player.team.name }
             }
         }
         div {

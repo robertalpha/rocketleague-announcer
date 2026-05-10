@@ -11,10 +11,7 @@ import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.GameEventMessage
 import nl.vanalphenict.model.GameEvents
 import nl.vanalphenict.model.RLAMetaData
-import nl.vanalphenict.model.parseGameEventMessage
 import nl.vanalphenict.repository.GameEventRepository
-import nl.vanalphenict.support.getBlueTeam
-import nl.vanalphenict.support.getOrangeTeam
 
 class MatchStartTest {
     val repo = GameEventRepository()
@@ -43,12 +40,8 @@ class MatchStartTest {
         cut.handleGameEvent("2020-08-30T19:02:00Z", startRoundMessage("222"), repo) shouldHaveSize 0
     }
 
-    fun startRoundMessage(matchGUID: String) =
-        parseGameEventMessage(
-            GameEvents.ROUND_STARTED.eventName,
-            matchGUID,
-            listOf(getBlueTeam(), getOrangeTeam()),
-        )!!
+    fun startRoundMessage(matchGuid: String) =
+        GameEventMessage(matchGuid = matchGuid, gameEvent = GameEvents.ROUND_STARTED)
 
     private fun MatchStart.handleGameEvent(
         ts: String,
@@ -59,7 +52,7 @@ class MatchStartTest {
         repository.addGameEventMessage(
             Instant.parse(ts),
             event,
-            metadata = RLAMetaData(matchGUID = "123", overtime = false, remaining = 180.seconds),
+            metadata = RLAMetaData(matchGuid = "123", overtime = false, remaining = 180.seconds),
         )
         return announcements
     }

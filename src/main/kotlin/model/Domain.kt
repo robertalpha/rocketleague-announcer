@@ -1,181 +1,114 @@
 package nl.vanalphenict.model
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.Color
 import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.List
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import nl.vanalphenict.utility.ColorUtils
 
-private val log = KotlinLogging.logger {}
+// ── Internal messages ───────────────────────────────────────────────────────
+data class GameTimeMessage(val matchGuid: String, val remaining: Duration, val overtime: Boolean)
 
-// ── Parse: GameEvent (simple events that map to GameEvents enum) ────────────
+// ── GameEventMessages ───────────────────────────────────────────────────────
+open class GameEventMessage(open val matchGuid: String, open val gameEvent: GameEvents)
 
-fun parseGameEventMessage(
-    event: String,
-    matchGuid: String,
-    teams: List<JsonTeam> = emptyList(),
-): GameEventMessage? {
-    val gameEvent = GameEvents.entries.find { it.eq(event) }
-    if (gameEvent == null) {
-        log.info { "Event \"$event\" not supported." }
-        return null
-    }
-    return GameEventMessage(matchGuid, gameEvent, teams.map { parseTeam(it) })
-}
+data class GoalEventMessage(
+    override val matchGuid: String,
+    override val gameEvent: GameEvents,
+    val goalSpead: Double,
+    val goalTime: Double,
+    val scorer: Player,
+    val assister: Player?,
+    val lastToucher: Player?,
+    val touchSpeed: Double?,
+) : GameEventMessage(matchGuid, gameEvent)
 
-// ── Parse: ClockUpdatedSeconds → GameTimeMessage ────────────────────────────
+data class BallHitEventMessage(
+    override val matchGuid: String,
+    override val gameEvent: GameEvents,
+    val playerss: List<Player>,
+) : GameEventMessage(matchGuid, gameEvent)
 
-fun parseClockUpdatedSeconds(src: JsonClockUpdatedSecondsData): GameTimeMessage {
-    return GameTimeMessage(
-        matchGUID = src.matchGuid,
-        remaining = src.timeSeconds.seconds,
-        overtime = src.overtime,
-    )
-}
+// TODO maybe more specialized events
 
-// ── Parse: StatfeedEvent → StatMessage / KillMessage ────────────────────────
-
-fun parseStatfeedEvent(src: JsonStatfeedEventData): StatMessage? {
-    val event = StatEvents.entries.find { it.eq(src.eventName) }
-    if (event == null) {
-        log.info { "Event \"${src.eventName}\" not supported." }
-        return null
-    }
-    val playerTeam = teamForNum(src.mainTarget.teamNum)
-    val player = parsePlayerRef(src.mainTarget, playerTeam)
-    return if (event == StatEvents.DEMOLISH && src.secondaryTarget != null) {
-        val victimTeam = teamForNum(src.secondaryTarget.teamNum)
-        KillMessage(
-            matchGUID = src.matchGuid,
-            event = event,
-            player = player,
-            victim = parsePlayerRef(src.secondaryTarget, victimTeam),
-        )
-    } else {
-        StatMessage(matchGUID = src.matchGuid, event = event, player = player)
-    }
-}
-
-// ── Parse helpers ───────────────────────────────────────────────────────────
-
-fun parsePlayerRef(src: JsonPlayerRef, team: Team): Player {
-    val id = "ref|${src.name}|${src.teamNum}"
-    return Player(id = id, name = src.name, bot = false, team = team)
-}
-
-fun parsePlayerFull(src: JsonPlayerFull, team: Team): Player {
-    return Player(id = src.botSaveId(), name = src.name, bot = src.isBot(), team = team)
-}
-
-fun parseTeam(src: JsonTeam): Team {
-    val primaryColor = hexToColor(src.colorPrimary)
-    val secondaryColor = hexToColor(src.colorSecondary)
-    return Team(
-        teamNum = src.teamNum,
-        score = src.score,
-        primaryColor = primaryColor,
-        secondaryColor = secondaryColor,
-        name =
-            src.name.ifEmpty {
-                when (src.teamNum) {
-                    0 -> "TEAM BLUE"
-                    1 -> "TEAM ORANGE"
-                    else -> "Opponent"
-                }
-            },
-        tag =
-            when (src.teamNum) {
-                0 -> "BLUE"
-                1 -> "ORNG"
-                else -> "TAG"
-            },
-    )
-}
-
-fun teamForNum(teamNum: Int): Team {
-    return Team(
-        teamNum = teamNum,
-        name =
-            when (teamNum) {
-                0 -> "TEAM BLUE"
-                1 -> "TEAM ORANGE"
-                else -> "Opponent"
-            },
-        primaryColor =
-            when (teamNum) {
-                0 -> BLUE
-                1 -> ORANGE
-                else -> GREY
-            },
-        secondaryColor =
-            when (teamNum) {
-                0 -> BLUE
-                1 -> ORANGE
-                else -> DARK_GREY
-            },
-        tag =
-            when (teamNum) {
-                0 -> "BLUE"
-                1 -> "ORNG"
-                else -> "TAG"
-            },
-    )
-}
-
-// ── Domain classes ──────────────────────────────────────────────────────────
-
-data class GameTimeMessage(val matchGUID: String, val remaining: Duration, val overtime: Boolean)
-
-data class GameEventMessage(
-    val matchGUID: String,
-    val gameEvent: GameEvents,
-    val teams: List<Team> = ArrayList(),
-)
-
+// ── StatMessages─────────────────────────────────────────────────────────────
 open class StatMessage(
-    open val matchGUID: String,
+    open val matchGuid: String,
     open val event: StatEvents,
     open val player: Player,
 )
 
 data class KillMessage(
-    override val matchGUID: String,
+    override val matchGuid: String,
     override val event: StatEvents,
     override val player: Player,
     val victim: Player,
-) : StatMessage(matchGUID, event, player)
+) : StatMessage(matchGuid, event, player)
 
-data class Player(val id: String, val name: String, val bot: Boolean, val team: Team)
+// ── Game state ──────────────────────────────────────────────────────────────
+data class Player(
+    val name: String,
+    var id: String,
+    val shortcut: Int,
+    var teamNum: Int,
+    var bot: Boolean,
+    var score: Int = -1,
+    var goals: Int = -1,
+    var shots: Int = -1,
+    var assists: Int = -1,
+    var saves: Int = -1,
+    var touches: Int = -1,
+    var carTouches: Int = -1,
+    var demos: Int = -1,
+    var hasCar: Boolean = false,
+    var speed: Double = 0.0,
+    var boost: Int = 0,
+    var boosting: Boolean = false,
+    var onGround: Boolean = false,
+    var onWall: Boolean = false,
+    var powersliding: Boolean = false,
+    var demolished: Boolean = false,
+    var supersonic: Boolean = false,
+    var attacker: Player? = null,
+    var team: Team,
+    var contributor: Boolean = false,
+)
 
 data class Team(
+    var name: String,
     val teamNum: Int = -1,
-    val score: Int = -1,
-    val primaryColor: Color = GREY,
-    val secondaryColor: Color = DARK_GREY,
-    val name: String = "-",
-    val tag: String = "-",
-    val players: List<Player> = emptyList(),
-) {
-    val homeTeam: Boolean
-        get() = teamNum == 0
-}
+    var score: Int = -1,
+    var primaryColor: Color = ColorUtils.GREY,
+    var secondaryColor: Color = ColorUtils.DARK_GREY,
+    val players: MutableList<Player> = ArrayList(),
+    var hasContributors: Boolean = false,
+)
 
-fun hexToColor(hex: String): Color {
-    if (hex.isBlank() || hex.length < 6) return GREY
-    return try {
-        Color(
-            hex.substring(0, 2).toInt(16),
-            hex.substring(2, 4).toInt(16),
-            hex.substring(4, 6).toInt(16),
-        )
-    } catch (_: Exception) {
-        GREY
-    }
-}
+fun getDefaultTeam(teamNum: Int) =
+    Team(
+        teamNum = teamNum,
+        name =
+            when {
+                (teamNum == 0) -> "Blue"
+                (teamNum == 1) -> "Orange"
+                else -> "NONE"
+            },
+        primaryColor =
+            when {
+                (teamNum == 0) -> ColorUtils.BLUE
+                (teamNum == 1) -> ColorUtils.ORANGE
+                else -> ColorUtils.GREY
+            },
+        secondaryColor = ColorUtils.DARK_GREY,
+    )
 
-val ORANGE = Color(194, 100, 24)
-val BLUE = Color(24, 115, 255)
-val GREY = Color(128, 128, 128)
-val DARK_GREY = Color(229, 229, 229)
+data class Game(
+    val matchGuid: String,
+    var replay: Boolean = false,
+    var paused: Boolean = false,
+    var overtime: Boolean = false,
+    var remaining: Duration = 0.seconds,
+    val teams: MutableList<Team> = ArrayList(),
+)

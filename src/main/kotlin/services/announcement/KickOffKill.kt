@@ -19,7 +19,7 @@ class KickOffKill(private val gameEventRepository: GameEventRepository) : StatTo
 
         return if (
             gameEventRepository
-                .getGameEventHistory(statMessage.matchGUID)
+                .getGameEventHistory(statMessage.matchGuid)
                 .filter { (instant, _) ->
                     instant.bothHappenWithin(currentTimeStamp, kickoffDuration)
                 }

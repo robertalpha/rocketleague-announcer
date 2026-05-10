@@ -29,14 +29,14 @@ class StatRepository {
     }
 
     fun getStatHistory(matchGuid: String): List<StatMessageRecord> {
-        return statHistory.filter { (_, message) -> matchGuid == message.matchGUID }
+        return statHistory.filter { (_, message) -> matchGuid == message.matchGuid }
     }
 
     fun getLatestMatch(): List<StatMessageRecord> {
         return statHistory
             .maxByOrNull { it.timestamp }
             ?.message
-            ?.matchGUID
+            ?.matchGuid
             ?.let { getStatHistory(it) }
             .orEmpty()
     }

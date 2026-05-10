@@ -15,11 +15,11 @@ class WitnessScore(val statRepository: StatRepository) : StatToAnnouncment {
     private val witnessWindow = 3.seconds
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
-        if (!statMessage.player.team.homeTeam) return emptySet()
+        if (!statMessage.player.team.hasContributors) return emptySet()
 
         return if (
             statRepository
-                .getStatHistory(statMessage.matchGUID)
+                .getStatHistory(statMessage.matchGuid)
                 .filter { (instant, _) -> currentTimeStamp.minus(instant) < witnessWindow }
                 .count { (_, message) ->
                     message is KillMessage && statMessage.player.id == message.victim.id
