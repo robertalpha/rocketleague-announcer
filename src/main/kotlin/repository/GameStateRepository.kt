@@ -167,6 +167,6 @@ class GameStateRepository {
             replay = game.replay
             overtime = game.overtime
             if (!overtime) // remainging is always 0 in overtime
-                remaining = game.timeSeconds.seconds
+             remaining = game.timeSeconds.seconds
         }
 }
