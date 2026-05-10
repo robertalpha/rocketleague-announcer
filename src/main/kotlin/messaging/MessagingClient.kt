@@ -118,7 +118,8 @@ class MessagingClient(
      */
     private fun msgHash(topic: String, payload: String) =
         when {
-            // Never more than one goal scored per 500 milliseconds
+            // During a match never more than one goal scored per 500 milliseconds
+            // TODO: fix https://github.com/robertalpha/rocketleague-announcer/issues/42
             topic == "rlapi2mqtt/goalscored" -> topic.hashCode()
             else -> payload.hashCode()
         }
