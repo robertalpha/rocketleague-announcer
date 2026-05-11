@@ -36,6 +36,8 @@ enum class Announcement {
     GOAL_BY_BOT,            // Goal scored by bot
 
     MATCH_START,            // Match has started
+    ROUND_START,            // Round has started
+    COUNTDOWN_START,        // Countdown has started
     VICTORY,                // Match ends with a victory
     DEFEAT,                 // Match ends with a loss
 
