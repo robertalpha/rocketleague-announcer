@@ -13,43 +13,41 @@ import io.ktor.client.plugins.sse.SSE
 import io.ktor.client.plugins.sse.sse
 import io.ktor.server.testing.testApplication
 import io.ktor.sse.ServerSentEvent
+import java.io.File
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.test.Ignore
 import kotlin.test.Test
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import nl.vanalphenict.model.JsonEnvelope
+import nl.vanalphenict.model.JsonUpdateStateData
 import nl.vanalphenict.moduleWithDependencies
+import nl.vanalphenict.repository.GameStateRepository
 import nl.vanalphenict.services.SampleMapper
 import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.utility.TimeServiceMock
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import org.testcontainers.junit.jupiter.Testcontainers
 
-@OptIn(DelicateCoroutinesApi::class)
+@OptIn(ExperimentalAtomicApi::class, DelicateCoroutinesApi::class)
 @Testcontainers
 class MessagingTest : AbstractMessagingTest() {
 
     private val log = KotlinLogging.logger {}
-    private val TOPIC = "rlapi2mqtt/events"
+    private val timeServiceMock = TimeServiceMock()
+    private val gameStateRepository = GameStateRepository()
+    private val semaphore = AtomicInt(0)
+    private val sseData = mutableListOf<ServerSentEvent>()
 
-    @OptIn(ExperimentalAtomicApi::class, KotestInternal::class)
     @Test
     fun testLines() = testApplication {
-        val testFile = "rlapi2mqtt_1.log"
-
-        val timeServiceMock = TimeServiceMock()
-
-        val messages = parseMessagesFromResource(testFile)
-
-        val semaphore = AtomicInt(0)
-
         application {
             val mappedPort = mosquitto.getMappedPort(1883)
             val voiceContext = VoiceContext.builder().asMock().build()
@@ -63,67 +61,172 @@ class MessagingTest : AbstractMessagingTest() {
                 timeServiceMock,
                 sampleService = voiceContext.sampleService,
                 { semaphore.addAndFetch(-1) },
+                gameStateRepository,
             )
         }
 
-        val sseClient = createClient {
-            install(SSE) {
-                showCommentEvents()
-                showRetryEvents()
-            }
-        }
-        val sseData = mutableListOf<ServerSentEvent>()
-
         GlobalScope.async {
             withContext(Dispatchers.IO) {
-                sseClient.sse(path = "/sse") {
-                    incoming.collect { event ->
-                        log.trace {
-                            """
-                                Event from server:
-                                $event
-                            """
-                                .trimIndent()
+                createClient {
+                        install(SSE) {
+                            showCommentEvents()
+                            showRetryEvents()
                         }
-                        sseData.add(event)
                     }
-                }
+                    .sse(path = "/sse") { incoming.collect { event -> sseData.add(event) } }
             }
         }
-
         // wait for application to start and sse to connect
         delay(1000)
 
-        var mockTime = Instant.parse("2025-01-01T12:00:00Z")
+        // Run tests
+        runAndValidateGame("4366BADC95F480E3")
+        sseData.clear()
 
-        println("sending ${messages.size} messages")
-        messages.forEach { message ->
-            mockTime = mockTime.plus(100.milliseconds)
+        //        runAndValidateGame("UUID")
+        //        sseData.clear()
+    }
+
+    @OptIn(KotestInternal::class)
+    private suspend fun runAndValidateGame(matchId: String) {
+        // send messages
+        readMessagesFromResource("testmatches/${matchId}.txt").forEach { message ->
             semaphore.addAndFetch(1)
-            timeServiceMock.setTime(mockTime)
-            send(TOPIC, message)
+            timeServiceMock.setTime(message.timestamp)
+            send(message.topic, json.encodeToString(message.message))
             eventually(
                 config =
                     eventuallyConfig {
                         duration = 1.seconds
-                        intervalFn = 5.milliseconds.fibonacci()
+                        intervalFn = 1_000.nanoseconds.fibonacci()
                     }
             ) {
                 semaphore.load() shouldBe 0
             }
         }
 
-        eventually(10.seconds) {
-            val actionEvents =
-                sseData.filter { it.event.equals(SSE_EVENT_TYPE.NEW_ACTION.asString()) }
-            actionEvents.count { it.data?.contains("icons/Demolish.webp") ?: false } shouldBe 10
-            actionEvents.count { it.data?.contains("icons/Goal.webp") ?: false } shouldBe 5
-            actionEvents.count { it.data?.contains("icons/Win.webp") ?: false } shouldBe 3
+        // Verify
+        val expected = gameStateRepository.getGameResult(matchId)
+        val actual =
+            GameResult(
+                goals = sseData.count("Goal"),
+                assists = sseData.count("Assist"),
+                shots = sseData.count("Shot"),
+                saves = sseData.count("Save") + sseData.count("EpicSave"),
+                demos = sseData.count("Demolish"),
+            )
+        actual shouldBe expected
+        sseData.count("MVP") shouldBe 1
+    }
+
+    /**
+     * Anonymizes player identifiers in the provided match data to obfuscate sensitive information.
+     *
+     * This method processes messages from a test data file. It extract players and replaces each
+     * player's primary identifier with a randomized obfuscated value, while preserving the
+     * identifier's structure and integrity.
+     */
+    @Test
+    @Ignore
+    fun anonymizeMatch() {
+        val matchGuid = "___UUID____"
+
+        val newGuid = md5(matchGuid).substring(16)
+        val input = "testmatches/${matchGuid}.txt"
+        val output = "testmatches/${newGuid}.txt"
+
+        val nameIt = names.asSequence().shuffled().iterator()
+
+        val replacements: MutableMap<String, String> = HashMap()
+
+        replacements[matchGuid] = newGuid
+
+        val messages = readMessages(File(input).toURI().toURL())
+        messages.forEach {
+            if (it.topic.equals("rlapi2mqtt/updatestate")) {
+                json
+                    .decodeFromString<JsonUpdateStateData>(it.message.data)
+                    .players
+                    .filter { !it.isBot() }
+                    .forEach {
+                        if (!replacements.containsKey(it.primaryId)) {
+                            val parts = it.primaryId.split("|")
+                            val random = (1..2048).random().toString(16)
+                            replacements[it.primaryId] = parts[0] + "|" + random + "|" + parts[2]
+                            replacements[it.name] = nameIt.next()
+                        }
+                    }
+            }
+        }
+        File(output).printWriter().use { out ->
+            messages.forEach {
+                var data = it.message.data
+                replacements.forEach { (key, value) -> data = data.replace(key, value) }
+                out.println(
+                    json.encodeToString(
+                        Message(it.timestamp, it.topic, JsonEnvelope(it.message.event, data))
+                    )
+                )
+            }
         }
     }
 
-    private fun parseMessagesFromResource(testFile: String): List<String> {
-        val stream = javaClass.getClassLoader().getResourceAsStream(testFile)!!
-        return String(stream.readAllBytes()).lines().filter { it.isNotBlank() }
+    private val names =
+        setOf(
+            "Jasper",
+            "Yasmine",
+            "Milo",
+            "Fay",
+            "Bram",
+            "Elin",
+            "Xavier",
+            "Luna",
+            "Sven",
+            "Amira",
+            "Twan",
+            "Noé",
+            "Stijn",
+            "Zara",
+            "Hugo",
+            "Liva",
+            "Otis",
+            "Romy",
+            "Boris",
+            "Isa",
+        )
+
+    private fun md5(input: String): String {
+        val md = java.security.MessageDigest.getInstance("MD5")
+        val digest = md.digest(input.toByteArray())
+        return digest.joinToString("") { "%02X".format(it) }
+    }
+
+    data class GameResult(
+        var goals: Int = 0,
+        var assists: Int = 0,
+        var shots: Int = 0,
+        var saves: Int = 0,
+        var demos: Int = 0,
+    )
+
+    companion object {
+        fun GameStateRepository.getGameResult(matchGuid: String): GameResult {
+            val expected = GameResult()
+            getGame(matchGuid).teams.forEach {
+                it.players.forEach { player ->
+                    expected.goals += player.goals
+                    expected.assists += player.assists
+                    expected.shots += player.shots
+                    expected.saves += player.saves
+                    expected.demos += player.demos
+                }
+            }
+            return expected
+        }
+
+        fun List<ServerSentEvent>.count(event: String): Int {
+            return this.filter { it.event.equals(SSE_EVENT_TYPE.NEW_ACTION.asString()) }
+                .count { it.data?.contains("icons/${event}.webp") ?: false }
+        }
     }
 }

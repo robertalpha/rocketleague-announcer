@@ -7,7 +7,12 @@ import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 
 // ── Envelope ────────────────────────────────────────────────────────────────
 
-@Serializable data class JsonEnvelope(@SerialName("Event") val event: String)
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class JsonEnvelope(
+    @SerialName("Event") val event: String,
+    @SerialName("Data") val data: String,
+)
 
 // ── Shared sub-objects ──────────────────────────────────────────────────────
 
