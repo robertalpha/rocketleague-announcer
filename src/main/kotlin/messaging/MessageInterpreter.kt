@@ -94,7 +94,7 @@ class MessageInterpreter(
 
     fun parseStatfeedEvent(dataStr: String): StatMessage? {
         val src = json.decodeFromString<JsonStatfeedEventData>(dataStr)
-        val event = StatEvents.entries.find { it.eq(src.eventName) }
+        val event = StatEvents.of(src.eventName)
         if (event == null) {
             log.info { "Event \"${src.eventName}\" not supported." }
             return null
@@ -154,8 +154,8 @@ class MessageInterpreter(
 
     fun parseOtherGameEvent(gameEvent: String, dataStr: String): GameEventMessage? {
         val data = json.decodeFromString<JsonMatchGuidData>(dataStr)
-        val event = GameEvents.entries.find { it.eq(gameEvent) }
-        return if (event != null) GameEventMessage(matchGuid = data.matchGuid, gameEvent = event)
-        else null
+        return GameEvents.of(gameEvent)?.let {
+            GameEventMessage(matchGuid = data.matchGuid, gameEvent = it)
+        }
     }
 }
