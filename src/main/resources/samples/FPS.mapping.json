@@ -70,5 +70,9 @@
     "announcement" : "EPIC_SAVE",
     "weight" : 40,
     "samples" : [ "718360|EPIC", "718360|HOLY_SHIT" ]
+  }, {
+    "announcement" : "COUNTDOWN_START",
+    "weight" : 30,
+    "samples" : [ "718360|GET_READY" ]
   } ]
 }
