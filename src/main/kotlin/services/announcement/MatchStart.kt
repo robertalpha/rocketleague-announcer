@@ -14,8 +14,9 @@ class MatchStart(private val gameEventRepository: GameEventRepository) : GameEve
         statMessage: GameEventMessage,
         currentTimeStamp: Instant,
     ): Set<Announcement> {
-        if (statMessage.gameEvent == GameEvents.COUNTDOWN_BEGIN)
+        if (statMessage.gameEvent == GameEvents.COUNTDOWN_BEGIN) {
             return setOf(Announcement.COUNTDOWN_START)
+        }
 
         return if (
             gameEventRepository.getGameEventHistory(statMessage.matchGuid).count { (_, event) ->
