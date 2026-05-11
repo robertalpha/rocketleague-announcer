@@ -61,6 +61,7 @@ class MessagingClient(
                     try {
                         val payload = String(message.payload)
                         val key = msgHash(topic, payload)
+                        clearCache()
                         messagesCache.computeIfAbsent(key) {
                             val envelope = json.parseToJsonElement(payload).jsonObject
                             val eventName = envelope["Event"]?.jsonPrimitive?.content
@@ -80,7 +81,6 @@ class MessagingClient(
                             }
                             timeService.now()
                         }
-                        clearCache()
                     } catch (e: Exception) {
                         log.error(e) { "could not parse message: $e" }
                         e.printStackTrace()
@@ -119,8 +119,13 @@ class MessagingClient(
     private fun msgHash(topic: String, payload: String) =
         when {
             // During a match never more than one goal scored per 500 milliseconds
-            // TODO: fix https://github.com/robertalpha/rocketleague-announcer/issues/42
-            topic == "rlapi2mqtt/goalscored" -> topic.hashCode()
+            topic == "rlapi2mqtt/goalscored" -> (topic + getGuidFromMessage(payload)).hashCode()
+
             else -> payload.hashCode()
         }
+
+    val matchGuidRegexp = """MatchGuid\\":\\"([A-F0-9]+)\\"""".toRegex()
+
+    private fun getGuidFromMessage(message: String): String =
+        matchGuidRegexp.find(message)?.groupValues[1] ?: ""
 }
