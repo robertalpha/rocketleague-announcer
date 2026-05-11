@@ -149,12 +149,12 @@ class MessagingTest : AbstractMessagingTest() {
                     .players
                     .filter { !it.isBot() }
                     .forEach {
-                            if (!replacements.containsKey(it.primaryId)) {
-                                val parts = it.primaryId.split("|")
-                                val random = (1..2048).random().toString(16)
-                                replacements[it.primaryId] = parts[0] + "|" + random + "|" + parts[2]
-                                replacements[it.name] = nameIt.next()
-                            }
+                        if (!replacements.containsKey(it.primaryId)) {
+                            val parts = it.primaryId.split("|")
+                            val random = (1..2048).random().toString(16)
+                            replacements[it.primaryId] = parts[0] + "|" + random + "|" + parts[2]
+                            replacements[it.name] = nameIt.next()
+                        }
                     }
             }
         }
@@ -171,7 +171,29 @@ class MessagingTest : AbstractMessagingTest() {
         }
     }
 
-    private val names = setOf("Jasper", "Yasmine", "Milo", "Fay", "Bram", "Elin", "Xavier", "Luna", "Sven", "Amira", "Twan", "Noé", "Stijn", "Zara", "Hugo", "Liva", "Otis", "Romy", "Boris", "Isa")
+    private val names =
+        setOf(
+            "Jasper",
+            "Yasmine",
+            "Milo",
+            "Fay",
+            "Bram",
+            "Elin",
+            "Xavier",
+            "Luna",
+            "Sven",
+            "Amira",
+            "Twan",
+            "Noé",
+            "Stijn",
+            "Zara",
+            "Hugo",
+            "Liva",
+            "Otis",
+            "Romy",
+            "Boris",
+            "Isa",
+        )
 
     private fun md5(input: String): String {
         val md = java.security.MessageDigest.getInstance("MD5")
