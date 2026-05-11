@@ -51,8 +51,15 @@ fun main(args: Array<String>) {
 
 val log = KotlinLogging.logger {}
 
-fun Application.module(brokerAddress: String = "tcp://localhost:1883") {
-    val voiceContext = VoiceContext.builder().token(System.getenv("TOKEN")).build()
+fun Application.module(defaultBrokerAddress: String = "tcp://localhost:1883") {
+    val discordBotToken = System.getenv("DISCORD_BOT_TOKEN")
+    val voiceContext =
+        if (discordBotToken != null) {
+            VoiceContext.builder().token(discordBotToken).build()
+        } else {
+            log.warn { "DISCORD_BOT_TOKEN not provided. Using mock Discord integration." }
+            VoiceContext.builder().asMock().build()
+        }
     val sampleService = voiceContext.sampleService
     val discordService = voiceContext.discordService
 
@@ -77,18 +84,24 @@ fun Application.module(brokerAddress: String = "tcp://localhost:1883") {
             }
     }
 
-    val voiceChannel = discordService.getVoiceChannel(System.getenv("VOICE_CHANNEL_ID")!!.toLong())
+    val voiceChannel =
+        System.getenv("DISCORD_VOICE_CHANNEL_ID")?.let {
+            discordService.getVoiceChannel(it.toLong())
+        }
+    if (voiceChannel == null) {
+        log.warn { "DISCORD_VOICE_CHANNEL_ID not provided. Voice functionality will be limited." }
+    }
     val timeService = TimeServiceImpl()
 
     val samplePlayer = SamplePlayer(discordService, voiceChannel)
 
-    moduleWithDependencies(samplePlayer, configs, brokerAddress, timeService, sampleService)
+    moduleWithDependencies(samplePlayer, configs, defaultBrokerAddress, timeService, sampleService)
 }
 
 fun Application.moduleWithDependencies(
     samplePlayer: SamplePlayer,
     configs: MutableList<SampleMapper>,
-    brokerAddress: String,
+    defaultBrokerAddress: String,
     timeService: TimeService,
     sampleService: SampleService,
     msgProcessed: ((msg: String) -> Unit) = {},
@@ -128,7 +141,7 @@ fun Application.moduleWithDependencies(
     try {
         MessagingClient(
             eventHandler,
-            System.getenv("BROKER_ADDRESS") ?: brokerAddress,
+            System.getenv("BROKER_ADDRESS") ?: defaultBrokerAddress,
             timeService,
             gameStateRepository,
             msgProcessed,
