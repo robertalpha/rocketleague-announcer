@@ -53,12 +53,13 @@ val log = KotlinLogging.logger {}
 
 fun Application.module(defaultBrokerAddress: String = "tcp://localhost:1883") {
     val discordBotToken = System.getenv("DISCORD_BOT_TOKEN")
-    val voiceContext = if (discordBotToken != null) {
-        VoiceContext.builder().token(discordBotToken).build()
-    } else {
-        log.warn { "DISCORD_BOT_TOKEN not provided. Using mock Discord integration." }
-        VoiceContext.builder().asMock().build()
-    }
+    val voiceContext =
+        if (discordBotToken != null) {
+            VoiceContext.builder().token(discordBotToken).build()
+        } else {
+            log.warn { "DISCORD_BOT_TOKEN not provided. Using mock Discord integration." }
+            VoiceContext.builder().asMock().build()
+        }
     val sampleService = voiceContext.sampleService
     val discordService = voiceContext.discordService
 
@@ -83,9 +84,10 @@ fun Application.module(defaultBrokerAddress: String = "tcp://localhost:1883") {
             }
     }
 
-    val voiceChannel = System.getenv("DISCORD_VOICE_CHANNEL_ID")?.let {
-        discordService.getVoiceChannel(it.toLong())
-    }
+    val voiceChannel =
+        System.getenv("DISCORD_VOICE_CHANNEL_ID")?.let {
+            discordService.getVoiceChannel(it.toLong())
+        }
     if (voiceChannel == null) {
         log.warn { "DISCORD_VOICE_CHANNEL_ID not provided. Voice functionality will be limited." }
     }
