@@ -11,7 +11,7 @@ class SamplePlayer(val discordService: DiscordService, var voiceChannel: VoiceCh
     fun play(sampleId: String?) =
         sampleId?.let {
             voiceChannel
-                ?.let { discordService.play(sampleId, voiceChannel) }
+                ?.let { discordService.play(sampleId, it) }
                 .also { playCounter[sampleId] = playCounter.getOrPut(sampleId) { 0 }.inc() }
         }
 
@@ -21,6 +21,6 @@ class SamplePlayer(val discordService: DiscordService, var voiceChannel: VoiceCh
 
         val (selected, count) = counts.filter { it.second == minimumCount }.random()
         randomPlaysCounter[selected] = count + 1
-        voiceChannel?.let { discordService.play(selected, voiceChannel) }
+        voiceChannel?.let { discordService.play(selected, it) }
     }
 }

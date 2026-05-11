@@ -27,7 +27,7 @@ class ApplicationTest : AbstractMessagingTest() {
             moduleWithDependencies(
                 samplePlayer = samplePlayer,
                 configs = configsList,
-                brokerAddress = "tcp://localhost:$mappedPort",
+                defaultBrokerAddress = "tcp://localhost:$mappedPort",
                 TimeServiceMock(),
                 voiceContext.sampleService,
             )
