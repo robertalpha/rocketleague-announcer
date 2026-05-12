@@ -14,7 +14,8 @@ import io.ktor.server.webjars.Webjars
 import java.io.File
 import java.io.FileInputStream
 import kotlinx.serialization.json.Json
-import nl.vanalphenict.messaging.MessagingClient
+import nl.vanalphenict.messaging.MQTTClient
+import nl.vanalphenict.messaging.MessageInterpreter
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.repository.GameStateRepository
 import nl.vanalphenict.repository.StatRepository
@@ -138,17 +139,17 @@ fun Application.moduleWithDependencies(
             ),
             listOf(MatchStart(gameEventRepository)),
         )
-    val eventHandler =
-        GameEventHandler.Builder(announcementHandler)
-            .add(eventPersister)
-            .add(SsePublisher(gameStateRepository))
-            .build()
-    try {
-        MessagingClient(eventHandler, brokerAddress, timeService, gameStateRepository, msgProcessed)
-    } catch (ex: Exception) {
-        log.error(ex) { "could not connect to broker" }
-        throw ex
-    }
+    val interpreter =
+        MessageInterpreter(
+            eventHandler =
+                GameEventHandler.Builder(announcementHandler)
+                    .add(eventPersister)
+                    .add(SsePublisher(gameStateRepository))
+                    .build(),
+            gameStateRepository = gameStateRepository,
+        )
+
+    MQTTClient(interpreter, brokerAddress, timeService, msgProcessed)
 
     install(ContentNegotiation) {
         json(
