@@ -84,3 +84,77 @@ fun HTML.homepage(themeService: ThemeService, sampleService: SampleService) {
         script(src = "assets/htmx-ext-sse/dist/sse.min.js") {}
     }
 }
+
+fun HTML.scoreboard() {
+    head {
+        styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
+        styleLink(href = "https://fonts.googleapis.com", type = "text/css", rel = "preconnect")
+        styleLink(
+            href = "https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap",
+            rel = "stylesheet",
+        )
+    }
+    body {
+        attributes["hx-ext"] = "sse"
+        attributes["sse-connect"] = "/sse"
+
+        scoreBoard()
+
+        script(src = "assets/htmx.org/dist/htmx.min.js") {}
+        script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}
+        script(src = "assets/htmx-ext-sse/dist/sse.min.js") {}
+    }
+}
+
+fun HTML.ticker() {
+    head {
+        styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
+        styleLink(href = "https://fonts.googleapis.com", type = "text/css", rel = "preconnect")
+        styleLink(
+            href = "https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap",
+            rel = "stylesheet",
+        )
+    }
+    body {
+        attributes["hx-ext"] = "sse"
+        attributes["sse-connect"] = "/sse"
+
+        ul {
+            id = "actionlist"
+            attributes["sse-swap"] = "new_action"
+            attributes["hx-swap"] = "afterbegin"
+            attributes["hx-target"] = "#actionlist"
+        }
+
+        script(src = "assets/htmx.org/dist/htmx.min.js") {}
+        script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}
+        script(src = "assets/htmx-ext-sse/dist/sse.min.js") {}
+    }
+}
+
+fun HTML.tickerRev() {
+    head {
+        styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
+        styleLink(href = "https://fonts.googleapis.com", type = "text/css", rel = "preconnect")
+        styleLink(
+            href = "https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap",
+            rel = "stylesheet",
+        )
+    }
+    body {
+        attributes["hx-ext"] = "sse"
+        attributes["sse-connect"] = "/sse"
+
+        ul {
+            id = "actionlist"
+            attributes["sse-swap"] = "new_action"
+            attributes["hx-swap"] = "beforeend"
+            attributes["hx-target"] = "#actionlist"
+            attributes["style"] = "position: fixed;bottom: 0;"
+        }
+
+        script(src = "assets/htmx.org/dist/htmx.min.js") {}
+        script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}
+        script(src = "assets/htmx-ext-sse/dist/sse.min.js") {}
+    }
+}
