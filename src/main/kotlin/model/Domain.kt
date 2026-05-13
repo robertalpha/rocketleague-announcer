@@ -78,6 +78,7 @@ data class Player(
 
 data class Team(
     var name: String,
+    var tag: String,
     val teamNum: Int = -1,
     var score: Int = -1,
     var primaryColor: Color = ColorUtils.GREY,
@@ -93,6 +94,12 @@ fun getDefaultTeam(teamNum: Int) =
             when {
                 (teamNum == 0) -> "Blue"
                 (teamNum == 1) -> "Orange"
+                else -> "NONE"
+            },
+        tag =
+            when {
+                (teamNum == 0) -> "BLUE"
+                (teamNum == 1) -> "ORNG"
                 else -> "NONE"
             },
         primaryColor =
