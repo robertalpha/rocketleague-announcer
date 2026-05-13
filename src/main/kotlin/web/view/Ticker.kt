@@ -7,10 +7,12 @@ import kotlinx.html.body
 import kotlinx.html.br
 import kotlinx.html.classes
 import kotlinx.html.div
+import kotlinx.html.id
 import kotlinx.html.img
 import kotlinx.html.span
 import kotlinx.html.stream.createHTML
 import kotlinx.html.style
+import kotlinx.html.ul
 import kotlinx.html.visit
 import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.RLAMetaData
@@ -20,6 +22,14 @@ import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
 
 fun actionListItemHtml(msg: StatMessage, metaData: RLAMetaData) =
     createHTML().body { actionListItem(msg, metaData) }
+
+fun HtmlBlockTag.ticker(reversed: Boolean = false) = ul {
+    id = "actionlist"
+    attributes["sse-swap"] = "new_action"
+    attributes["hx-swap"] = if (reversed) "beforeend" else "afterbegin"
+    attributes["hx-target"] = "#actionlist"
+    attributes["style"] = if (reversed) "position: fixed;bottom: 0;" else ""
+}
 
 fun HtmlBlockTag.actionListItem(message: StatMessage, metaData: RLAMetaData) {
     li {
