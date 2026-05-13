@@ -84,6 +84,9 @@ div.scoreboard {
       float: right;
       white-space: nowrap;
       direction: rtl;
+      span{
+        direction: ltr;
+      }
     }
 
     div.score {

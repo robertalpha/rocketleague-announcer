@@ -2,6 +2,7 @@ package nl.vanalphenict.web.page
 
 import com.janoz.discord.SampleService
 import kotlinx.html.HTML
+import kotlinx.html.HtmlBlockTag
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.classes
@@ -14,10 +15,10 @@ import kotlinx.html.img
 import kotlinx.html.script
 import kotlinx.html.span
 import kotlinx.html.styleLink
-import kotlinx.html.ul
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.web.view.scoreBoard
-import nl.vanalphenict.web.view.themeElement
+import nl.vanalphenict.web.view.themeSelector
+import nl.vanalphenict.web.view.ticker
 
 fun HTML.homepage(themeService: ThemeService, sampleService: SampleService) {
     head {
@@ -33,39 +34,18 @@ fun HTML.homepage(themeService: ThemeService, sampleService: SampleService) {
         attributes["sse-connect"] = "/sse"
         h1 { +"Rocket League Announcer" }
 
-        div {
-            classes = setOf("select")
-            +"Announcer theme: "
-            themeElement(themeService.themes, themeService.selectedTheme)
-        }
+        themeSelector(themeService)
 
         div {
             classes = setOf("content")
             div {
                 classes = setOf("optional")
-                sampleService.packs.forEach { pack ->
-                    h2 { +pack.name }
-                    pack.samples
-                        .sortedBy { it.name }
-                        .forEach { sample ->
-                            button {
-                                attributes["hx-put"] = "/play"
-                                attributes["hx-vals"] = "{\"sample\":\"${sample.id}\"}"
-                                attributes["hx-swap"] = "none"
-
-                                span { +sample.name }
-                            }
-                            +" "
-                        }
-                }
+                soundboard(sampleService)
                 div { classes = setOf("spacer") }
             }
-            ul {
-                id = "actionlist"
-                attributes["sse-swap"] = "new_action"
-                attributes["hx-swap"] = "afterbegin"
-                attributes["hx-target"] = "#actionlist"
-            }
+
+            ticker()
+
             div {
                 classes = setOf("veryOptional")
                 img {
@@ -75,6 +55,7 @@ fun HTML.homepage(themeService: ThemeService, sampleService: SampleService) {
                 }
             }
         }
+
         div { id = "fader" }
 
         scoreBoard()
@@ -82,6 +63,24 @@ fun HTML.homepage(themeService: ThemeService, sampleService: SampleService) {
         script(src = "assets/htmx.org/dist/htmx.min.js") {}
         script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}
         script(src = "assets/htmx-ext-sse/dist/sse.min.js") {}
+    }
+}
+
+private fun HtmlBlockTag.soundboard(sampleService: SampleService) = div {
+    sampleService.packs.forEach { pack ->
+        h2 { +pack.name }
+        pack.samples
+            .sortedBy { it.name }
+            .forEach { sample ->
+                button {
+                    attributes["hx-put"] = "/play"
+                    attributes["hx-vals"] = "{\"sample\":\"${sample.id}\"}"
+                    attributes["hx-swap"] = "none"
+
+                    span { +sample.name }
+                }
+                +" "
+            }
     }
 }
 
@@ -106,7 +105,7 @@ fun HTML.scoreboard() {
     }
 }
 
-fun HTML.ticker() {
+fun HTML.ticker(reversed: Boolean = false) {
     head {
         styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
         styleLink(href = "https://fonts.googleapis.com", type = "text/css", rel = "preconnect")
@@ -119,12 +118,7 @@ fun HTML.ticker() {
         attributes["hx-ext"] = "sse"
         attributes["sse-connect"] = "/sse"
 
-        ul {
-            id = "actionlist"
-            attributes["sse-swap"] = "new_action"
-            attributes["hx-swap"] = "afterbegin"
-            attributes["hx-target"] = "#actionlist"
-        }
+        ticker(reversed)
 
         script(src = "assets/htmx.org/dist/htmx.min.js") {}
         script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}
@@ -132,7 +126,7 @@ fun HTML.ticker() {
     }
 }
 
-fun HTML.tickerRev() {
+fun HTML.soundboard(sampleService: SampleService) {
     head {
         styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
         styleLink(href = "https://fonts.googleapis.com", type = "text/css", rel = "preconnect")
@@ -145,13 +139,7 @@ fun HTML.tickerRev() {
         attributes["hx-ext"] = "sse"
         attributes["sse-connect"] = "/sse"
 
-        ul {
-            id = "actionlist"
-            attributes["sse-swap"] = "new_action"
-            attributes["hx-swap"] = "beforeend"
-            attributes["hx-target"] = "#actionlist"
-            attributes["style"] = "position: fixed;bottom: 0;"
-        }
+        soundboard(sampleService)
 
         script(src = "assets/htmx.org/dist/htmx.min.js") {}
         script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}

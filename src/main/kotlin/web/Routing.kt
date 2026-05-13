@@ -22,8 +22,8 @@ import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.web.page.homepage
 import nl.vanalphenict.web.page.scoreboard
+import nl.vanalphenict.web.page.soundboard
 import nl.vanalphenict.web.page.ticker
-import nl.vanalphenict.web.page.tickerRev
 import nl.vanalphenict.web.view.themeHtml
 
 fun Application.configureRouting(
@@ -38,7 +38,8 @@ fun Application.configureRouting(
         // parts
         get("/parts-scoreboard") { call.respondHtml { scoreboard() } }
         get("/parts-ticker") { call.respondHtml { ticker() } }
-        get("/parts-ticker-rev") { call.respondHtml { tickerRev() } }
+        get("/parts-ticker-rev") { call.respondHtml { ticker(reversed = true) } }
+        get("/parts-soundboard") { call.respondHtml { soundboard(sampleService) } }
 
         // Heartbeat
         sse("/heartbeat") {

@@ -2,6 +2,7 @@ package nl.vanalphenict.web.view
 
 import kotlin.collections.forEach
 import kotlin.collections.set
+import kotlinx.html.BODY
 import kotlinx.html.HtmlBlockTag
 import kotlinx.html.body
 import kotlinx.html.button
@@ -13,6 +14,7 @@ import kotlinx.html.select
 import kotlinx.html.span
 import kotlinx.html.stream.createHTML
 import nl.vanalphenict.services.Theme
+import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 
 fun themeHtml(themes: List<Theme>, selectedTheme: Theme) =
@@ -20,6 +22,14 @@ fun themeHtml(themes: List<Theme>, selectedTheme: Theme) =
 
 fun HtmlBlockTag.themeElement(themes: List<Theme>, selectedTheme: Theme) {
     if (themes.size < 4) themeButtons(themes, selectedTheme) else themeSelect(themes, selectedTheme)
+}
+
+fun BODY.themeSelector(themeService: ThemeService) {
+    div {
+        classes = setOf("select")
+        +"Announcer theme: "
+        themeElement(themeService.themes, themeService.selectedTheme)
+    }
 }
 
 fun HtmlBlockTag.themeButtons(themes: List<Theme>, selectedTheme: Theme) {
