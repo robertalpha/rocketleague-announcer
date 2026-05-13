@@ -34,7 +34,6 @@ class MessageInterpreter(
             GameEvents.GOAL_REPLAY_END.eventName,
             GameEvents.GOAL_REPLAY_WILL_END.eventName,
             GameEvents.GOAL_REPLAY_START.eventName,
-            GameEvents.GOAL_REPLAY_WILL_END.eventName,
             GameEvents.MATCH_CREATED.eventName,
             GameEvents.MATCH_INITIALIZED.eventName,
             GameEvents.MATCH_DESTROYED.eventName,

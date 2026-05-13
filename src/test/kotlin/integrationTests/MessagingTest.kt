@@ -58,10 +58,10 @@ class MessagingTest : AbstractMessagingTest() {
                 samplePlayer = SamplePlayer(voiceContext.discordService, voiceChannel),
                 configs = configsList,
                 brokerAddress = "tcp://localhost:$mappedPort",
-                timeServiceMock,
+                timeService = timeServiceMock,
                 sampleService = voiceContext.sampleService,
-                { semaphore.addAndFetch(-1) },
-                gameStateRepository,
+                msgProcessed = { semaphore.addAndFetch(-1) },
+                gameStateRepository = gameStateRepository,
             )
         }
 

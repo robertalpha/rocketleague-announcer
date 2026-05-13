@@ -28,8 +28,8 @@ class ApplicationTest : AbstractMessagingTest() {
                 samplePlayer = samplePlayer,
                 configs = configsList,
                 brokerAddress = "tcp://localhost:$mappedPort",
-                TimeServiceMock(),
-                voiceContext.sampleService,
+                timeService = TimeServiceMock(),
+                sampleService = voiceContext.sampleService,
             )
         }
         // validate web content

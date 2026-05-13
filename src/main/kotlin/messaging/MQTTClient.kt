@@ -15,22 +15,23 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 
 class MQTTClient(
     interpreter: MessageInterpreter,
-    serverAddress: String,
+    brokerAddress: String,
     val timeService: TimeService,
     msgProcessed: ((msg: String) -> Unit) = {},
 ) {
+    private val log = KotlinLogging.logger {}
+
     private val TOPIC_ROOT = "rlapi2mqtt"
     private val TOPIC_WILDCARD = "$TOPIC_ROOT/#"
     private val QOS = 1
 
     private var client: MqttClient
-    private val log = KotlinLogging.logger {}
     private val messagesCache: MutableMap<Int, Instant> = HashMap()
 
     init {
         val clientId = "rla_announcer_" + Base64.encode(Random.nextBytes(3))
 
-        client = MqttClient(serverAddress, clientId, MemoryPersistence())
+        client = MqttClient(brokerAddress, clientId, MemoryPersistence())
         val options = MqttConnectOptions()
         System.getenv("BROKER_USERNAME")?.let {
             options.userName = System.getenv("BROKER_USERNAME")
@@ -49,16 +50,16 @@ class MQTTClient(
                     @Throws(Exception::class)
                     override fun messageArrived(topic: String, message: MqttMessage) {
                         try {
+                            clearCache()
                             val payload = String(message.payload)
                             val key = msgHash(topic, payload)
                             messagesCache.computeIfAbsent(key) {
                                 interpreter.interpret(payload)
                                 timeService.now()
                             }
-                            clearCache()
                         } catch (e: Exception) {
-                            log.error(e) { "could not parse message: $e" }
-                            e.printStackTrace()
+                            log.error { "Could not parse message: $e" }
+                            log.debug(e) { "Stacktrace: " }
                         }
                         msgProcessed(message.toString())
                     }
@@ -74,7 +75,8 @@ class MQTTClient(
             )
             client.subscribe(TOPIC_WILDCARD, QOS)
         } catch (ex: Exception) {
-            log.error(ex) { "Unable to connect to MQTT broker: $serverAddress" }
+            log.error { "Unable to connect to MQTT broker: $brokerAddress" }
+            log.debug(ex) { "Stacktrace: " }
             throw ex
         }
     }
@@ -93,8 +95,13 @@ class MQTTClient(
     private fun msgHash(topic: String, payload: String) =
         when {
             // During a match never more than one goal scored per 500 milliseconds
-            // TODO: fix https://github.com/robertalpha/rocketleague-announcer/issues/42
-            topic == "rlapi2mqtt/goalscored" -> topic.hashCode()
+            topic == "rlapi2mqtt/goalscored" -> (topic + getGuidFromMessage(payload)).hashCode()
+
             else -> payload.hashCode()
         }
+
+    val matchGuidRegexp = """MatchGuid\\":\\"([A-F0-9]+)\\"""".toRegex()
+
+    private fun getGuidFromMessage(message: String): String =
+        matchGuidRegexp.find(message)?.groupValues[1] ?: ""
 }
