@@ -156,7 +156,10 @@ class GameStateRepository {
 
     private fun processTeam(matchGuid: String, team: JsonTeam) =
         getTeam(matchGuid, team.teamNum).apply {
-            name = team.name
+            if (name != team.name) {
+                name = team.name
+                tag = team.tag
+            }
             score = team.score
             primaryColor = team.colorPrimary.hexToColor()
             secondaryColor = team.colorSecondary.hexToColor()

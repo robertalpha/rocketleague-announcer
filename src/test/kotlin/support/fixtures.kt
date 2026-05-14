@@ -20,6 +20,7 @@ fun blueTeam(score: Int = 0) =
         primaryColor = ColorUtils.BLUE,
         secondaryColor = ColorUtils.DARK_GREY,
         name = "TEAM BLUE",
+        tag = "BLUE",
         hasContributors = true,
     )
 
@@ -30,6 +31,7 @@ fun orangeTeam(score: Int = 0) =
         primaryColor = ColorUtils.ORANGE,
         secondaryColor = ColorUtils.DARK_GREY,
         name = "TEAM ORANGE",
+        tag = "ORNG",
         hasContributors = false,
     )
 

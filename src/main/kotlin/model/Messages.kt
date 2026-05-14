@@ -1,5 +1,6 @@
 package nl.vanalphenict.model
 
+import io.ktor.util.toUpperCasePreservingASCIIRules
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -72,7 +73,10 @@ data class JsonTeam(
     @SerialName("Score") val score: Int = 0,
     @SerialName("ColorPrimary") val colorPrimary: String = "",
     @SerialName("ColorSecondary") val colorSecondary: String = "",
-)
+) {
+    inline val tag: String
+        get() = name.toTag()
+}
 
 @Serializable
 data class JsonVector(
@@ -208,3 +212,16 @@ data class JsonMatchGuidData(@SerialName("MatchGuid") val matchGuid: String = ""
 // ── Log message (kept for backwards compat if still used) ───────────────────
 
 @Serializable data class JsonLogMessage(val log: String, val user: String, val userId: String)
+
+fun String.toTag() =
+    if (this.contains(" ")) {
+        val parts = this.split(" ")
+        parts
+            .filter { it.isNotBlank() }
+            .joinToString("") { it.left(1).toUpperCasePreservingASCIIRules() }
+    } else {
+        val noLower = this.filter { !it.isLowerCase() }
+        if (noLower.length > 1) noLower.left(3) else this.left(3).toUpperCasePreservingASCIIRules()
+    }
+
+fun String.left(length: Int) = substring(0, minOf(this.length, length))

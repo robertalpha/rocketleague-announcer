@@ -82,7 +82,7 @@ fun HtmlBlockTag.renderTeamInfo(team: Team) = div {
         }
         span {
             classes = setOf("tag")
-            +team.name
+            +team.tag
         }
     }
 
