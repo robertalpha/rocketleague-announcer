@@ -82,11 +82,11 @@ To run the tests, use:
 
 ## Screenshot
 
-![Rocket League Announcer](docs/screenshot.png)
+![Rocket League Announcer](docs/assets/screenshot.png)
 
 ## Diagram
 
-![Diagram](docs/diagram.png)
+![Diagram](docs/assets/diagram.png)
 
 ## Building & Running
 
