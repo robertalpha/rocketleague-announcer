@@ -3,6 +3,7 @@ package nl.vanalphenict.web.page
 import com.janoz.discord.SampleService
 import kotlinx.html.HTML
 import kotlinx.html.HtmlBlockTag
+import kotlinx.html.ScriptType
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.classes
@@ -15,10 +16,14 @@ import kotlinx.html.img
 import kotlinx.html.script
 import kotlinx.html.span
 import kotlinx.html.styleLink
+import kotlinx.html.unsafe
 import nl.vanalphenict.services.ThemeService
+import nl.vanalphenict.web.SSE_EVENT_TYPE
 import nl.vanalphenict.web.view.scoreBoard
 import nl.vanalphenict.web.view.themeSelector
 import nl.vanalphenict.web.view.ticker
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 fun HTML.homepage(themeService: ThemeService, sampleService: SampleService) {
     head {
@@ -105,7 +110,7 @@ fun HTML.scoreboard() {
     }
 }
 
-fun HTML.ticker(reversed: Boolean = false) {
+fun HTML.ticker(reversed: Boolean = false, delay: Duration = 5.seconds, duration: Duration = 2.seconds) {
     head {
         styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
         styleLink(href = "https://fonts.googleapis.com", type = "text/css", rel = "preconnect")
@@ -123,6 +128,28 @@ fun HTML.ticker(reversed: Boolean = false) {
         script(src = "assets/htmx.org/dist/htmx.min.js") {}
         script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}
         script(src = "assets/htmx-ext-sse/dist/sse.min.js") {}
+        script(src = "web/script/fader.js") {}
+        script(type = ScriptType.textJavaScript) {
+            unsafe {
+                raw(
+                    """
+                        new MutationObserver((mutationsList, observer) => {
+                            for (const mutation of mutationsList) {
+                                mutation.addedNodes.forEach(node => {
+                                    if (node.nodeType === Node.ELEMENT_NODE) {
+                                        delayedFade(node, ${delay.inWholeMilliseconds}, ${duration.inWholeMilliseconds});
+                                    }
+                                });
+                            }
+                        }).observe(document.getElementById('actionlist'), {
+                            childList: true,
+                            subtree: false
+                        });
+
+                    """.trimIndent()
+                )
+            }
+        }
     }
 }
 
