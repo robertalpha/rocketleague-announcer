@@ -21,6 +21,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.web.page.homepage
+import nl.vanalphenict.web.page.rosterpage
 import nl.vanalphenict.web.page.scoreboard
 import nl.vanalphenict.web.page.soundboard
 import nl.vanalphenict.web.page.ticker
@@ -34,6 +35,7 @@ fun Application.configureRouting(
     routing {
         // Homepage
         get("/") { call.respondHtml { homepage(themeService, sampleService) } }
+        get("/roster") { call.respondHtml { rosterpage(themeService, sampleService) } }
 
         // parts
         get("/parts-scoreboard") { call.respondHtml { scoreboard() } }
