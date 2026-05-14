@@ -57,7 +57,7 @@ class MessagingTest : AbstractMessagingTest() {
             moduleWithDependencies(
                 samplePlayer = SamplePlayer(voiceContext.discordService, voiceChannel),
                 configs = configsList,
-                defaultBrokerAddress = "tcp://localhost:$mappedPort",
+                brokerAddress = "tcp://localhost:$mappedPort",
                 timeServiceMock,
                 sampleService = voiceContext.sampleService,
                 { semaphore.addAndFetch(-1) },

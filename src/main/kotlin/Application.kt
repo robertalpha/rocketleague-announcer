@@ -51,30 +51,30 @@ fun main(args: Array<String>) {
 
 val log = KotlinLogging.logger {}
 
-fun Application.module(defaultBrokerAddress: String = "tcp://localhost:1883") {
-    val discordBotToken = System.getenv("DISCORD_BOT_TOKEN")
+fun Application.module() {
     val voiceContext =
-        if (discordBotToken != null) {
-            VoiceContext.builder().token(discordBotToken).build()
-        } else {
-            log.warn { "DISCORD_BOT_TOKEN not provided. Using mock Discord integration." }
-            VoiceContext.builder().asMock().build()
-        }
+        System.getenv("DISCORD_BOT_TOKEN")?.let { VoiceContext.builder().token(it).build() }
+            ?: run {
+                log.warn { "DISCORD_BOT_TOKEN not provided, using dummy discord implementation!" }
+                VoiceContext.builder().asMock().build()
+            }
     val sampleService = voiceContext.sampleService
     val discordService = voiceContext.discordService
 
-    sampleService.readSamplesZip(javaClass.getResourceAsStream("/samples/FPS.zip"))
+    val brokerAddress = System.getenv("BROKER_ADDRESS") ?: "tcp://localhost:1883"
 
     val configs: MutableList<SampleMapper> = ArrayList()
 
+    // Add default samples
+    sampleService.readSamplesZip(javaClass.getResourceAsStream("/samples/FPS.zip"))
     configs.add(
         SampleMapper.constructSampleMapper(
             javaClass.getResourceAsStream("/samples/FPS.mapping.json")!!
         )
     )
 
+    // Add custom samples
     System.getenv("SAMPLE_DIR")?.let { sampleDir -> sampleService.readSamples(sampleDir) }
-
     System.getenv("SAMPLE_MAPPING_DIR")?.let { sampleMappingDir ->
         File(sampleMappingDir)
             .walkTopDown()
@@ -88,20 +88,25 @@ fun Application.module(defaultBrokerAddress: String = "tcp://localhost:1883") {
         System.getenv("DISCORD_VOICE_CHANNEL_ID")?.let {
             discordService.getVoiceChannel(it.toLong())
         }
-    if (voiceChannel == null) {
-        log.warn { "DISCORD_VOICE_CHANNEL_ID not provided. Voice functionality will be limited." }
-    }
-    val timeService = TimeServiceImpl()
-
-    val samplePlayer = SamplePlayer(discordService, voiceChannel)
-
-    moduleWithDependencies(samplePlayer, configs, defaultBrokerAddress, timeService, sampleService)
+            ?: run {
+                log.warn {
+                    "DISCORD_VOICE_CHANNEL_ID not provided. Voice functionality will be limited."
+                }
+                null
+            }
+    moduleWithDependencies(
+        samplePlayer = SamplePlayer(discordService, voiceChannel),
+        configs = configs,
+        brokerAddress = brokerAddress,
+        timeService = TimeServiceImpl(),
+        sampleService = sampleService,
+    )
 }
 
 fun Application.moduleWithDependencies(
     samplePlayer: SamplePlayer,
     configs: MutableList<SampleMapper>,
-    defaultBrokerAddress: String,
+    brokerAddress: String,
     timeService: TimeService,
     sampleService: SampleService,
     msgProcessed: ((msg: String) -> Unit) = {},
@@ -139,13 +144,7 @@ fun Application.moduleWithDependencies(
             .add(SsePublisher(gameStateRepository))
             .build()
     try {
-        MessagingClient(
-            eventHandler,
-            System.getenv("BROKER_ADDRESS") ?: defaultBrokerAddress,
-            timeService,
-            gameStateRepository,
-            msgProcessed,
-        )
+        MessagingClient(eventHandler, brokerAddress, timeService, gameStateRepository, msgProcessed)
     } catch (ex: Exception) {
         log.error(ex) { "could not connect to broker" }
         throw ex

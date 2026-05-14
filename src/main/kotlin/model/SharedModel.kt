@@ -58,6 +58,12 @@ enum class StatEvents(val eventName: String) {
     fun eq(other: String): Boolean {
         return eventName == other
     }
+
+    companion object {
+        fun of(event: String): StatEvents? {
+            return StatEvents.entries.find { it.eq(event) }
+        }
+    }
 }
 
 enum class GameEvents(val eventName: String) {
@@ -80,5 +86,11 @@ enum class GameEvents(val eventName: String) {
 
     fun eq(other: String): Boolean {
         return eventName == other
+    }
+
+    companion object {
+        fun of(event: String): GameEvents? {
+            return entries.find { it.eq(event) }
+        }
     }
 }
