@@ -25,11 +25,11 @@ class SocketClient(val interpreter: MessageInterpreter, rocketLeagueAddress: Str
 
     suspend fun start(host: String, port: Int) {
         SelectorManager(Dispatchers.IO).use { selectorManager ->
-            log.info { "Connecting..." }
+            log.info { "Connecting to Rocket League..." }
             while (true) {
                 try {
                     aSocket(selectorManager).tcp().connect(host, port).use {
-                        log.info { "Connected to server" }
+                        log.info { "Connected to Rocket League" }
                         it.openReadChannel().toJsonSequence().forEach { interpreter.interpret(it) }
                     }
                 } catch (e: Exception) {
@@ -37,7 +37,7 @@ class SocketClient(val interpreter: MessageInterpreter, rocketLeagueAddress: Str
                     log.debug(e) { "Stacktrace" }
                 }
                 delay(5.seconds)
-                log.info { "Reconnecting..." }
+                log.info { "Reconnecting to Rocket League..." }
             }
         }
     }
