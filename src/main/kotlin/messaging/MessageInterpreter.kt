@@ -8,6 +8,7 @@ import nl.vanalphenict.model.GameEvents
 import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.GoalEventMessage
 import nl.vanalphenict.model.JsonClockUpdatedSecondsData
+import nl.vanalphenict.model.JsonEnvelope
 import nl.vanalphenict.model.JsonGoalScoredData
 import nl.vanalphenict.model.JsonMatchGuidData
 import nl.vanalphenict.model.JsonStatfeedEventData
@@ -33,7 +34,6 @@ class MessageInterpreter(
             GameEvents.GOAL_REPLAY_END.eventName,
             GameEvents.GOAL_REPLAY_WILL_END.eventName,
             GameEvents.GOAL_REPLAY_START.eventName,
-            GameEvents.GOAL_REPLAY_WILL_END.eventName,
             GameEvents.MATCH_CREATED.eventName,
             GameEvents.MATCH_INITIALIZED.eventName,
             GameEvents.MATCH_DESTROYED.eventName,
@@ -45,12 +45,13 @@ class MessageInterpreter(
             GameEvents.ROUND_STARTED.eventName,
         )
 
-    fun interpret(event: String, data: String) {
-        when (event) {
+    fun interpret(payload: String) {
+        val envelope = json.decodeFromString<JsonEnvelope>(payload)
+        when (envelope.event) {
             // Tick
             "UpdateState" -> {
                 gameStateRepository.processUpdateState(
-                    json.decodeFromString<JsonUpdateStateData>(data)
+                    json.decodeFromString<JsonUpdateStateData>(envelope.data)
                 )
             }
 
@@ -59,7 +60,7 @@ class MessageInterpreter(
                 // TODO: Parse ballhit
             }
             "ClockUpdatedSeconds" -> {
-                parseClockUpdatedSeconds(data).let {
+                parseClockUpdatedSeconds(envelope.data).let {
                     gameStateRepository.processClockUpdatedSeconds(it)
                     eventHandler.handleGameTime(it)
                 }
@@ -68,18 +69,18 @@ class MessageInterpreter(
                 // TODO: Parse CrossbarHit
             }
             GameEvents.GOAL_SCORED.eventName -> {
-                parseGoalScored(data)?.let {
+                parseGoalScored(envelope.data)?.let {
                     gameStateRepository.processGoalScored(it)
                     eventHandler.handleGameEvent(it, gameStateRepository.getMetadata(it.matchGuid))
                 }
             }
             in gameEventNames -> {
-                parseOtherGameEvent(event, data)?.let {
+                parseOtherGameEvent(envelope.event, envelope.data)?.let {
                     eventHandler.handleGameEvent(it, gameStateRepository.getMetadata(it.matchGuid))
                 }
             }
             "StatfeedEvent" -> {
-                parseStatfeedEvent(data)?.let {
+                parseStatfeedEvent(envelope.data)?.let {
                     eventHandler.handleStatMessage(
                         it,
                         gameStateRepository.getMetadata(it.matchGuid),
@@ -87,7 +88,7 @@ class MessageInterpreter(
                 }
             }
             else -> {
-                log.error { "Unhandled event: $event -> ($data)" }
+                log.error { "Unhandled event: ${envelope.event} -> (${envelope.data})" }
             }
         }
     }

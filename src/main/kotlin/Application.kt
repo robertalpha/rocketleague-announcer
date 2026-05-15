@@ -14,7 +14,9 @@ import io.ktor.server.webjars.Webjars
 import java.io.File
 import java.io.FileInputStream
 import kotlinx.serialization.json.Json
-import nl.vanalphenict.messaging.MessagingClient
+import nl.vanalphenict.messaging.MQTTClient
+import nl.vanalphenict.messaging.MessageInterpreter
+import nl.vanalphenict.messaging.SocketClient
 import nl.vanalphenict.repository.GameEventRepository
 import nl.vanalphenict.repository.GameStateRepository
 import nl.vanalphenict.repository.StatRepository
@@ -62,6 +64,7 @@ fun Application.module() {
     val discordService = voiceContext.discordService
 
     val brokerAddress = System.getenv("BROKER_ADDRESS") ?: "tcp://localhost:1883"
+    val rocketLeagueAddress = System.getenv("ROCKET_LEAGUE_ADDRESS")
 
     val configs: MutableList<SampleMapper> = ArrayList()
 
@@ -98,6 +101,7 @@ fun Application.module() {
         samplePlayer = SamplePlayer(discordService, voiceChannel),
         configs = configs,
         brokerAddress = brokerAddress,
+        rocketLeagueAddress = rocketLeagueAddress,
         timeService = TimeServiceImpl(),
         sampleService = sampleService,
     )
@@ -107,6 +111,7 @@ fun Application.moduleWithDependencies(
     samplePlayer: SamplePlayer,
     configs: MutableList<SampleMapper>,
     brokerAddress: String,
+    rocketLeagueAddress: String? = null,
     timeService: TimeService,
     sampleService: SampleService,
     msgProcessed: ((msg: String) -> Unit) = {},
@@ -138,18 +143,23 @@ fun Application.moduleWithDependencies(
             ),
             listOf(MatchStart(gameEventRepository)),
         )
-    val eventHandler =
-        GameEventHandler.Builder(announcementHandler)
-            .add(eventPersister)
-            .add(SsePublisher(gameStateRepository))
-            .build()
-    try {
-        MessagingClient(eventHandler, brokerAddress, timeService, gameStateRepository, msgProcessed)
-    } catch (ex: Exception) {
-        log.error(ex) { "could not connect to broker" }
-        throw ex
-    }
+    val interpreter =
+        MessageInterpreter(
+            eventHandler =
+                GameEventHandler.Builder(announcementHandler)
+                    .add(eventPersister)
+                    .add(SsePublisher(gameStateRepository))
+                    .build(),
+            gameStateRepository = gameStateRepository,
+        )
 
+    if (rocketLeagueAddress != null) {
+        log.info { "Connecting to Rocket League at $rocketLeagueAddress" }
+        SocketClient(interpreter, rocketLeagueAddress)
+    } else {
+        log.info { "Connecting to MQTT broker at $brokerAddress" }
+        MQTTClient(interpreter, brokerAddress, timeService, msgProcessed)
+    }
     install(ContentNegotiation) {
         json(
             Json {
