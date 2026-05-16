@@ -16,6 +16,7 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
+        cache: 'gradle'
 
     - uses: gradle/actions/setup-gradle@v3
     - name: Run tests with Gradle
@@ -23,7 +24,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: gradle/actions/setup-gradle@v3
     - name: Run spotless check with Gradle
       run: ./gradlew spotlessKotlinCheck
       env:

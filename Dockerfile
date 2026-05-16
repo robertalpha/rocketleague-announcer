@@ -14,14 +14,9 @@ RUN ./gradlew buildFatJar
 ### Runner
 FROM eclipse-temurin:21-jre-alpine AS final
 
-RUN apk --no-cache add mosquitto supervisor
-
 COPY --from=builder /opt/app/build/libs/*-all.jar /opt/app/announcer.jar
-COPY docker/supervisord.conf docker/mosquitto.conf /etc/
 
 # announcer port
 EXPOSE 8080
-# MQTT port
-EXPOSE 1883
 
-CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]
+ENTRYPOINT ["java", "-jar", "/opt/app/announcer.jar"]
