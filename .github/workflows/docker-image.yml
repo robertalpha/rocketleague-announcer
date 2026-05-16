@@ -26,6 +26,7 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
+        cache: 'gradle'
 
     - uses: gradle/actions/setup-gradle@v3
     - name: Build with Gradle
@@ -40,27 +41,65 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Extract metadata (tags, labels) for Docker
-      id: meta
-      uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+    - name: Extract metadata (tags, labels) for Slim Docker image
+      id: meta_slim
+      uses: docker/metadata-action@v5
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+          type=raw,value=slim
+          type=sha,prefix=slim-
 
-    - name: Build and push Docker image
-      id: push
-      uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+    - name: Extract metadata (tags, labels) for Fat Docker image
+      id: meta_fat
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=raw,value=fat
+          type=sha,prefix=fat-
+
+    - name: Build and push Slim Docker image
+      id: push_slim
+      uses: docker/build-push-action@v6
       with:
         context: .
+        file: Dockerfile
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: ${{ steps.meta_slim.outputs.tags }}
+        labels: ${{ steps.meta_slim.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
         build-args: |
           GITHUB_ACTOR=${{ github.actor }}
           GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
-    - name: Generate artifact attestation
-      uses: actions/attest-build-provenance@v3
+    - name: Build and push Fat Docker image
+      id: push_fat
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: DockerfileFat
+        push: true
+        tags: ${{ steps.meta_fat.outputs.tags }}
+        labels: ${{ steps.meta_fat.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          GITHUB_ACTOR=${{ github.actor }}
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+
+    - name: Generate artifact attestation (Slim)
+      uses: actions/attest-build-provenance@v2
       with:
         subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
-        subject-digest: ${{ steps.push.outputs.digest }}
+        subject-digest: ${{ steps.push_slim.outputs.digest }}
+        push-to-registry: true
+
+    - name: Generate artifact attestation (Fat)
+      uses: actions/attest-build-provenance@v2
+      with:
+        subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+        subject-digest: ${{ steps.push_fat.outputs.digest }}
         push-to-registry: true

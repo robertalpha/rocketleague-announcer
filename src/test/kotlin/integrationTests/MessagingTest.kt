@@ -11,19 +11,21 @@ import io.kotest.common.KotestInternal
 import io.kotest.matchers.shouldBe
 import io.ktor.client.plugins.sse.SSE
 import io.ktor.client.plugins.sse.sse
+import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.ktor.sse.ServerSentEvent
 import java.io.File
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.test.BeforeTest
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import nl.vanalphenict.model.JsonEnvelope
@@ -36,24 +38,61 @@ import nl.vanalphenict.utility.TimeServiceMock
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import org.testcontainers.junit.jupiter.Testcontainers
 
+/**
+ * Integration tests for the messaging system.
+ *
+ * These tests spin up a Mosquitto MQTT broker via Testcontainers, start a Ktor test application,
+ * and replay game logs to verify that the system correctly interprets messages and publishes
+ * corresponding events via SSE.
+ */
 @OptIn(ExperimentalAtomicApi::class, DelicateCoroutinesApi::class)
 @Testcontainers
 class MessagingTest : AbstractMessagingTest() {
 
     private val log = KotlinLogging.logger {}
     private val timeServiceMock = TimeServiceMock()
-    private val gameStateRepository = GameStateRepository()
+    private var gameStateRepository = GameStateRepository()
     private val semaphore = AtomicInt(0)
     private val sseData = mutableListOf<ServerSentEvent>()
 
+    @BeforeTest
+    fun setup() {
+        gameStateRepository = GameStateRepository()
+        sseData.clear()
+        semaphore.store(0)
+    }
+
+    /**
+     * Tests a full match replay from a log file. This test ensures that all major game events
+     * (goals, saves, etc.) are correctly recognized and announced via SSE.
+     */
     @Test
-    fun testLines() = testApplication {
+    fun `should correctly process and announce events for match 4366BADC95F480E3`() =
+        testApplication {
+            setupIntegrationApplication()
+
+            coroutineScope {
+                // Start collecting SSE events in the background
+                val sseJob = async { collectSseEvents() }
+
+                // wait for application to start and sse to connect
+                delay(1000)
+
+                runAndValidateGame("4366BADC95F480E3")
+
+                sseJob.cancel()
+            }
+        }
+
+    /** Configures the test application with necessary dependencies and mocks. */
+    private fun ApplicationTestBuilder.setupIntegrationApplication() {
         application {
             val mappedPort = mosquitto.getMappedPort(1883)
             val voiceContext = VoiceContext.builder().asMock().build()
             val configsList = mutableListOf(SampleMapper("123", "123", emptyMap()))
             val voiceChannel =
                 VoiceChannel.builder().guild(Guild.builder().id(1L).build()).id(2L).build()
+
             moduleWithDependencies(
                 samplePlayer = SamplePlayer(voiceContext.discordService, voiceChannel),
                 configs = configsList,
@@ -64,36 +103,37 @@ class MessagingTest : AbstractMessagingTest() {
                 gameStateRepository = gameStateRepository,
             )
         }
+    }
 
-        GlobalScope.async {
-            withContext(Dispatchers.IO) {
-                createClient {
-                        install(SSE) {
-                            showCommentEvents()
-                            showRetryEvents()
-                        }
-                    }
-                    .sse(path = "/sse") { incoming.collect { event -> sseData.add(event) } }
+    /** Connects to the SSE endpoint and collects events into [sseData]. */
+    private suspend fun ApplicationTestBuilder.collectSseEvents() {
+        withContext(Dispatchers.IO) {
+            val client = createClient {
+                install(SSE) {
+                    showCommentEvents()
+                    showRetryEvents()
+                }
+            }
+            client.sse(path = "/sse") {
+                incoming.collect { event ->
+                    log.trace { "Received SSE event: ${event.event}" }
+                    sseData.add(event)
+                }
             }
         }
-        // wait for application to start and sse to connect
-        delay(1000)
-
-        // Run tests
-        runAndValidateGame("4366BADC95F480E3")
-        sseData.clear()
-
-        //        runAndValidateGame("UUID")
-        //        sseData.clear()
     }
 
     @OptIn(KotestInternal::class)
     private suspend fun runAndValidateGame(matchId: String) {
+        log.info { "Starting replay for match: $matchId" }
+
         // send messages
         readMessagesFromResource("testmatches/${matchId}.txt").forEach { message ->
             semaphore.addAndFetch(1)
             timeServiceMock.setTime(message.timestamp)
             send(message.topic, json.encodeToString(message.message))
+
+            // Wait for the message to be fully processed by the MQTT client before moving to next
             eventually(
                 config =
                     eventuallyConfig {
@@ -105,7 +145,7 @@ class MessagingTest : AbstractMessagingTest() {
             }
         }
 
-        // Verify
+        // Verify game results based on final state in repository and captured SSE events
         val expected = gameStateRepository.getGameResult(matchId)
         val actual =
             GameResult(
@@ -115,6 +155,8 @@ class MessagingTest : AbstractMessagingTest() {
                 saves = sseData.count("Save") + sseData.count("EpicSave"),
                 demos = sseData.count("Demolish"),
             )
+
+        log.info { "Validating results for $matchId. Expected: $expected, Actual: $actual" }
         actual shouldBe expected
         sseData.count("MVP") shouldBe 1
     }
