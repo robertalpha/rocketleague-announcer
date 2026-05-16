@@ -16,9 +16,7 @@ import nl.vanalphenict.support.orangeTeam
 import nl.vanalphenict.support.playerEpic
 import nl.vanalphenict.support.playerSteam
 
-/**
- * Tests for [DemolitionChain] which uses a [StatRepository] to detect demolition streaks.
- */
+/** Tests for [DemolitionChain] which uses a [StatRepository] to detect demolition streaks. */
 class DemolitionChainTest {
     private lateinit var repo: StatRepository
     private lateinit var cut: DemolitionChain
@@ -55,13 +53,15 @@ class DemolitionChainTest {
 
     @Test
     fun `should detect penta kill when five demolitions occur within pivot duration`() {
-        val times = listOf(
-            "2020-08-30T18:43:00Z",
-            "2020-08-30T18:43:02Z",
-            "2020-08-30T18:43:04Z",
-            "2020-08-30T18:43:06Z",
-            "2020-08-30T18:43:08Z"
-        ).map { Instant.parse(it) }
+        val times =
+            listOf(
+                    "2020-08-30T18:43:00Z",
+                    "2020-08-30T18:43:02Z",
+                    "2020-08-30T18:43:04Z",
+                    "2020-08-30T18:43:06Z",
+                    "2020-08-30T18:43:08Z",
+                )
+                .map { Instant.parse(it) }
 
         times.dropLast(1).forEach { repo.addStatMessage(it, demoStatMessage(), metaData) }
 
