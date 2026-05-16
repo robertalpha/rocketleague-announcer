@@ -15,7 +15,7 @@ import kotlinx.html.visit
 import nl.vanalphenict.model.KillMessage
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
-import nl.vanalphenict.utility.ColorUtils.Companion.toHexString
+import nl.vanalphenict.utility.ColorUtils.Companion.toCssGradient
 import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
 
 fun actionListItemHtml(msg: StatMessage, metaData: RLAMetaData) =
@@ -52,12 +52,10 @@ fun HtmlBlockTag.actionListItem(message: StatMessage, metaData: RLAMetaData) {
 
         div {
             classes = setOf("accent")
-            style =
-                "background: linear-gradient(0deg, ${message.player.team.secondaryColor.darker().toHexString()} 0%, ${message.player.team.secondaryColor.brighter().toHexString()} 100%);"
+            style = "background: ${message.player.team.secondaryColor.toCssGradient()};"
             div {
                 classes = setOf("team")
-                style =
-                    "background: linear-gradient(0deg, ${message.player.team.primaryColor.darker().toHexString()} 0%, ${message.player.team.primaryColor.brighter().toHexString()} 100%);"
+                style = "background: ${message.player.team.primaryColor.toCssGradient()};"
                 span { +message.player.team.tag }
             }
         }

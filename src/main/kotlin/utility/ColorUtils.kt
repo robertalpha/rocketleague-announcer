@@ -4,6 +4,9 @@ import java.awt.Color
 
 class ColorUtils {
     companion object {
+        fun Color.toCssGradient() =
+            "linear-gradient(0deg,${this.darker().toHexString()} 0%,${this.brighter().toHexString()} 100%)"
+
         fun Color.toHexString() = String.format("#%02x%02x%02x", red, green, blue)
 
         fun String.hexToColor(): Color {
