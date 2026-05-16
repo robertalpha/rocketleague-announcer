@@ -19,7 +19,9 @@ enum class SSE_EVENT_TYPE {
     SWITCH_THEME,
     TEAMS,
     GAME_TIME,
-    SCORE_BOARD;
+    SCORE_BOARD,
+    PLAYERS_HOME,
+    PLAYERS_AWAY;
 
     fun asString() = this.name.lowercase()
 }

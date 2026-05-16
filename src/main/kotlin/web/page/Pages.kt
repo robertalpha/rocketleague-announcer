@@ -19,8 +19,10 @@ import kotlinx.html.script
 import kotlinx.html.span
 import kotlinx.html.styleLink
 import kotlinx.html.unsafe
+import nl.vanalphenict.repository.GameStateRepository
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.web.view.scoreBoard
+import nl.vanalphenict.web.view.teamOfPlayers
 import nl.vanalphenict.web.view.themeSelector
 import nl.vanalphenict.web.view.ticker
 
@@ -70,7 +72,7 @@ fun HTML.homepage(themeService: ThemeService, sampleService: SampleService) {
     }
 }
 
-fun HTML.rosterpage(themeService: ThemeService, sampleService: SampleService) {
+fun HTML.rosterpage(themeService: ThemeService, gameStateRepository: GameStateRepository) {
     head {
         styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
         styleLink(href = "https://fonts.googleapis.com", type = "text/css", rel = "preconnect")
@@ -90,17 +92,14 @@ fun HTML.rosterpage(themeService: ThemeService, sampleService: SampleService) {
             classes = setOf("content")
             div {
                 classes = setOf("optional")
-                +"away"
+                teamOfPlayers(emptyList(), 1) //away
             }
 
-            div {
-                classes = setOf("veryOptional")
-                +"Very optional"
-            }
+            div { classes = setOf("veryOptional") }
 
             div {
                 classes = setOf("optional")
-                +"home"
+                teamOfPlayers(emptyList(), 0) //home
             }
         }
 
@@ -201,6 +200,27 @@ fun HTML.soundboard(sampleService: SampleService) {
         attributes["sse-connect"] = "/sse"
 
         soundboard(sampleService)
+
+        script(src = "assets/htmx.org/dist/htmx.min.js") {}
+        script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}
+        script(src = "assets/htmx-ext-sse/dist/sse.min.js") {}
+    }
+}
+
+fun HTML.teamRoster(side: Int) {
+    head {
+        styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
+        styleLink(href = "https://fonts.googleapis.com", type = "text/css", rel = "preconnect")
+        styleLink(
+            href = "https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap",
+            rel = "stylesheet",
+        )
+    }
+    body {
+        attributes["hx-ext"] = "sse"
+        attributes["sse-connect"] = "/sse"
+
+        teamOfPlayers(emptyList(), side)
 
         script(src = "assets/htmx.org/dist/htmx.min.js") {}
         script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}

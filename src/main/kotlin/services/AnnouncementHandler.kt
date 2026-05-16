@@ -43,6 +43,8 @@ class AnnouncementHandler(
         }
     }
 
+    override fun handleTick(matchGuid: String) {}
+
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         val announcements = HashSet<Announcement>()
         statInterpreterMap[msg.event]?.let {

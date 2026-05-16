@@ -1,6 +1,9 @@
 package nl.vanalphenict.model
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.time.Duration
+
+private val log = KotlinLogging.logger {}
 
 data class RLAMetaData(
     val matchGuid: String,
@@ -91,6 +94,33 @@ enum class GameEvents(val eventName: String) {
     companion object {
         fun of(event: String): GameEvents? {
             return entries.find { it.eq(event) }
+        }
+    }
+}
+
+enum class Platform(val className: String) {
+    PLAYSTATION("ps"),
+    XBOX("xbox"),
+    NINTENDO("nintendo"),
+    STEAM("steam"),
+    EPIC("epic"),
+    UNKNOWN("unknown"),
+    BOT("bot");
+
+    companion object {
+        fun getByPlayerId(playerId: String): Platform {
+            return when (playerId.substringBefore('|')) {
+                "PS4" -> return PLAYSTATION
+                "XboxOne" -> return XBOX
+                "Switch" -> return NINTENDO
+                "Steam" -> return STEAM
+                "Epic" -> return EPIC
+                "Unknown" -> return BOT
+                else -> {
+                    log.error { "Unknown platform for: $playerId" }
+                    UNKNOWN
+                }
+            }
         }
     }
 }

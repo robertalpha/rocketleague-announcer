@@ -18,12 +18,14 @@ import io.ktor.sse.ServerSentEvent
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import kotlin.time.Duration.Companion.milliseconds
+import nl.vanalphenict.repository.GameStateRepository
 import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.web.page.homepage
 import nl.vanalphenict.web.page.rosterpage
 import nl.vanalphenict.web.page.scoreboard
 import nl.vanalphenict.web.page.soundboard
+import nl.vanalphenict.web.page.teamRoster
 import nl.vanalphenict.web.page.ticker
 import nl.vanalphenict.web.view.themeHtml
 
@@ -31,17 +33,21 @@ fun Application.configureRouting(
     themeService: ThemeService,
     sampleService: SampleService,
     samplePlayer: SamplePlayer,
+    gameStateRepository: GameStateRepository,
 ) {
     routing {
         // Homepage
         get("/") { call.respondHtml { homepage(themeService, sampleService) } }
-        get("/roster") { call.respondHtml { rosterpage(themeService, sampleService) } }
+        get("/roster") { call.respondHtml { rosterpage(themeService, gameStateRepository) } }
 
         // parts
         get("/parts-scoreboard") { call.respondHtml { scoreboard() } }
         get("/parts-ticker") { call.respondHtml { ticker() } }
         get("/parts-ticker-rev") { call.respondHtml { ticker(reversed = true) } }
         get("/parts-soundboard") { call.respondHtml { soundboard(sampleService) } }
+
+        get("/parts-team-home") { call.respondHtml { teamRoster(0) } }
+        get("/parts-team-away") { call.respondHtml { teamRoster(1) } }
 
         // Heartbeat
         sse("/heartbeat") {

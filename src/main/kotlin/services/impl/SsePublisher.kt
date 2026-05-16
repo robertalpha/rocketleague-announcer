@@ -13,6 +13,7 @@ import nl.vanalphenict.services.GameEventHandler
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 import nl.vanalphenict.web.triggerUpdateSSE
 import nl.vanalphenict.web.view.actionListItemHtml
+import nl.vanalphenict.web.view.playersHtml
 import nl.vanalphenict.web.view.scoreBoardHtml
 import nl.vanalphenict.web.view.teamsInfoHtml
 import nl.vanalphenict.web.view.timeRemainingHtml
@@ -20,6 +21,21 @@ import nl.vanalphenict.web.view.timeRemainingHtml
 class SsePublisher(val gameStateRepository: GameStateRepository) : GameEventHandler {
 
     private val log = KotlinLogging.logger {}
+
+    override fun handleTick(matchGuid: String) {
+        runBlocking {
+            triggerUpdateSSE(
+                SSE_EVENT_TYPE.PLAYERS_HOME,
+                playersHtml(gameStateRepository.getTeam(matchGuid, 0).players),
+            )
+        }
+        runBlocking {
+            triggerUpdateSSE(
+                SSE_EVENT_TYPE.PLAYERS_AWAY,
+                playersHtml(gameStateRepository.getTeam(matchGuid, 1).players),
+            )
+        }
+    }
 
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         log.trace { "SSE HANDLER handeling: ${msg.event.eventName}" }

@@ -74,6 +74,7 @@ data class Player(
     var attacker: Player? = null,
     var team: Team,
     var contributor: Boolean = false,
+    var avatar: String? = null,
 )
 
 data class Team(

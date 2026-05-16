@@ -1,0 +1,151 @@
+@import "../variables";
+
+ul.home, ul.away {
+  margin: 0 10px;
+
+
+  li.playerstats {
+    z-index: 1;
+    display: block;
+    height: 20px;
+    background: $gradientScoreBoard;
+    width: 270px;
+    padding: 20px 10px 0 10px;
+    border-radius: 10px;
+    margin: -15px 80px 0px 80px;
+    font-size: 15px;
+    position: relative;
+    white-space: nowrap;
+    text-align: center;
+    color: black;
+
+    dl {
+      display: flex;
+      flex-wrap: nowrap;
+      flex-direction: row;
+      white-space: nowrap;
+      gap: 5px;
+    }
+
+    dl dt {
+      font-size: 10px;
+      margin: 0;
+      padding-top: 5px;
+    }
+
+    dl dd {
+      margin: 0;
+    }
+
+  }
+
+  li.player {
+    filter: drop-shadow(0 0 2px black);
+    z-index: 2;
+    display: block;
+    height: 30px;
+    background: $gradientScoreBoardDark;
+    width: 320px;
+    padding: 5px 0;
+    border-radius: 10px;
+    margin: 10px 15px 0 15px;
+    font-size: 25px;
+    position: relative;
+    white-space: nowrap;
+    span {
+      overflow: hidden;
+      filter: drop-shadow(0 0 2px black);
+    }
+    img {
+      position: absolute;
+      top: -10px;
+      height: 50px;
+      width: 50px;
+      filter: drop-shadow(0 0 3px black);
+      border-radius: 5px;
+      border: 2px solid grey;
+    }
+    .nintendo {
+      filter: saturate(.6) hue-rotate(0deg);
+    }
+    .ps {
+      filter: saturate(.4) hue-rotate(120deg);
+    }
+    .xbox {
+      filter: saturate(.6) hue-rotate(210deg);
+    }
+    .epic {
+      filter: saturate(0) hue-rotate(0deg);
+    }
+    .steam {
+      filter: saturate(.1) hue-rotate(195deg);
+    }
+  }
+}
+
+ul.home {
+  li.playerstats {
+    margin-right: 0;
+    float: left;
+    dl {
+      float: right;
+    }
+  }
+  li.player {
+    float: left;
+    text-align: left;
+    transform: skewX(-15deg);
+    padding-left: 60px;
+
+    img {
+      left: -5px;
+      transform: skewX(15deg);
+    }
+
+    span.name {
+    }
+
+    span.score {
+      float: right;
+      display: block;
+      margin-right: 10px;
+    }
+
+  }
+}
+
+ul.away {
+  direction: rtl;
+
+  li.playerstats {
+    direction: ltr;
+    float: right;
+    margin-left: 0;
+    dl {
+      float: left;
+    }
+
+  }
+
+  li.player {
+    direction: ltr;
+    float: right;
+    text-align: right;
+    transform: skewX(15deg);
+    padding-right: 60px;
+
+    img {
+      right: -5px;
+      transform: skewX(-15deg);
+    }
+
+    span.name {
+    }
+
+    span.score {
+      float: left;
+      display: block;
+      margin-left: 10px;
+    }
+  }
+}
