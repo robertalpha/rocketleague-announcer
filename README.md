@@ -86,7 +86,11 @@ To run the tests, use:
 
 ## Diagram
 
-![Diagram](docs/assets/diagram.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/diagram_dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/diagram_light.png">
+  <img alt="Diagram" src="docs/assets/diagram.png">
+</picture>
 
 ## Building & Running
 
