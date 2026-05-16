@@ -148,7 +148,7 @@ fun Application.moduleWithDependencies(
             eventHandler =
                 GameEventHandler.Builder(announcementHandler)
                     .add(eventPersister)
-                    .add(SsePublisher(gameStateRepository))
+                    .add(SsePublisher(gameStateRepository, timeService))
                     .build(),
             gameStateRepository = gameStateRepository,
         )

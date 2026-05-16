@@ -14,13 +14,12 @@ import nl.vanalphenict.utility.ColorUtils.Companion.toCssGradient
 import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 
-
 fun scoreBoardHtml(
     homeTeam: Team = getDefaultTeam(0),
     awayTeam: Team = getDefaultTeam(1),
     remaining: Duration? = null,
-    overtime: Boolean = false) =
-    createHTML().body { scoreBoard(homeTeam, awayTeam, remaining, overtime) }
+    overtime: Boolean = false,
+) = createHTML().body { scoreBoard(homeTeam, awayTeam, remaining, overtime) }
 
 fun HtmlBlockTag.scoreBoard(
     homeTeam: Team = getDefaultTeam(0),
