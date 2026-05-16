@@ -70,9 +70,6 @@ enum class GameEvents(val eventName: String) {
     BALL_HIT("BallHit"),
     COUNTDOWN_BEGIN("CountdownBegin"),
     CROSSBAR_HIT("CrossbarHit"),
-    GOAL_REPLAY_END("GoalReplayEnd"),
-    GOAL_REPLAY_START("GoalReplayStart"),
-    GOAL_REPLAY_WILL_END("ReplayWillEnd"), // actual eventname differs from api doc
     GOAL_SCORED("GoalScored"),
     MATCH_CREATED("MatchCreated"),
     MATCH_INITIALIZED("MatchInitialized"),

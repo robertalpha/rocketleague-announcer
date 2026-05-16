@@ -15,18 +15,43 @@ class DemolitionChain(private val statRepository: StatRepository) : StatToAnnoun
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
 
-        if (!statMessage.player.team.hasContributors) return emptySet()
+        val demoCount =
+            getDemoCountForTeam(
+                statMessage.matchGuid,
+                { it == statMessage.player.team.teamNum },
+                currentTimeStamp,
+            )
 
+        val demoCountOpponent =
+            getDemoCountForTeam(
+                statMessage.matchGuid,
+                { it != statMessage.player.team.teamNum },
+                currentTimeStamp,
+            )
+
+        return when (demoCount) {
+            2 -> setOf(Announcement.DOUBLE_KILL)
+            3 -> setOf(Announcement.TRIPLE_KILL)
+            4 -> setOf(Announcement.QUAD_KILL)
+            5 -> setOf(Announcement.PENTA_KILL)
+            else -> emptySet()
+        }
+    }
+
+    private fun getDemoCountForTeam(
+        matchGuid: String,
+        teamFilter: (Int) -> Boolean,
+        currentTimeStamp: Instant,
+    ): Int {
         var demos =
             statRepository
-                .getStatHistory(statMessage.matchGuid)
+                .getStatHistory(matchGuid)
                 .filter { (_, message) -> StatEvents.DEMOLISH == message.event }
-                .filter { (_, message) -> message.player.team.hasContributors }
+                .filter { (_, message) -> teamFilter(message.player.team.teamNum) }
                 .sortedByDescending { it.timestamp }
 
         var pivot = currentTimeStamp
         var democounter = 1
-        if (demos.isEmpty()) return emptySet()
         do {
             val head = demos.first()
             if (pivot.minus(head.timestamp) < PIVOT_DURATION) {
@@ -37,13 +62,6 @@ class DemolitionChain(private val statRepository: StatRepository) : StatToAnnoun
                 demos = emptyList()
             }
         } while (demos.isNotEmpty())
-
-        return when (democounter) {
-            2 -> setOf(Announcement.DOUBLE_KILL)
-            3 -> setOf(Announcement.TRIPLE_KILL)
-            4 -> setOf(Announcement.QUAD_KILL)
-            5 -> setOf(Announcement.PENTA_KILL)
-            else -> emptySet()
-        }
+        return democounter
     }
 }
