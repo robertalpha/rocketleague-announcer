@@ -3,9 +3,9 @@ package nl.vanalphenict.messaging
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.io.encoding.Base64
 import kotlin.random.Random
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Instant
+import kotlin.time.Duration.Companion.seconds
 import nl.vanalphenict.utility.TimeService
+import nl.vanalphenict.utility.TimeWindowedEventFilter
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttClient
@@ -13,10 +13,12 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 
+data class MqttMessageData(val topic: String, val payload: String)
+
 class MQTTClient(
     interpreter: MessageInterpreter,
     brokerAddress: String,
-    val timeService: TimeService,
+    timeService: TimeService,
     msgProcessed: ((msg: String) -> Unit) = {},
 ) {
     private val log = KotlinLogging.logger {}
@@ -26,7 +28,6 @@ class MQTTClient(
     private val QOS = 1
 
     private var client: MqttClient
-    private val messagesCache: MutableMap<Int, Instant> = HashMap()
 
     init {
         val clientId = "rla_announcer_" + Base64.encode(Random.nextBytes(3))
@@ -42,6 +43,14 @@ class MQTTClient(
         options.isCleanSession = true
         options.isAutomaticReconnect = true
 
+        val windowedEventFilter =
+            TimeWindowedEventFilter<MqttMessageData, Int>(
+                ::msgHash,
+                { s -> interpreter.interpret(s.payload) },
+                1.seconds,
+                timeService,
+            )
+
         try {
             client.connect(options)
 
@@ -50,13 +59,8 @@ class MQTTClient(
                     @Throws(Exception::class)
                     override fun messageArrived(topic: String, message: MqttMessage) {
                         try {
-                            clearCache()
                             val payload = String(message.payload)
-                            val key = msgHash(topic, payload)
-                            messagesCache.computeIfAbsent(key) {
-                                interpreter.interpret(payload)
-                                timeService.now()
-                            }
+                            windowedEventFilter.process(MqttMessageData(topic, payload))
                         } catch (e: Exception) {
                             log.error { "Could not parse message: $e" }
                             log.debug(e) { "Stacktrace: " }
@@ -81,10 +85,6 @@ class MQTTClient(
         }
     }
 
-    private fun clearCache() {
-        messagesCache.entries.removeIf { it.value.plus(500.milliseconds) < timeService.now() }
-    }
-
     /**
      * Messages might be sent multiple times so we need a hash to detect duplicates. Some messages
      * have specific hash calculations because equivalent messages might differ slightly because of
@@ -92,12 +92,14 @@ class MQTTClient(
      *
      * For example, the same goal message might contain slightly different impact locations
      */
-    private fun msgHash(topic: String, payload: String) =
+    private fun msgHash(msg: MqttMessageData) =
         when {
-            // During a match never more than one goal scored per 500 milliseconds
-            topic == "rlapi2mqtt/goalscored" -> (topic + getGuidFromMessage(payload)).hashCode()
 
-            else -> payload.hashCode()
+            // During a match never more than one goal scored per 500 milliseconds
+            msg.topic == "rlapi2mqtt/goalscored" ->
+                (msg.topic + getGuidFromMessage(msg.payload)).hashCode()
+
+            else -> msg.payload.hashCode()
         }
 
     val matchGuidRegexp = """MatchGuid\\":\\"([A-F0-9]+)\\"""".toRegex()
