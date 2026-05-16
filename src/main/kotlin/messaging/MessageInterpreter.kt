@@ -42,6 +42,8 @@ class MessageInterpreter(
             GameEvents.MATCH_UNPAUSED.eventName,
             GameEvents.PODIUM_START.eventName,
             GameEvents.REPLAY_CREATED.eventName,
+            GameEvents.REPLAY_PLAYBACK_END.eventName,
+            GameEvents.REPLAY_PLAYBACK_START.eventName,
             GameEvents.ROUND_STARTED.eventName,
         )
 
