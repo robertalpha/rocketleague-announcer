@@ -82,6 +82,8 @@ enum class GameEvents(val eventName: String) {
     MATCH_UNPAUSED("MatchUnpaused"),
     PODIUM_START("PodiumStart"),
     REPLAY_CREATED("ReplayCreated"),
+    REPLAY_PLAYBACK_END("ReplayPlaybackEnd"),
+    REPLAY_PLAYBACK_START("ReplayPlaybackStart"),
     ROUND_STARTED("RoundStarted");
 
     fun eq(other: String): Boolean {
