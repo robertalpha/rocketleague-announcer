@@ -32,6 +32,7 @@ class MessageInterpreter(
         setOf(
             GameEvents.COUNTDOWN_BEGIN.eventName,
             GameEvents.MATCH_CREATED.eventName,
+            GameEvents.GOAL_REPLAY_WILL_END.eventName,
             GameEvents.MATCH_INITIALIZED.eventName,
             GameEvents.MATCH_DESTROYED.eventName,
             GameEvents.MATCH_ENDED.eventName,

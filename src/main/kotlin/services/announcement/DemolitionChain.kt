@@ -14,29 +14,26 @@ class DemolitionChain(private val statRepository: StatRepository) : StatToAnnoun
     private val PIVOT_DURATION = 11.seconds
 
     override fun interpret(statMessage: StatMessage, currentTimeStamp: Instant): Set<Announcement> {
-
         if (!statMessage.player.team.hasContributors) return emptySet()
 
-        var demos =
+        val teamNum = statMessage.player.team.teamNum
+        val history =
             statRepository
                 .getStatHistory(statMessage.matchGuid)
                 .filter { (_, message) -> StatEvents.DEMOLISH == message.event }
-                .filter { (_, message) -> message.player.team.hasContributors }
+                .filter { (_, message) -> message.player.team.teamNum == teamNum }
                 .sortedByDescending { it.timestamp }
 
         var pivot = currentTimeStamp
         var democounter = 1
-        if (demos.isEmpty()) return emptySet()
-        do {
-            val head = demos.first()
-            if (pivot.minus(head.timestamp) < PIVOT_DURATION) {
+        for (record in history) {
+            if (pivot.minus(record.timestamp) < PIVOT_DURATION) {
                 democounter++
-                pivot = head.timestamp
-                demos = demos.drop(1)
+                pivot = record.timestamp
             } else {
-                demos = emptyList()
+                break
             }
-        } while (demos.isNotEmpty())
+        }
 
         return when (democounter) {
             2 -> setOf(Announcement.DOUBLE_KILL)
