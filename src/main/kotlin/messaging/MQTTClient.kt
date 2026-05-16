@@ -13,6 +13,8 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 
+data class MqttMessageData(val topic: String, val payload: String)
+
 class MQTTClient(
     interpreter: MessageInterpreter,
     brokerAddress: String,
@@ -42,9 +44,9 @@ class MQTTClient(
         options.isAutomaticReconnect = true
 
         val windowedEventFilter =
-            TimeWindowedEventFilter<Pair<String, String>, Int>(
+            TimeWindowedEventFilter<MqttMessageData, Int>(
                 ::msgHash,
-                { s -> interpreter.interpret(s.second) },
+                { s -> interpreter.interpret(s.payload) },
                 1.seconds,
                 timeService,
             )
@@ -58,7 +60,7 @@ class MQTTClient(
                     override fun messageArrived(topic: String, message: MqttMessage) {
                         try {
                             val payload = String(message.payload)
-                            windowedEventFilter.process(topic to payload)
+                            windowedEventFilter.process(MqttMessageData(topic, payload))
                         } catch (e: Exception) {
                             log.error { "Could not parse message: $e" }
                             log.debug(e) { "Stacktrace: " }
@@ -90,14 +92,14 @@ class MQTTClient(
      *
      * For example, the same goal message might contain slightly different impact locations
      */
-    private fun msgHash(msg: Pair<String, String>) =
+    private fun msgHash(msg: MqttMessageData) =
         when {
 
             // During a match never more than one goal scored per 500 milliseconds
-            msg.first == "rlapi2mqtt/goalscored" ->
-                (msg.first + getGuidFromMessage(msg.second)).hashCode()
+            msg.topic == "rlapi2mqtt/goalscored" ->
+                (msg.topic + getGuidFromMessage(msg.payload)).hashCode()
 
-            else -> msg.second.hashCode()
+            else -> msg.payload.hashCode()
         }
 
     val matchGuidRegexp = """MatchGuid\\":\\"([A-F0-9]+)\\"""".toRegex()
