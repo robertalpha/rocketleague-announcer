@@ -92,14 +92,14 @@ fun HTML.rosterpage(themeService: ThemeService, gameStateRepository: GameStateRe
             classes = setOf("content")
             div {
                 classes = setOf("optional")
-                teamOfPlayers(emptyList(), 1) //away
+                teamOfPlayers(emptyList(), 1) // away
             }
 
             div { classes = setOf("veryOptional") }
 
             div {
                 classes = setOf("optional")
-                teamOfPlayers(emptyList(), 0) //home
+                teamOfPlayers(emptyList(), 0) // home
             }
         }
 

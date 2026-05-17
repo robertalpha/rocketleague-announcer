@@ -267,7 +267,7 @@ class MessagingTest : AbstractMessagingTest() {
         }
 
         fun List<ServerSentEvent>.count(event: String): Int {
-            return this.filter { it.event.equals(SSE_EVENT_TYPE.NEW_ACTION.asString()) }
+            return this.filter { it.event.equals(SSE_EVENT_TYPE.NEW_ACTION.toString()) }
                 .count { it.data?.contains("icons/${event}.webp") ?: false }
         }
     }

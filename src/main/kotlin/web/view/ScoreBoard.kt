@@ -22,7 +22,7 @@ fun HtmlBlockTag.scoreBoard(
     awayTeam: Team = getDefaultTeam(1),
 ) = div {
     attributes["hx-swap"] = "outerHTML"
-    attributes["sse-swap"] = SSE_EVENT_TYPE.SCORE_BOARD.asString()
+    attributes["sse-swap"] = SSE_EVENT_TYPE.SCORE_BOARD.toString()
     classes = setOf("scoreboard")
     div {
         classes = setOf("center")
@@ -31,7 +31,7 @@ fun HtmlBlockTag.scoreBoard(
     }
     div {
         attributes["hx-swap"] = "innerHTML"
-        attributes["sse-swap"] = SSE_EVENT_TYPE.TEAMS.asString()
+        attributes["sse-swap"] = SSE_EVENT_TYPE.TEAMS.toString()
         renderTeamInfo(homeTeam)
         renderTeamInfo(awayTeam)
     }
@@ -43,7 +43,7 @@ fun timeRemainingHtml(remaining: Duration?, overtime: Boolean = false) =
 fun HtmlBlockTag.timeRemaining(remaining: Duration?, overtime: Boolean = false) = div {
     div {
         attributes["hx-swap"] = "outerHTML"
-        attributes["sse-swap"] = SSE_EVENT_TYPE.GAME_TIME.asString()
+        attributes["sse-swap"] = SSE_EVENT_TYPE.GAME_TIME.toString()
         classes = if (overtime) setOf("overtime") else emptySet()
         +(remaining?.toGameString ?: "--:--")
     }

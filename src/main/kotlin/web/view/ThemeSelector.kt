@@ -35,7 +35,7 @@ fun BODY.themeSelector(themeService: ThemeService) {
 fun HtmlBlockTag.themeButtons(themes: List<Theme>, selectedTheme: Theme) {
     div {
         attributes["hx-swap"] = "outerHTML"
-        attributes["sse-swap"] = SSE_EVENT_TYPE.SWITCH_THEME.asString()
+        attributes["sse-swap"] = SSE_EVENT_TYPE.SWITCH_THEME.toString()
         id = "announcerButtons"
         themes.forEach { theme ->
             button {
@@ -55,7 +55,7 @@ fun HtmlBlockTag.themeSelect(themes: List<Theme>, selectedTheme: Theme) {
         attributes["hx-post"] = "/themes"
         attributes["hx-trigger"] = "change"
         attributes["hx-swap"] = "outerHTML"
-        attributes["sse-swap"] = SSE_EVENT_TYPE.SWITCH_THEME.asString()
+        attributes["sse-swap"] = SSE_EVENT_TYPE.SWITCH_THEME.toString()
         id = "announcerSelect"
         name = "announcerSelect"
 
