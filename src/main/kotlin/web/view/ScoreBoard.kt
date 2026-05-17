@@ -10,16 +10,22 @@ import kotlinx.html.stream.createHTML
 import kotlinx.html.style
 import nl.vanalphenict.model.Team
 import nl.vanalphenict.model.getDefaultTeam
-import nl.vanalphenict.utility.ColorUtils.Companion.toHexString
+import nl.vanalphenict.utility.ColorUtils.Companion.toCssGradient
 import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 
-fun scoreBoardHtml(homeTeam: Team = getDefaultTeam(0), awayTeam: Team = getDefaultTeam(1)) =
-    createHTML().body { scoreBoard(homeTeam, awayTeam) }
+fun scoreBoardHtml(
+    homeTeam: Team = getDefaultTeam(0),
+    awayTeam: Team = getDefaultTeam(1),
+    remaining: Duration? = null,
+    overtime: Boolean = false,
+) = createHTML().body { scoreBoard(homeTeam, awayTeam, remaining, overtime) }
 
 fun HtmlBlockTag.scoreBoard(
     homeTeam: Team = getDefaultTeam(0),
     awayTeam: Team = getDefaultTeam(1),
+    remaining: Duration? = null,
+    overtime: Boolean = false,
 ) = div {
     attributes["hx-swap"] = "outerHTML"
     attributes["sse-swap"] = SSE_EVENT_TYPE.SCORE_BOARD.asString()
@@ -27,7 +33,7 @@ fun HtmlBlockTag.scoreBoard(
     div {
         classes = setOf("center")
         +"VS"
-        timeRemaining(null)
+        timeRemaining(remaining, overtime)
     }
     div {
         attributes["hx-swap"] = "innerHTML"
@@ -56,26 +62,11 @@ fun teamsInfoHtml(homeTeam: Team, awayTeam: Team) =
     }
 
 fun HtmlBlockTag.renderTeamInfo(team: Team) = div {
-    style =
-        """
-                background: linear-gradient(0deg, 
-        ${team.secondaryColor.darker().toHexString()} 0%, 
-        ${team.secondaryColor.brighter().toHexString()} 100%);
-
-    """
-            .trimIndent()
-
+    style = "background: ${team.secondaryColor.toCssGradient()};"
     classes = if (team.teamNum == 0) setOf("left") else setOf("right")
     div {
         classes = setOf("team")
-        style =
-            """
-                    background: linear-gradient(0deg, 
-        ${team.primaryColor.darker().toHexString()} 0%, 
-        ${team.primaryColor.brighter().toHexString()} 100%);
-        """
-                .trimIndent()
-
+        style = "background: ${team.primaryColor.toCssGradient()};"
         span {
             classes = setOf("name")
             +team.name
