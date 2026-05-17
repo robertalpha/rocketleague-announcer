@@ -20,8 +20,8 @@ fun HtmlBlockTag.teamOfPlayers(players: List<Player>, side: Int) = ul {
     classes = setOf(if (side == 0) "home" else "away")
     attributes["hx-swap"] = "innerHTML"
     attributes["sse-swap"] =
-        if (side == 0) SSE_EVENT_TYPE.PLAYERS_HOME.toString()
-        else SSE_EVENT_TYPE.PLAYERS_AWAY.toString()
+        if (side == 0) SSE_EVENT_TYPE.PLAYERS_HOME.asString()
+        else SSE_EVENT_TYPE.PLAYERS_AWAY.asString()
     renderPlayers(players)
 }
 
