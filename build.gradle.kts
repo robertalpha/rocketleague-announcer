@@ -61,15 +61,7 @@ tasks.compileSass {
     style = compressed
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDir("${project.layout.buildDirectory.get()}/generated/resources/sass")
-        }
-    }
-}
-
-tasks.processResources { dependsOn(tasks.compileSass) }
+tasks.processResources.configure { finalizedBy("compileSass") }
 
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
