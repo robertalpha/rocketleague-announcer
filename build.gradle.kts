@@ -59,6 +59,7 @@ tasks.compileSass {
     destPath = "${project.layout.buildDirectory.get()}/resources/main/web/style"
     sourceMap = CompileSass.SourceMap.none
     style = compressed
+    outputs.cacheIf { false }
 }
 
 tasks.processResources.configure { finalizedBy("compileSass") }
