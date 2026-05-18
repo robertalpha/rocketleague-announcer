@@ -56,7 +56,7 @@ spotless {
 
 tasks.compileSass {
     entryPoint("main.scss", "style.css")
-    destPath = "${project.layout.buildDirectory.get()}/generated/resources/sass/web/style"
+    destPath = "${project.layout.buildDirectory.get()}/resources/main/web/style"
     sourceMap = CompileSass.SourceMap.none
     style = compressed
 }
