@@ -32,6 +32,10 @@ class StatRepository {
         return statHistory.filter { (_, message) -> matchGuid == message.matchGuid }
     }
 
+    fun getStatEventsSeen(): List<StatEvents> {
+        return statHistory.map { it.message.event }.distinct().sorted()
+    }
+
     fun getLatestMatch(): List<StatMessageRecord> {
         return statHistory
             .maxByOrNull { it.timestamp }

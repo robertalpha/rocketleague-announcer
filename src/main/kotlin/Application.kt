@@ -184,6 +184,6 @@ fun Application.moduleWithDependencies(
     }
 
     val themeService = ThemeService(configs, announcementHandler)
-    configureRouting(themeService, sampleService, samplePlayer)
+    configureRouting(themeService, sampleService, samplePlayer, statRepository)
     configureSSE()
 }

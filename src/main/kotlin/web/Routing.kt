@@ -18,6 +18,7 @@ import io.ktor.sse.ServerSentEvent
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import kotlin.time.Duration.Companion.milliseconds
+import nl.vanalphenict.repository.StatRepository
 import nl.vanalphenict.services.SamplePlayer
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.web.page.homepage
@@ -27,6 +28,7 @@ fun Application.configureRouting(
     themeService: ThemeService,
     sampleService: SampleService,
     samplePlayer: SamplePlayer,
+    statRepository: StatRepository,
 ) {
     routing {
         // Homepage
@@ -76,6 +78,11 @@ fun Application.configureRouting(
             } catch (_: Exception) {
                 call.respond(HttpStatusCode.NotFound)
             }
+        }
+
+        // Debug stats
+        get("/statEvents") {
+            call.respond(statRepository.getStatEventsSeen().joinToString(separator = ", "))
         }
     }
 }
