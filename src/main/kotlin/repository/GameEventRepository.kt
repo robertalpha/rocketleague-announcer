@@ -25,4 +25,8 @@ class GameEventRepository {
     fun clear() {
         gameEventHistory.clear()
     }
+
+    fun purgeOld(olderThan: Instant) {
+        gameEventHistory.removeIf { it.timestamp < olderThan }
+    }
 }

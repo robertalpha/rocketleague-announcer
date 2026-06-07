@@ -1,0 +1,160 @@
+@import "../variables";
+
+ul.home, ul.away {
+  margin: 0 10px;
+  width: 500px;
+
+  li {
+    display: block;
+    filter: drop-shadow(0 0 3px black);
+    color: white;
+    white-space: nowrap;
+
+  }
+
+  li.playerstats {
+    z-index: 1;
+    height: 15px;
+    background: $gradientDarker;
+    width: 270px;
+    padding: 15px 10px 5px 10px;
+    border-radius: 10px;
+    margin: -15px 80px 0px 80px;
+    font-size: 15px;
+    position: relative;
+
+    dl {
+      display: flex;
+      flex-wrap: nowrap;
+      flex-direction: row;
+      white-space: nowrap;
+      gap: 5px;
+      filter: drop-shadow(0 0 2px black)
+    }
+
+    dl dt {
+      font-size: 10px;
+      margin: 0;
+      padding-top: 5px;
+    }
+
+    dl dd {
+      margin: 0;
+    }
+
+  }
+
+  li.player {
+    z-index: 2;
+    height: 30px;
+    background: $gradientDefault;
+    width: 320px;
+    padding: 5px 0;
+    border-radius: 10px;
+    margin: 10px 15px 0 15px;
+    font-size: 25px;
+    position: relative;
+
+    span {
+      overflow: hidden;
+      filter: drop-shadow(0 0 2px black);
+    }
+    span.name {
+      font-weight: bold;
+      display: block;
+    }
+    img {
+      position: absolute;
+      top: -10px;
+      height: 50px;
+      width: 50px;
+      filter: drop-shadow(0 0 3px black);
+      border-radius: 5px;
+      border: 2px solid grey;
+    }
+    .nintendo {
+      filter: saturate(.6) hue-rotate(0deg);
+    }
+    .ps {
+      filter: saturate(.6) hue-rotate(210deg);
+    }
+    .xbox {
+      filter: saturate(.4) hue-rotate(120deg);
+    }
+    .epic {
+      filter: saturate(0) hue-rotate(0deg);
+    }
+    .steam {
+      filter: saturate(.1) hue-rotate(195deg);
+    }
+  }
+}
+
+ul.home {
+  li.playerstats {
+    margin-right: 0;
+    float: left;
+    dl {
+      float: right;
+    }
+  }
+  li.player {
+    float: left;
+    text-align: left;
+    transform: skewX(-15deg);
+    padding-left: 60px;
+
+    img {
+      left: -5px;
+      transform: skewX(15deg);
+    }
+
+    span.name {
+      transform: skewX(15deg);
+    }
+
+    span.score {
+      float: right;
+      display: block;
+      margin-right: 10px;
+    }
+
+  }
+}
+
+ul.away {
+  direction: rtl;
+
+  li.playerstats {
+    direction: ltr;
+    float: right;
+    margin-left: 0;
+    dl {
+      float: left;
+    }
+
+  }
+
+  li.player {
+    direction: ltr;
+    float: right;
+    text-align: right;
+    transform: skewX(15deg);
+    padding-right: 60px;
+
+    img {
+      right: -5px;
+      transform: skewX(-15deg);
+    }
+
+    span.name {
+      transform: skewX(-15deg);
+    }
+
+    span.score {
+      float: left;
+      display: block;
+      margin-left: 10px;
+    }
+  }
+}

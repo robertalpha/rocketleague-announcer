@@ -19,15 +19,17 @@ enum class SSE_EVENT_TYPE {
     SWITCH_THEME,
     TEAMS,
     GAME_TIME,
-    SCORE_BOARD;
+    SCORE_BOARD,
+    PLAYERS_HOME,
+    PLAYERS_AWAY;
 
-    fun asString() = this.name.lowercase()
+    override fun toString() = this.name.lowercase()
 }
 
 val sseFlow = MutableSharedFlow<SseEvent>()
 
 suspend fun triggerUpdateSSE(event: SSE_EVENT_TYPE, html: String) {
-    sseFlow.emit(SseEvent(event = event.asString(), data = html))
+    sseFlow.emit(SseEvent(event = event.toString(), data = html))
 }
 
 fun Application.configureSSE() {

@@ -32,7 +32,6 @@ class MessageInterpreter(
         setOf(
             GameEvents.COUNTDOWN_BEGIN.eventName,
             GameEvents.MATCH_CREATED.eventName,
-            GameEvents.GOAL_REPLAY_WILL_END.eventName,
             GameEvents.MATCH_INITIALIZED.eventName,
             GameEvents.MATCH_DESTROYED.eventName,
             GameEvents.MATCH_ENDED.eventName,
@@ -40,6 +39,7 @@ class MessageInterpreter(
             GameEvents.MATCH_UNPAUSED.eventName,
             GameEvents.PODIUM_START.eventName,
             GameEvents.REPLAY_CREATED.eventName,
+            GameEvents.GOAL_REPLAY_WILL_END.eventName,
             GameEvents.REPLAY_PLAYBACK_END.eventName,
             GameEvents.REPLAY_PLAYBACK_START.eventName,
             GameEvents.ROUND_STARTED.eventName,
@@ -50,9 +50,9 @@ class MessageInterpreter(
         when (envelope.event) {
             // Tick
             "UpdateState" -> {
-                gameStateRepository.processUpdateState(
-                    json.decodeFromString<JsonUpdateStateData>(envelope.data)
-                )
+                val updateState = json.decodeFromString<JsonUpdateStateData>(envelope.data)
+                gameStateRepository.processUpdateState(updateState)
+                eventHandler.handleTick(updateState.matchGuid)
             }
 
             // Events

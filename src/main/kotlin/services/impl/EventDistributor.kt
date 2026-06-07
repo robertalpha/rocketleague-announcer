@@ -8,6 +8,12 @@ import nl.vanalphenict.services.GameEventHandler
 
 class EventDistributor(private val left: GameEventHandler, private val right: GameEventHandler) :
     GameEventHandler {
+
+    override fun handleTick(matchGuid: String) {
+        left.handleTick(matchGuid)
+        right.handleTick(matchGuid)
+    }
+
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         left.handleStatMessage(msg, metaData)
         right.handleStatMessage(msg, metaData)

@@ -49,7 +49,7 @@ data class KillMessage(
 
 // ── Game state ──────────────────────────────────────────────────────────────
 data class Player(
-    val name: String,
+    var name: String,
     var id: String,
     val shortcut: Int,
     var teamNum: Int,
@@ -59,8 +59,6 @@ data class Player(
     var shots: Int = -1,
     var assists: Int = -1,
     var saves: Int = -1,
-    var touches: Int = -1,
-    var carTouches: Int = -1,
     var demos: Int = -1,
     var hasCar: Boolean = false,
     var speed: Double = 0.0,
@@ -74,6 +72,8 @@ data class Player(
     var attacker: Player? = null,
     var team: Team,
     var contributor: Boolean = false,
+    var avatar: String? = null,
+    // Bumps and ball touches are unreliable because they are not managed by the server
 )
 
 data class Team(
@@ -86,6 +86,8 @@ data class Team(
     val players: MutableList<Player> = ArrayList(),
     var hasContributors: Boolean = false,
 )
+
+fun getDefaultTeam(side: TeamSide) = getDefaultTeam(side.teamNum)
 
 fun getDefaultTeam(teamNum: Int) =
     Team(

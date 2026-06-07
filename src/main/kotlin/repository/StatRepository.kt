@@ -50,4 +50,8 @@ class StatRepository {
     fun clear() {
         statHistory.clear()
     }
+
+    fun purgeOld(olderThan: Instant) {
+        statHistory.removeIf { it.timestamp < olderThan }
+    }
 }

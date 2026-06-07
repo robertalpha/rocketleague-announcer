@@ -9,20 +9,23 @@ import kotlinx.html.span
 import kotlinx.html.stream.createHTML
 import kotlinx.html.style
 import nl.vanalphenict.model.Team
+import nl.vanalphenict.model.TeamSide
 import nl.vanalphenict.model.getDefaultTeam
 import nl.vanalphenict.utility.ColorUtils.Companion.toHexString
 import nl.vanalphenict.utility.TimeUtils.Companion.toGameString
 import nl.vanalphenict.web.SSE_EVENT_TYPE
 
-fun scoreBoardHtml(homeTeam: Team = getDefaultTeam(0), awayTeam: Team = getDefaultTeam(1)) =
-    createHTML().body { scoreBoard(homeTeam, awayTeam) }
+fun scoreBoardHtml(
+    homeTeam: Team = getDefaultTeam(TeamSide.HOME.teamNum),
+    awayTeam: Team = getDefaultTeam(TeamSide.AWAY.teamNum),
+) = createHTML().body { scoreBoard(homeTeam, awayTeam) }
 
 fun HtmlBlockTag.scoreBoard(
-    homeTeam: Team = getDefaultTeam(0),
-    awayTeam: Team = getDefaultTeam(1),
+    homeTeam: Team = getDefaultTeam(TeamSide.HOME.teamNum),
+    awayTeam: Team = getDefaultTeam(TeamSide.AWAY.teamNum),
 ) = div {
     attributes["hx-swap"] = "outerHTML"
-    attributes["sse-swap"] = SSE_EVENT_TYPE.SCORE_BOARD.asString()
+    attributes["sse-swap"] = SSE_EVENT_TYPE.SCORE_BOARD.toString()
     classes = setOf("scoreboard")
     div {
         classes = setOf("center")
@@ -31,7 +34,7 @@ fun HtmlBlockTag.scoreBoard(
     }
     div {
         attributes["hx-swap"] = "innerHTML"
-        attributes["sse-swap"] = SSE_EVENT_TYPE.TEAMS.asString()
+        attributes["sse-swap"] = SSE_EVENT_TYPE.TEAMS.toString()
         renderTeamInfo(homeTeam)
         renderTeamInfo(awayTeam)
     }
@@ -43,7 +46,7 @@ fun timeRemainingHtml(remaining: Duration?, overtime: Boolean = false) =
 fun HtmlBlockTag.timeRemaining(remaining: Duration?, overtime: Boolean = false) = div {
     div {
         attributes["hx-swap"] = "outerHTML"
-        attributes["sse-swap"] = SSE_EVENT_TYPE.GAME_TIME.asString()
+        attributes["sse-swap"] = SSE_EVENT_TYPE.GAME_TIME.toString()
         classes = if (overtime) setOf("overtime") else emptySet()
         +(remaining?.toGameString ?: "--:--")
     }
@@ -65,7 +68,7 @@ fun HtmlBlockTag.renderTeamInfo(team: Team) = div {
     """
             .trimIndent()
 
-    classes = if (team.teamNum == 0) setOf("left") else setOf("right")
+    classes = if (team.teamNum == TeamSide.HOME.teamNum) setOf("left") else setOf("right")
     div {
         classes = setOf("team")
         style =
