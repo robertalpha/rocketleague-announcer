@@ -45,8 +45,6 @@ data class JsonPlayerFull(
     @SerialName("Shots") val shots: Int = 0,
     @SerialName("Assists") val assists: Int = 0,
     @SerialName("Saves") val saves: Int = 0,
-    @SerialName("Touches") val touches: Int = 0,
-    @SerialName("CarTouches") val carTouches: Int = 0,
     @SerialName("Demos") val demos: Int = 0,
     @SerialName("bHasCar") val hasCar: Boolean = false,
     @SerialName("Speed") val speed: Double = 0.0,

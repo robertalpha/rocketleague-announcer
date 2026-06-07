@@ -116,5 +116,11 @@ You'll need an env file `rocketleague-announcer.env` with valid credentials:
 
 See [example.env](docs/example.env) for a template.
 
+### Acknowledgements:
+Rocket League Announcer makes use of: 
+ - [Old-school arena FPS announcer voice lines](https://freesound.org/s/718360/) by [jkerman](https://freesound.org/people/jkerman/)
+ - [rlapi2mqtt](https://github.com/robertalpha/rlapi2mqtt) by [robertalpha](https://github.com/robertalpha). A tool for redistributing Rocket League's game data via MQTT.
+ - [Voice](https://github.com/Janoz-NL/discord-voice) by [Janoz-NL](https://github.com/Janoz-NL). A javalibrary for connecting to Discord's voicechannels and playing samples.
+
 ### Disclaimer:
 The Rocket League name and logo are a registered trademark of Psyonix and Epic Games. Its use in this project does not imply endorsement, sponsorship, or affiliation with Rocket League Announcer.

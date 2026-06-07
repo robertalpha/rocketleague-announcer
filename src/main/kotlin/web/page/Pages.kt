@@ -4,24 +4,24 @@ import com.janoz.discord.SampleService
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.html.HTML
-import kotlinx.html.HtmlBlockTag
 import kotlinx.html.ScriptType
 import kotlinx.html.body
-import kotlinx.html.button
 import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.h1
-import kotlinx.html.h2
 import kotlinx.html.head
 import kotlinx.html.id
 import kotlinx.html.img
 import kotlinx.html.script
-import kotlinx.html.span
 import kotlinx.html.styleLink
 import kotlinx.html.unsafe
+import nl.vanalphenict.model.Team
+import nl.vanalphenict.model.TeamSide
+import nl.vanalphenict.model.getDefaultTeam
 import nl.vanalphenict.repository.GameStateRepository
 import nl.vanalphenict.services.ThemeService
 import nl.vanalphenict.web.view.scoreBoard
+import nl.vanalphenict.web.view.soundBoard
 import nl.vanalphenict.web.view.teamOfPlayers
 import nl.vanalphenict.web.view.themeSelector
 import nl.vanalphenict.web.view.ticker
@@ -46,7 +46,7 @@ fun HTML.homepage(themeService: ThemeService, sampleService: SampleService) {
             classes = setOf("content")
             div {
                 classes = setOf("optional")
-                soundboard(sampleService)
+                soundBoard(sampleService)
                 div { classes = setOf("spacer") }
             }
 
@@ -92,14 +92,17 @@ fun HTML.rosterpage(themeService: ThemeService, gameStateRepository: GameStateRe
             classes = setOf("content")
             div {
                 classes = setOf("optional")
-                teamOfPlayers(emptyList(), 1) // away
+                teamOfPlayers(getDefaultTeam(TeamSide.AWAY))
             }
 
-            div { classes = setOf("veryOptional") }
+            div {
+                classes = setOf("veryOptional")
+                ticker()
+            }
 
             div {
                 classes = setOf("optional")
-                teamOfPlayers(emptyList(), 0) // home
+                teamOfPlayers(getDefaultTeam(TeamSide.HOME))
             }
         }
 
@@ -113,25 +116,7 @@ fun HTML.rosterpage(themeService: ThemeService, gameStateRepository: GameStateRe
     }
 }
 
-private fun HtmlBlockTag.soundboard(sampleService: SampleService) = div {
-    sampleService.packs.forEach { pack ->
-        h2 { +pack.name }
-        pack.samples
-            .sortedBy { it.name }
-            .forEach { sample ->
-                button {
-                    attributes["hx-put"] = "/play"
-                    attributes["hx-vals"] = "{\"sample\":\"${sample.id}\"}"
-                    attributes["hx-swap"] = "none"
-
-                    span { +sample.name }
-                }
-                +" "
-            }
-    }
-}
-
-fun HTML.scoreboard() {
+fun HTML.scoreboardpage() {
     head {
         styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
         styleLink(href = "https://fonts.googleapis.com", type = "text/css", rel = "preconnect")
@@ -152,7 +137,7 @@ fun HTML.scoreboard() {
     }
 }
 
-fun HTML.ticker(
+fun HTML.tickerpage(
     reversed: Boolean = false,
     delay: Duration = 5.seconds,
     duration: Duration = 2.seconds,
@@ -174,19 +159,21 @@ fun HTML.ticker(
         script(src = "assets/htmx.org/dist/htmx.min.js") {}
         script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}
         script(src = "assets/htmx-ext-sse/dist/sse.min.js") {}
-        script(type = ScriptType.textJavaScript) {
-            unsafe {
-                raw(
-                    "const fadeDelay = ${delay.inWholeMilliseconds};" +
-                        "const fadeDuration = ${duration.inWholeMilliseconds};"
-                )
+        if (delay > 0.seconds) {
+            script(type = ScriptType.textJavaScript) {
+                unsafe {
+                    raw(
+                        "const fadeDelay = ${delay.inWholeMilliseconds};" +
+                            "const fadeDuration = ${duration.inWholeMilliseconds};"
+                    )
+                }
             }
         }
         script(src = "web/script/ticker-fader.js") {}
     }
 }
 
-fun HTML.soundboard(sampleService: SampleService) {
+fun HTML.soundboardpage(sampleService: SampleService) {
     head {
         styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
         styleLink(href = "https://fonts.googleapis.com", type = "text/css", rel = "preconnect")
@@ -199,7 +186,7 @@ fun HTML.soundboard(sampleService: SampleService) {
         attributes["hx-ext"] = "sse"
         attributes["sse-connect"] = "/sse"
 
-        soundboard(sampleService)
+        soundBoard(sampleService)
 
         script(src = "assets/htmx.org/dist/htmx.min.js") {}
         script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}
@@ -207,7 +194,7 @@ fun HTML.soundboard(sampleService: SampleService) {
     }
 }
 
-fun HTML.teamRoster(side: Int) {
+fun HTML.teamrosterpage(team: Team) {
     head {
         styleLink(href = "web/style/style.css", rel = "stylesheet", type = "text/css")
         styleLink(href = "https://fonts.googleapis.com", type = "text/css", rel = "preconnect")
@@ -220,7 +207,7 @@ fun HTML.teamRoster(side: Int) {
         attributes["hx-ext"] = "sse"
         attributes["sse-connect"] = "/sse"
 
-        teamOfPlayers(emptyList(), side)
+        teamOfPlayers(team)
 
         script(src = "assets/htmx.org/dist/htmx.min.js") {}
         script(src = "assets/htmx-ext-json-enc/2.0.2/dist/json-enc.min.js") {}

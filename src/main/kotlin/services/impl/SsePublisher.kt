@@ -7,6 +7,7 @@ import nl.vanalphenict.model.GameEvents
 import nl.vanalphenict.model.GameTimeMessage
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.StatMessage
+import nl.vanalphenict.model.TeamSide
 import nl.vanalphenict.model.getDefaultTeam
 import nl.vanalphenict.repository.GameStateRepository
 import nl.vanalphenict.services.GameEventHandler
@@ -26,13 +27,13 @@ class SsePublisher(val gameStateRepository: GameStateRepository) : GameEventHand
         runBlocking {
             triggerUpdateSSE(
                 SSE_EVENT_TYPE.PLAYERS_HOME,
-                playersHtml(gameStateRepository.getTeam(matchGuid, 0).players),
+                playersHtml(gameStateRepository.getTeam(matchGuid, TeamSide.HOME)),
             )
         }
         runBlocking {
             triggerUpdateSSE(
                 SSE_EVENT_TYPE.PLAYERS_AWAY,
-                playersHtml(gameStateRepository.getTeam(matchGuid, 1).players),
+                playersHtml(gameStateRepository.getTeam(matchGuid, TeamSide.AWAY)),
             )
         }
     }

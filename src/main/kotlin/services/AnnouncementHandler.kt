@@ -1,5 +1,6 @@
 package nl.vanalphenict.services
 
+import java.util.EnumMap
 import kotlin.time.Duration.Companion.milliseconds
 import nl.vanalphenict.model.Announcement
 import nl.vanalphenict.model.GameEventMessage
@@ -17,10 +18,11 @@ class AnnouncementHandler(
     gameEventInterpreters: Collection<GameEventToAnnouncement>,
 ) : GameEventHandler {
 
-    private val statInterpreterMap: MutableMap<StatEvents, Set<StatToAnnouncment>> = HashMap()
+    private val statInterpreterMap: MutableMap<StatEvents, Set<StatToAnnouncment>> =
+        EnumMap(StatEvents::class.java)
     private val gameEventInterpreterMap:
         MutableMap<GameEvents, MutableSet<GameEventToAnnouncement>> =
-        HashMap()
+        EnumMap(GameEvents::class.java)
 
     private val dejitter: DeJitter<Announcement> =
         DeJitter(
@@ -42,8 +44,6 @@ class AnnouncementHandler(
             }
         }
     }
-
-    override fun handleTick(matchGuid: String) {}
 
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         val announcements = HashSet<Announcement>()

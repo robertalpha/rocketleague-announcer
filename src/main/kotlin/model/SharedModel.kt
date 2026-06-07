@@ -110,17 +110,27 @@ enum class Platform(val className: String) {
     companion object {
         fun getByPlayerId(playerId: String): Platform {
             return when (playerId.substringBefore('|')) {
-                "PS4" -> return PLAYSTATION
-                "XboxOne" -> return XBOX
-                "Switch" -> return NINTENDO
-                "Steam" -> return STEAM
-                "Epic" -> return EPIC
-                "Unknown" -> return BOT
+                "PS4" -> PLAYSTATION
+                "XboxOne" -> XBOX
+                "Switch" -> NINTENDO
+                "Steam" -> STEAM
+                "Epic" -> EPIC
+                "Unknown" -> BOT
                 else -> {
                     log.error { "Unknown platform for: $playerId" }
                     UNKNOWN
                 }
             }
         }
+    }
+}
+
+enum class TeamSide(val teamNum: Int, val sideName: String) {
+    HOME(0, "home"),
+    AWAY(1, "away"),
+    OTHER(255, "other");
+
+    companion object {
+        fun get(teamNum: Int) = entries.firstOrNull { it.teamNum == teamNum } ?: OTHER
     }
 }

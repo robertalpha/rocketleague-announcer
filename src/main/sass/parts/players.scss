@@ -2,22 +2,26 @@
 
 ul.home, ul.away {
   margin: 0 10px;
+  width: 500px;
 
+  li {
+    display: block;
+    filter: drop-shadow(0 0 3px black);
+    color: white;
+    white-space: nowrap;
+
+  }
 
   li.playerstats {
     z-index: 1;
-    display: block;
-    height: 20px;
-    background: $gradientScoreBoard;
+    height: 15px;
+    background: $gradientDarker;
     width: 270px;
-    padding: 20px 10px 0 10px;
+    padding: 15px 10px 5px 10px;
     border-radius: 10px;
     margin: -15px 80px 0px 80px;
     font-size: 15px;
     position: relative;
-    white-space: nowrap;
-    text-align: center;
-    color: black;
 
     dl {
       display: flex;
@@ -25,6 +29,7 @@ ul.home, ul.away {
       flex-direction: row;
       white-space: nowrap;
       gap: 5px;
+      filter: drop-shadow(0 0 2px black)
     }
 
     dl dt {
@@ -40,21 +45,23 @@ ul.home, ul.away {
   }
 
   li.player {
-    filter: drop-shadow(0 0 2px black);
     z-index: 2;
-    display: block;
     height: 30px;
-    background: $gradientScoreBoardDark;
+    background: $gradientDefault;
     width: 320px;
     padding: 5px 0;
     border-radius: 10px;
     margin: 10px 15px 0 15px;
     font-size: 25px;
     position: relative;
-    white-space: nowrap;
+
     span {
       overflow: hidden;
       filter: drop-shadow(0 0 2px black);
+    }
+    span.name {
+      font-weight: bold;
+      display: block;
     }
     img {
       position: absolute;
@@ -103,6 +110,7 @@ ul.home {
     }
 
     span.name {
+      transform: skewX(15deg);
     }
 
     span.score {
@@ -140,6 +148,7 @@ ul.away {
     }
 
     span.name {
+      transform: skewX(-15deg);
     }
 
     span.score {

@@ -14,6 +14,7 @@ import nl.vanalphenict.model.JsonUpdateStateData
 import nl.vanalphenict.model.Player
 import nl.vanalphenict.model.RLAMetaData
 import nl.vanalphenict.model.Team
+import nl.vanalphenict.model.TeamSide
 import nl.vanalphenict.model.getDefaultTeam
 import nl.vanalphenict.utility.ColorUtils.Companion.hexToColor
 
@@ -36,6 +37,8 @@ class GameStateRepository {
             Game(matchGuid = matchGuid)
         }
     }
+
+    fun getTeam(matchGuid: String, side: TeamSide): Team = getTeam(matchGuid, side.teamNum)
 
     fun getTeam(matchGuid: String, teamNum: Int): Team {
         return teams.computeIfAbsent(Key(matchGuid, teamNum)) {
@@ -134,13 +137,12 @@ class GameStateRepository {
         getPlayer(matchGuid, player).apply {
             id = player.botSaveId()
             bot = player.isBot()
+            name = player.name
             score = player.score
             goals = player.goals
             shots = player.shots
             assists = player.assists
             saves = player.saves
-            touches = player.touches
-            carTouches = player.carTouches
             demos = player.demos
             hasCar = player.hasCar
             speed = player.speed

@@ -14,8 +14,6 @@ class EventPersister(
     val timeService: TimeService,
 ) : GameEventHandler {
 
-    override fun handleTick(matchGuid: String) {}
-
     override fun handleStatMessage(msg: StatMessage, metaData: RLAMetaData) {
         synchronized(this) { statRepository.addStatMessage(timeService.now(), msg, metaData) }
     }
