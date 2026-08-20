@@ -33,7 +33,7 @@ class SocketClient(val interpreter: MessageInterpreter, rocketLeagueAddress: Str
             log.info { "Connecting to Rocket League..." }
             while (true) {
                 try {
-                    client.webSocket(host = host, port = port) {
+                    client.webSocket(host = host, port = port, path = "/") {
                         log.info { "Connected to Rocket League via WebSocket" }
                         for (frame in incoming) {
                             if (frame is Frame.Text) {
