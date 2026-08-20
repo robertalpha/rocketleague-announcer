@@ -85,6 +85,9 @@ dependencies {
     implementation("io.ktor:ktor-server-call-logging:${ktor_version}")
     implementation("io.ktor:ktor-server-webjars:${ktor_version}")
 
+    implementation("io.ktor:ktor-client-cio:${ktor_version}")
+    implementation("io.ktor:ktor-client-websockets:${ktor_version}")
+
     implementation("org.webjars.npm:htmx.org:${htmx_version}")
     implementation("org.webjars.npm:htmx-ext-sse:${webjars_htmx_ext_sse_version}")
     implementation("org.webjars.npm:htmx-ext-json-enc:${webjars_htmx_ext_json_enc_version}")
